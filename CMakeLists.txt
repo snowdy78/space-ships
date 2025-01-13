@@ -9,7 +9,7 @@ include(FetchContent)
 
 FetchContent_Declare(RuneEngine
     GIT_REPOSITORY https://github.com/snowdy78/cmake-rune-engine.git
-    GIT_TAG 0.1.9)
+    GIT_TAG 0.1.12)
 FetchContent_MakeAvailable(RuneEngine)
 file(
     GLOB_RECURSE
