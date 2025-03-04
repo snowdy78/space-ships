@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "coop/Server.hpp"
 
 void Server::start()
 {

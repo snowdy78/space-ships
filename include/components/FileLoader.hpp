@@ -1,5 +1,6 @@
 #pragma once
-#include <RuneEngine/Engine.hpp>
+
+#include "decl.hpp"
 
 template<class T>
 using loading = const T *const &;

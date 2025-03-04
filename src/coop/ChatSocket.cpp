@@ -1,6 +1,7 @@
-#include "ChatSocket.hpp"
-#include "Client.hpp"
-#include "Server.hpp"
+#include "coop/ChatSocket.hpp"
+#include "coop/Client.hpp"
+#include "coop/Server.hpp"
+
 ChatSocket::ChatSocket()
 {
 	setBlocking(true);

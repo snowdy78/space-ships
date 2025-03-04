@@ -1,5 +1,7 @@
 #pragma once
+
 #include "decl.hpp"
+
 struct ChatSocket : sf::UdpSocket, rn::LogicalObject
 {
 	using sf::UdpSocket::UdpSocket;
