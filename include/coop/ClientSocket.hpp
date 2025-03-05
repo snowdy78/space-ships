@@ -17,7 +17,7 @@ class ClientSocket : public sf::UdpSocket
     using UdpSocket::bind;
     using UdpSocket::unbind;
 public:
-    ClientSocket(sf::IpAddress ip, uint16_t port);
+    ClientSocket(uint16_t self_port, sf::IpAddress remote_ip, uint16_t remote_port);
     bool send(const TransferObject *data);
     TransferInstance recieve();
 };
