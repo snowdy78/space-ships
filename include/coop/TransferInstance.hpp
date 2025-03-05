@@ -2,10 +2,8 @@
 
 #include "decl.hpp"
 
-class TransferInstance
+class TransferInstance : public rn::Json
 {
 public:
-    rn::Json json;
-    TransferInstance() = default;
-    TransferInstance(const rn::Json &json) : json(json) {}
+    using rn::Json::Json;
 };
