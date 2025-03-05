@@ -1,9 +1,9 @@
 #include "coop/ClientSocket.hpp"
 
-ClientSocket::ClientSocket(sf::IpAddress ip, uint16_t port)
-    : sf::UdpSocket(), ip(ip)
+ClientSocket::ClientSocket(uint16_t self_port, sf::IpAddress ip, uint16_t port)
+    : sf::UdpSocket(), ip(ip), port(port)
 {
-    bind(port);
+    bind(self_port);
 }
 
 std::string ClientSocket::encrypt(const std::string &str)
