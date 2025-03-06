@@ -1,4 +1,5 @@
 #include "ServerTestBranch.hpp"
+#include "Font.hpp"
 #include "SFML/Network/IpAddress.hpp"
 
 class Character : public TransferObject
@@ -38,11 +39,28 @@ void ServerTestBranch::start()
 										   ? sf::IpAddress::getLocalAddress()
 										   : sf::IpAddress(matches[1]);
 			uint16_t port = sf::Socket::AnyPort;
-			if (matches.size() == 3) 
+			std::cout << "matches: {\n";
+			for (size_t i = 0; i < matches.size(); i++)
 			{
-				port = std::stoi(matches[2]);
+				std::cout << "\t" << matches[i] << "\n";
 			}
+			std::cout << "}\n";
+			if (matches.size() > 3) 
+			{
+				port = std::stoi(matches[3]);
+			}
+			auto self_port = 12345;
+			auto self_ip = sf::IpAddress::getLocalAddress();
 			client.emplace(ip_address, port);
+			std::cout << "will listen to: " << ip_address << ":" << port << "\n";
+			if (client->bind(self_port, self_ip) == sf::Socket::Done) 
+			{
+				std::cout << "successfully binded to: " << self_ip << ":" << self_port << "\n";
+			}
+			else 
+			{
+				std::cout << "failed to bind a port\n";
+			}
 		}
 	}
 	else 

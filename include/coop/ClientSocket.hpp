@@ -8,14 +8,14 @@ class ClientSocket : public sf::UdpSocket
     sf::IpAddress ip;
     uint16_t port;
     TransferInstance data;
+
     static std::string encrypt(const std::string &str);
     static std::string decrypt(const std::string &str);
+
     using UdpSocket::send;
     using UdpSocket::receive;
-    using UdpSocket::bind;
-    using UdpSocket::unbind;
 public:
-    ClientSocket(sf::IpAddress remote_ip, uint16_t remote_port = sf::Socket::AnyPort, uint16_t self_port = sf::Socket::AnyPort);
+    ClientSocket(sf::IpAddress remote_ip, uint16_t remote_port = sf::Socket::AnyPort);
     sf::Socket::Status send(const TransferObject *data);
     std::optional<TransferInstance> recieve();
 };
