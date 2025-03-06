@@ -2,7 +2,7 @@
 #include <optional>
 #include "coop/TransferObject.hpp"
 
-ClientSocket::ClientSocket(uint16_t self_port, sf::IpAddress ip, uint16_t port)
+ClientSocket::ClientSocket(sf::IpAddress ip, uint16_t port, uint16_t self_port)
     : sf::UdpSocket(), ip(ip), port(port)
 {
     bind(self_port);

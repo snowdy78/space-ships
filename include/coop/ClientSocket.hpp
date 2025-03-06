@@ -3,8 +3,6 @@
 #include "coop/TransferInstance.hpp"
 #include "coop/TransferObject.hpp"
 
-
-
 class ClientSocket : public sf::UdpSocket
 {
     sf::IpAddress ip;
@@ -17,7 +15,7 @@ class ClientSocket : public sf::UdpSocket
     using UdpSocket::bind;
     using UdpSocket::unbind;
 public:
-    ClientSocket(uint16_t self_port, sf::IpAddress remote_ip, uint16_t remote_port);
+    ClientSocket(sf::IpAddress remote_ip, uint16_t remote_port = sf::Socket::AnyPort, uint16_t self_port = sf::Socket::AnyPort);
     sf::Socket::Status send(const TransferObject *data);
     std::optional<TransferInstance> recieve();
 };

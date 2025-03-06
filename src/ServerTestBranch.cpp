@@ -24,33 +24,41 @@ public:
 void ServerTestBranch::start()
 {
 	std::cout << rn::Json::parse("{ \"id\": 1, \"name\": \"test\" }").dump(-1, 0) << "\n";
-	uint16_t self_port;
-	std::cout << "enter self port: ";
-	std::cin >> self_port;
     std::cout << "my ip is " << sf::IpAddress::getLocalAddress() << "\n";
 	std::cout << "type remote address 'ip:port': ";
 	std::string address;
 	std::cin >> address;
-	std::regex ip_port_rgx(R"(([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*|local|l):([0-9]{5}))");
+	std::regex ip_port_rgx(R"(([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*|local|l)(:)?([0-9]{0,5}))");
 	std::smatch matches;
 	if (std::regex_search(address, matches, ip_port_rgx))
 	{
-		if (matches.size() == 3)
+		if (matches.size() >= 2)
 		{
 			sf::IpAddress ip_address = std::regex_match(address, std::regex("l|local"))
 										   ? sf::IpAddress::getLocalAddress()
 										   : sf::IpAddress(matches[1]);
-			uint16_t port			 = std::stoi(matches[2]);
-			client.emplace(self_port, ip_address, port);
+			uint16_t port = sf::Socket::AnyPort;
+			if (matches.size() == 3) 
+			{
+				port = std::stoi(matches[2]);
+			}
+			client.emplace(ip_address, port);
 		}
 	}
-	client->setBlocking(false);
+	else 
+	{
+		std::cout << "client is not initialized\n";
+	}
+	if (client) 
+	{
+		client->setBlocking(false);
+	}
 	auto res = rn::Vec2f(rn::VideoSettings::getResolution());
 	rn::Table table{5, 10, {res.x/5, res.y/10}};
 	send_button.setSize(table.getCellSize(0, 0));
 	send_button.setPosition(table.getCellGlobalPos(1, 1));
 	send_status.setPosition(table.getCellGlobalPos(1, 2));
-	receive_status.setPosition(table.getCellGlobalPos(3, 3));
+	receive_status.setPosition(table.getCellGlobalPos(1, 3));
 }
 void ServerTestBranch::update() 
 {
