@@ -23,6 +23,10 @@ public:
 
 void ServerTestBranch::start()
 {
+	std::cout << rn::Json::parse("{ \"id\": 1, \"name\": \"test\" }").dump(-1, 0) << "\n";
+	uint16_t self_port;
+	std::cout << "enter self port: ";
+	std::cin >> self_port;
     std::cout << "my ip is " << sf::IpAddress::getLocalAddress() << "\n";
 	std::cout << "type remote address 'ip:port': ";
 	std::string address;
@@ -37,21 +41,50 @@ void ServerTestBranch::start()
 										   ? sf::IpAddress::getLocalAddress()
 										   : sf::IpAddress(matches[1]);
 			uint16_t port			 = std::stoi(matches[2]);
-			client.emplace(ip_address, port);
+			client.emplace(self_port, ip_address, port);
 		}
 	}
+	client->setBlocking(false);
+	auto res = rn::Vec2f(rn::VideoSettings::getResolution());
+	rn::Table table{5, 10, {res.x/5, res.y/10}};
+	send_button.setSize(table.getCellSize(0, 0));
+	send_button.setPosition(table.getCellGlobalPos(1, 1));
+	send_status.setPosition(table.getCellGlobalPos(1, 2));
+	receive_status.setPosition(table.getCellGlobalPos(3, 3));
+}
+void ServerTestBranch::update() 
+{
 	if (client)
 	{
+		if (auto data = client->recieve())
+        {
+			receive_status.setString("got: " + data->dump(4, ' ', "\n") + "\n");
+        }
+	}
+	window.clear();
+	window.draw(send_button);
+	window.draw(send_status);
+	window.draw(receive_status);
+	window.display();
+}
+void ServerTestBranch::onEvent(sf::Event &event) 
+{
+	if (event.type == sf::Event::Closed)
+	{
+		window.close();
+	}
+	if (send_button.isClicked(sf::Mouse::Left))
+	{
 		Character p(1, "test");
-		if (client->send(&p))
+		auto status = client->send(&p);
+		if (status == sf::Socket::Done)
 		{
-			std::cout << "sent\n";
+			send_status.setString("Successfully sended!");
 		}
 		else
 		{
-			std::cout << "not sent\n";
+			send_status.setString("Failed to send! code: " + std::to_string(status));
 		}
 	}
 }
-void ServerTestBranch::update() {}
-void ServerTestBranch::onEvent(sf::Event &event) {}
+

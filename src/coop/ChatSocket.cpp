@@ -36,12 +36,14 @@ void ChatSocket::type_port()
 	unsigned short port;
 	std::cout << "type port: ";
 	std::cin >> port;
+	delete this->port;
 	this->port = new unsigned short(port);
 	std::cout << "my address is: " << ip_address << ":" << port << "\n";
 }
 
 void ChatSocket::assign_port(unsigned short port)
 {
+	delete this->port;
 	this->port = new unsigned short(port);
 	std::cout << "my address is: " << ip_address << ":" << port << "\n";
 }

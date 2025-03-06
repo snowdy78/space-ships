@@ -6,4 +6,5 @@ class TransferInstance : public rn::Json
 {
 public:
     using rn::Json::Json;
+    using rn::Json::operator=;
 };
