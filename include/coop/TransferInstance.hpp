@@ -6,5 +6,7 @@ class TransferInstance : public rn::Json
 {
 public:
     using rn::Json::Json;
-    using rn::Json::operator=;
+    TransferInstance(const rn::Json &json)
+        : rn::Json(json) {}
+    TransferInstance &operator=(const rn::Json &json);
 };

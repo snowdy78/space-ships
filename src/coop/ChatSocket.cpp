@@ -18,7 +18,7 @@ void ChatSocket::type_remote_address()
 	std::cout << "type remote address 'ip:port': ";
 	std::string address;
 	std::cin >> address;
-	std::regex ip_port_rgx(R"(([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*|local|l):([0-9]{5}))");
+	std::regex ip_port_rgx(R"(([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*|local|l)(:)?([0-9]{0,5}))");
 	std::smatch matches;
 	if (std::regex_search(address, matches, ip_port_rgx))
 	{

@@ -23,7 +23,10 @@ sf::Socket::Status ClientSocket::send(const TransferObject *data)
 {
     std::string json_string = encrypt(data->toJson().dump(-1, 0));
     sf::Packet packet;
-    packet.append(json_string.c_str(), json_string.size() * sizeof(char));
+    char *p = new char[json_string.size() + 1];
+    std::memcpy(p, json_string.c_str(), json_string.size());
+    *(p + json_string.size()) = '\0';
+    packet.append(p, (json_string.size() + 1) * sizeof(char));
     Status status = UdpSocket::send(packet, ip, port);
     return status;
 }
@@ -31,18 +34,17 @@ sf::Socket::Status ClientSocket::send(const TransferObject *data)
 std::optional<TransferInstance> ClientSocket::recieve()
 {
     sf::Packet packet;
-    Status status = UdpSocket::receive(packet, ip, port);
+    sf::IpAddress ip2 = ip;
+    auto port2 = port;
+    Status status = UdpSocket::receive(packet, ip2, port2);
     if (status != sf::Socket::Done)
         return std::nullopt;
-    std::string str;
-    size_t size = packet.getDataSize();
-    char *p		= new char[size + 1];
-    std::memcpy(p, packet.getData(), size);
-    *(p + size) = '\0';
-    str = p;
-    delete[] p;
-    std::cout << "\"" << str << "\"" << "\n";
-    TransferInstance data(rn::Json::parse(decrypt(str)));
-    std::optional<TransferInstance> result(data);
-    return result;
+    std::string str{ static_cast<const char *>(packet.getData())};
+    std::cout << str << "\n";
+    rn::Json json = rn::Json::parse(decrypt(str));
+    std::cout << json << "\n";
+    TransferInstance instance = json;
+    std::optional<TransferInstance> data(json);
+    std::cout << *data << "\n";
+    return data;
 }

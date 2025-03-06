@@ -24,59 +24,16 @@ public:
 
 void ServerTestBranch::start()
 {
-	std::cout << rn::Json::parse("{ \"id\": 1, \"name\": \"test\" }").dump(-1, 0) << "\n";
-    std::cout << "my ip is " << sf::IpAddress::getLocalAddress() << "\n";
-	std::cout << "type remote address 'ip:port': ";
-	std::string address;
-	std::cin >> address;
-	std::regex ip_port_rgx(R"(([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*|local|l)(:)?([0-9]{0,5}))");
-	std::smatch matches;
-	if (std::regex_search(address, matches, ip_port_rgx))
-	{
-		if (matches.size() >= 2)
-		{
-			sf::IpAddress ip_address = std::regex_match(address, std::regex("l|local"))
-										   ? sf::IpAddress::getLocalAddress()
-										   : sf::IpAddress(matches[1]);
-			uint16_t port = sf::Socket::AnyPort;
-			std::cout << "matches: {\n";
-			for (size_t i = 0; i < matches.size(); i++)
-			{
-				std::cout << "\t" << matches[i] << "\n";
-			}
-			std::cout << "}\n";
-			if (matches.size() > 3) 
-			{
-				port = std::stoi(matches[3]);
-			}
-			auto self_port = 12345;
-			auto self_ip = sf::IpAddress::getLocalAddress();
-			client.emplace(ip_address, port);
-			std::cout << "will listen to: " << ip_address << ":" << port << "\n";
-			if (client->bind(self_port, self_ip) == sf::Socket::Done) 
-			{
-				std::cout << "successfully binded to: " << self_ip << ":" << self_port << "\n";
-			}
-			else 
-			{
-				std::cout << "failed to bind a port\n";
-			}
-		}
-	}
-	else 
-	{
-		std::cout << "client is not initialized\n";
-	}
-	if (client) 
-	{
-		client->setBlocking(false);
-	}
 	auto res = rn::Vec2f(rn::VideoSettings::getResolution());
 	rn::Table table{5, 10, {res.x/5, res.y/10}};
 	send_button.setSize(table.getCellSize(0, 0));
 	send_button.setPosition(table.getCellGlobalPos(1, 1));
 	send_status.setPosition(table.getCellGlobalPos(1, 2));
 	receive_status.setPosition(table.getCellGlobalPos(1, 3));
+	p1.setSize(table.getCellSize(0, 0));
+	p2.setSize(table.getCellSize(0, 0));
+	p1.setPosition(table.getCellGlobalPos(0, 0));
+	p2.setPosition(table.getCellGlobalPos(1, 0));
 }
 void ServerTestBranch::update() 
 {
@@ -84,13 +41,17 @@ void ServerTestBranch::update()
 	{
 		if (auto data = client->recieve())
         {
-			receive_status.setString("got: " + data->dump(4, ' ', "\n") + "\n");
+			if (data->contains("id"))
+				std::cout << "containing an id\n";
+			receive_status.setString("got: " + data->dump() + "\n");
         }
 	}
 	window.clear();
 	window.draw(send_button);
 	window.draw(send_status);
 	window.draw(receive_status);
+	window.draw(p1);
+	window.draw(p2);
 	window.display();
 }
 void ServerTestBranch::onEvent(sf::Event &event) 
@@ -99,16 +60,32 @@ void ServerTestBranch::onEvent(sf::Event &event)
 	{
 		window.close();
 	}
-	if (send_button.isClicked(sf::Mouse::Left))
+	if (p1.isClicked(sf::Mouse::Left))
+	{
+		client.reset();
+		client.emplace(sf::IpAddress::getLocalAddress(), 12345);
+		client->bind(25565, sf::IpAddress::getLocalAddress());
+		client->setBlocking(false);
+	}
+	else if (p2.isClicked(sf::Mouse::Left))
+	{
+		client.reset();
+		client.emplace(sf::IpAddress::getLocalAddress(), 25565);
+		client->bind(12345, sf::IpAddress::getLocalAddress());
+		client->setBlocking(false);
+	}
+	if (client && send_button.isClicked(sf::Mouse::Left))
 	{
 		Character p(1, "test");
 		auto status = client->send(&p);
 		if (status == sf::Socket::Done)
 		{
 			send_status.setString("Successfully sended!");
+			std::cout << "sended\n";
 		}
 		else
 		{
+			std::cout << "failed to send\n";
 			send_status.setString("Failed to send! code: " + std::to_string(status));
 		}
 	}

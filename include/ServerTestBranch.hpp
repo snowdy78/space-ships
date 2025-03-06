@@ -7,6 +7,8 @@
 class ServerTestBranch : public rn::MenuBranch
 {
     std::optional<ClientSocket> client;
+    rn::Button p1{{}, "P1", *Font::Default};
+    rn::Button p2{{}, "P2", *Font::Default};
     rn::Button send_button{{}, "Send", *Font::Default};
     sf::Text send_status{"", *Font::Default};
     sf::Text receive_status{"", *Font::Default};
