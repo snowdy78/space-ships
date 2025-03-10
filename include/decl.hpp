@@ -6,10 +6,14 @@
 
 #include "Font.hpp"
 #include "components/GameInfo.hpp"
+
 inline sf::Mutex mutex;
 struct ChatSocket;
 struct Client;
 struct Server;
+
+class TransferObject;
+class TransferInstance;
 
 class RigitBody2d;
 class Bullet;
