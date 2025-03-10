@@ -12,8 +12,15 @@ struct ChatSocket;
 struct Client;
 struct Server;
 
-class TransferObject;
-class TransferInstance;
+class Transferable;
+class TransferableFabric;
+
+class TransferableAction;
+class TransferableActionFabric;
+
+class GameObject;
+class GameObjectFabric;
+class GameObjectFabricTranslator;
 
 class RigitBody2d;
 class Bullet;
@@ -28,3 +35,8 @@ class AbstractShip;
 class SpaceField;
 class DamageDealer;
 class Hittable;
+
+class AbstractAction;
+
+class ActionManager;
+class ShipShootAction;

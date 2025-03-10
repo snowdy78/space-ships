@@ -1,8 +1,9 @@
 #pragma once
 
 #include "decl.hpp"
+#include "GameObject.hpp"
 
-class SpaceFieldObject
+class SpaceFieldObject : public GameObject
 {
     friend class SpaceField;
 protected:
