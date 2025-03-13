@@ -50,7 +50,7 @@ void SoundDisperseEntity::update()
 	using namespace rn::math;
 
 	rn::Vec3f pdist = sf::Listener::getPosition() - getPosition();
-	auto dist		= length(pdist);
+	float dist		= length(pdist);
 	float volume;
 	if (dist < 0.00001f)
 		volume = 100;

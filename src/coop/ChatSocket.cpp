@@ -1,6 +1,8 @@
 #include "coop/ChatSocket.hpp"
 #include "coop/Client.hpp"
 #include "coop/Server.hpp"
+#include <regex>
+
 
 ChatSocket::ChatSocket()
 {

@@ -108,7 +108,7 @@ void AbstractShip::updateCollider()
 	circle.setOrigin(getOrigin());
 	circle.setRotation(getRotation());
 	circle.setScale(getScale());
-	collider.transform(rn::math::ellipce(circle));
+	collider.transform(rn::math::ellipse(circle));
 }
 bool AbstractShip::resolve(const Collidable *collidable) const
 {

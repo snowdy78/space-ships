@@ -8,7 +8,7 @@ bool PolygonCollider::collide(const PolygonCollider &collider) const
 
 bool PolygonCollider::collide(const EllipseCollider &collider) const
 {
-	return shape.collide(static_cast<const rn::math::ellipce &>(collider.getColliderShape()));
+	return shape.collide(static_cast<const rn::math::ellipse &>(collider.getColliderShape()));
 }
 void PolygonCollider::transform(const rn::math::polygon &polygon)
 {

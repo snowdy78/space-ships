@@ -9,7 +9,6 @@ FetchContent_MakeAvailable(Catch2)
 # use it after including CTest
 enable_testing()
 include(CTest)
-include(Catch)
 
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 set(CMAKE_CATCH_DISCOVER_TESTS_DISCOVERY_MODE PRE_TEST)
@@ -38,7 +37,7 @@ function(add_catch2_test TARGET)
     catch_discover_tests(${TARGET})
 endfunction()
 
-add_executable(main_test ${PROJECT_SOURCE_DIR}/test/main.cpp)
+add_executable(proj_main_test ${PROJECT_SOURCE_DIR}/test/main.cpp)
 
 add_catch2_test(main_test)
 

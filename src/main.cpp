@@ -2,6 +2,7 @@
 #include "ServerTestBranch.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
+#include <thread>
 
 void loadGame(sf::RenderWindow &window);
 

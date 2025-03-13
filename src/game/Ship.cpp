@@ -20,7 +20,6 @@ void Ship::rotation()
 void Ship::movement()
 {
 	using namespace rn::math;
-	using namespace rn::math_operations;
 	std::unique_ptr<Direction> d_move = nullptr;
 	if (rn::isKeyhold(sf::Keyboard::W))
 	{

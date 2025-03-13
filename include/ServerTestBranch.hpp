@@ -30,7 +30,7 @@ public:
 	}
 	bool isIntersected(const rn::Vec2f &point) const override
 	{
-		return rn::math::ellipce(*this).contains(point);
+		return rn::math::ellipse(*this).contains(point);
 	}
 	TransferJson toJson() const override
 	{
