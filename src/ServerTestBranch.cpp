@@ -1,4 +1,5 @@
 #include "ServerTestBranch.hpp"
+#include "coop/UdpSocket.hpp"
 
 
 size_t Character::id = identify<Character>();
@@ -28,9 +29,9 @@ void ServerTestBranch::update()
 	{
 		auto various_data = client->recieve();
 
-		if (std::holds_alternative<ClientSocket::ReceiveType>(various_data))
+		if (std::holds_alternative<UdpSocket::ReceiveType>(various_data))
 		{
-			auto received = std::get<ClientSocket::ReceiveType>(various_data);
+			auto received = std::get<UdpSocket::ReceiveType>(various_data);
 			if (received.is_object())
 			{
 				character.receiveJson(received.json()["data"]);

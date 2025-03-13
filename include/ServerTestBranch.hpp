@@ -1,7 +1,7 @@
 #pragma once
 
 #include "decl.hpp"
-#include "coop/ClientSocket.hpp"
+#include "coop\UdpSocket.hpp"
 #include <optional>
 #include "coop/TransferableObject.hpp"
 
@@ -50,7 +50,7 @@ public:
 
 class ServerTestBranch : public rn::MenuBranch
 {
-    std::optional<ClientSocket> client;
+    std::optional<UdpSocket> client;
     rn::Button p1{{}, "P1", *Font::Default};
     rn::Button p2{{}, "P2", *Font::Default};
     rn::Button send_button{{}, "Send", *Font::Default};

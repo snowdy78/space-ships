@@ -15,7 +15,7 @@ private:
 	std::string message;
 };
 
-class ClientSocket : public sf::UdpSocket
+class UdpSocket : public sf::UdpSocket
 {
 	struct TransferType
 	{
@@ -31,15 +31,15 @@ class ClientSocket : public sf::UdpSocket
 	sf::Socket::Status _send(const rn::Json &send_data);
 	std::variant<rn::Json, sf::Socket::Status> recieveJson();
 
-	using UdpSocket::receive;
-	using UdpSocket::send;
+	using sf::UdpSocket::receive;
+	using sf::UdpSocket::send;
 	
 public:
 	class ReceiveType
 	{
 		rn::Json data_json;
 		ReceiveType(const rn::Json &data_json = {});
-        friend class ClientSocket;    
+        friend class UdpSocket;    
     public:
 		bool is_unknown() const;
 		bool is_action() const;
@@ -48,7 +48,7 @@ public:
         std::unique_ptr<TransferableAction> action() const;
 		const rn::Json &json() const;
 	};
-	ClientSocket(sf::IpAddress remote_ip, uint16_t remote_port = sf::Socket::AnyPort);
+	UdpSocket(sf::IpAddress remote_ip, uint16_t remote_port = sf::Socket::AnyPort);
 	sf::Socket::Status sendObject(const TransferableObject *data);
 	sf::Socket::Status
 	sendAction(std::optional<size_t> author_id, std::optional<size_t> target_id, TransferableAction *action);

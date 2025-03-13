@@ -1,29 +1,29 @@
-#include "coop/ClientSocket.hpp"
+#include "coop\UdpSocket.hpp"
 #include <stdexcept>
 #include "coop/TransferableAction.hpp"
 #include "coop/TransferableObject.hpp"
 #include "game/GameObjectFabric.hpp"
 
 
-ClientSocket::ClientSocket(sf::IpAddress ip, uint16_t port)
+UdpSocket::UdpSocket(sf::IpAddress ip, uint16_t port)
 	: sf::UdpSocket(),
 	  ip(ip),
 	  port(port)
 {}
 
-std::string ClientSocket::encrypt(const std::string &str)
+std::string UdpSocket::encrypt(const std::string &str)
 {
 	// TODO: encryption of data
 	return str;
 }
 
-std::string ClientSocket::decrypt(const std::string &str)
+std::string UdpSocket::decrypt(const std::string &str)
 {
 	// TODO: decryption of data
 	return str;
 }
 
-sf::Socket::Status ClientSocket::_send(const rn::Json &send_data)
+sf::Socket::Status UdpSocket::_send(const rn::Json &send_data)
 {
 	std::string json_string = encrypt(send_data.dump(-1, 0));
 	sf::Packet packet;
@@ -32,12 +32,12 @@ sf::Socket::Status ClientSocket::_send(const rn::Json &send_data)
 	return status;
 }
 
-std::variant<rn::Json, sf::Socket::Status> ClientSocket::recieveJson()
+std::variant<rn::Json, sf::Socket::Status> UdpSocket::recieveJson()
 {
 	sf::Packet packet;
 	sf::IpAddress ip2 = ip;
 	auto port2		  = port;
-	Status status	  = UdpSocket::receive(packet, ip2, port2);
+	Status status	  = sf::UdpSocket::receive(packet, ip2, port2);
 	if (status != sf::Socket::Done)
 		return status;
 	std::string str{ static_cast<const char *>(packet.getData()) };
@@ -45,7 +45,7 @@ std::variant<rn::Json, sf::Socket::Status> ClientSocket::recieveJson()
 	return json;
 }
 
-sf::Socket::Status ClientSocket::sendObject(const TransferableObject *data)
+sf::Socket::Status UdpSocket::sendObject(const TransferableObject *data)
 {
 	rn::Json send_data;
 	send_data["type"] = TransferType::object;
@@ -56,7 +56,7 @@ sf::Socket::Status ClientSocket::sendObject(const TransferableObject *data)
 }
 
 sf::Socket::Status
-ClientSocket::sendAction(std::optional<size_t> author_id, std::optional<size_t> target_id, TransferableAction *action)
+UdpSocket::sendAction(std::optional<size_t> author_id, std::optional<size_t> target_id, TransferableAction *action)
 {
 	using namespace std::string_literals;
 	if (!action)
@@ -76,7 +76,7 @@ ClientSocket::sendAction(std::optional<size_t> author_id, std::optional<size_t> 
 	return _send(send_data);
 }
 
-std::variant<sf::Socket::Status, ClientSocket::ReceiveType> ClientSocket::recieve()
+std::variant<sf::Socket::Status, UdpSocket::ReceiveType> UdpSocket::recieve()
 {
 	auto json_or_status = recieveJson();
 	if (std::holds_alternative<sf::Socket::Status>(json_or_status))
@@ -90,29 +90,29 @@ std::variant<sf::Socket::Status, ClientSocket::ReceiveType> ClientSocket::reciev
 	if (type != TransferType::action && type != TransferType::object)
 		throw incorrect_json_format("invalid type name");
 	std::cout << "response body: " << json.dump(-1, 0) << "\n";
-	return ClientSocket::ReceiveType(json);
+	return UdpSocket::ReceiveType(json);
 }
 
-ClientSocket::ReceiveType::ReceiveType(const rn::Json &data_json)
+UdpSocket::ReceiveType::ReceiveType(const rn::Json &data_json)
 	: data_json(data_json)
 {}
 
-bool ClientSocket::ReceiveType::is_unknown() const
+bool UdpSocket::ReceiveType::is_unknown() const
 {
 	return !is_action() && !is_object();
 }
 
-bool ClientSocket::ReceiveType::is_action() const
+bool UdpSocket::ReceiveType::is_action() const
 {
 	return data_json["type"] == TransferType::action;
 }
 
-bool ClientSocket::ReceiveType::is_object() const
+bool UdpSocket::ReceiveType::is_object() const
 {
 	return data_json["type"] == TransferType::object;
 }
 
-std::unique_ptr<TransferableAction> ClientSocket::ReceiveType::action() const
+std::unique_ptr<TransferableAction> UdpSocket::ReceiveType::action() const
 {
 	if (!is_action())
 		return nullptr;
@@ -128,12 +128,12 @@ std::unique_ptr<TransferableAction> ClientSocket::ReceiveType::action() const
 	return nullptr;
 }
 
-const rn::Json &ClientSocket::ReceiveType::json() const
+const rn::Json &UdpSocket::ReceiveType::json() const
 {
 	return data_json;
 }
 
-std::unique_ptr<TransferableObject> ClientSocket::ReceiveType::object() const
+std::unique_ptr<TransferableObject> UdpSocket::ReceiveType::object() const
 {
 	try 
 	{
