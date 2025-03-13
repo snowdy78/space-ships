@@ -1,16 +1,27 @@
 #pragma once
 
+#include "decl.hpp"
 #include <variant>
-#include "coop/Transferable.hpp"
-
 
 struct incorrect_json_format : public std::exception
 {
 	using std::exception::exception;
+	incorrect_json_format(const std::string &msg) : message(msg) {}
+	char const *what() const noexcept override
+	{
+		return message.c_str();
+	}
+private:
+	std::string message;
 };
 
 class ClientSocket : public sf::UdpSocket
 {
+	struct TransferType
+	{
+		inline static constexpr std::string object = "object";
+		inline static constexpr std::string action = "action";
+	};
 	sf::IpAddress ip;
 	uint16_t port;
 
@@ -22,20 +33,23 @@ class ClientSocket : public sf::UdpSocket
 
 	using UdpSocket::receive;
 	using UdpSocket::send;
+	
+public:
 	class ReceiveType
 	{
 		rn::Json data_json;
 		ReceiveType(const rn::Json &data_json = {});
         friend class ClientSocket;    
     public:
-		const Transferable::Type &type() const;
-        Transferable *object() const;
-        TransferableAction *action() const;
+		bool is_unknown() const;
+		bool is_action() const;
+		bool is_object() const;
+        std::unique_ptr<TransferableObject> object() const;
+        std::unique_ptr<TransferableAction> action() const;
+		const rn::Json &json() const;
 	};
-
-public:
 	ClientSocket(sf::IpAddress remote_ip, uint16_t remote_port = sf::Socket::AnyPort);
-	sf::Socket::Status send(const Transferable *data);
+	sf::Socket::Status sendObject(const TransferableObject *data);
 	sf::Socket::Status
 	sendAction(std::optional<size_t> author_id, std::optional<size_t> target_id, TransferableAction *action);
 	std::variant<sf::Socket::Status, ReceiveType> recieve();

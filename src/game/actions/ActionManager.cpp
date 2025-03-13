@@ -30,6 +30,12 @@ void ActionManager::addToTop(Args &&...args)
 	}
 }
 
+void ActionManager::clear() 
+{
+    actions.clear();
+	stack.clear();
+}
+
 void ActionManager::start()
 {
 	realizeActions();

@@ -2,35 +2,37 @@
 
 #include "decl.hpp"
 #include "GameObject.hpp"
-#include "coop/Transferable.hpp"
+#include "coop/TransferableObject.hpp"
+
+template<class T>
+concept GameObjectConcept = std::is_base_of<GameObject, T>::value && !std::is_same_v<GameObject, T>;
 
 class GameObjectFabric
 {
     std::unordered_map<size_t, GameObject *> objects{};
     size_t id_encounter = 0;
-    GameObjectFabric();
 
-    void assignReceived(const rn::Json &ids_of_objects);
+    GameObjectFabric();
+    std::vector<std::unique_ptr<TransferableObject>> assign(const GameObjectFabricTranslator &translator);
+
     friend class ClientSocket;
     friend class GameObjectFabricTranslator;
 public:
     static GameObjectFabric &instance();
-
-    GameObject *get(size_t id);
-    size_t push(GameObject *object);
+    
+    GameObject * const &get(size_t id);
+    size_t push(GameObject *);
     size_t getByValue(GameObject *object);
     void erase(size_t id);
     void clear();
 };
 
-class GameObjectFabricTranslator : public Transferable
+class GameObjectFabricTranslator : public TransferableObject
 {
-    inline static size_t id = identify<Transferable>();
+    static size_t id;
 public:
-    GameObjectFabricTranslator()
-        : Transferable(Transferable::object)
-    {
-
-    }
-    rn::Json toJson() const override;
+    GameObjectFabricTranslator();
+    void receiveJson(const rn::Json &json) override;
+    TransferableObject::TransferJson toJson() const override;
 };
+

@@ -4,10 +4,12 @@
 
 class ShipShootAction : public TransferableAction 
 {
-    inline const static size_t id = identify<ShipShootAction>(); 
+    const static size_t id; 
 public:
-    ShipShootAction();
+    ShipShootAction(std::optional<GameObject *> author = std::nullopt, std::optional<GameObject *> target = std::nullopt, const rn::Json &props = {});
     void play() override;
-    virtual rn::Json toJson() const override;
+    virtual TransferJson toJson() const override;
     virtual AbstractAction *copy() const override;
 };
+
+

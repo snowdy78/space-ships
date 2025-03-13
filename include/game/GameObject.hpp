@@ -4,6 +4,7 @@
 
 struct GameObject
 {
+	size_t id;
 public:
 	GameObject();
 

@@ -13,8 +13,18 @@ struct Client;
 struct Server;
 
 class Transferable;
-class TransferableFabric;
 
+template<class Base, class T>
+struct is_fabric_type
+{
+    constexpr static const bool value = std::is_base_of_v<Base, T> && !std::is_same_v<Base, T>;
+};
+
+template<class Base, class T>
+constexpr const bool is_fabric_type_v = is_fabric_type<Base, T>::value;
+
+class TransferableObject;
+class TransferableObjectFabric;
 class TransferableAction;
 class TransferableActionFabric;
 

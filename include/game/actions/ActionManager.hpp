@@ -13,6 +13,7 @@ public:
     ActionManager() = default;
     template<class ActionT, class...Args>
     void addToTop(Args &&...args);
+    void clear();
     void start() override;
     void update() override;
 };

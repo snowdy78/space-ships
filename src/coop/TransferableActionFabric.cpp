@@ -1,4 +1,4 @@
-#include "coop/TransferableActionFabric.hpp"
+#include "coop/TransferableAction.hpp"
 
 TransferableActionFabric &TransferableActionFabric::instance()
 {

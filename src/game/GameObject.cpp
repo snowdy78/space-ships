@@ -6,4 +6,4 @@ GameObject::GameObject()
 {   
 }
 
-
+GameObject::~GameObject() = default;

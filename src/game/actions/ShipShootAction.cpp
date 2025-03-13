@@ -1,8 +1,9 @@
 #include "game/actions/ShipShootAction.hpp"
-#include "coop/TransferableAction.hpp"
 
-ShipShootAction::ShipShootAction()
-	: TransferableAction()
+const size_t ShipShootAction::id = identify<ShipShootAction>();
+
+ShipShootAction::ShipShootAction(std::optional<GameObject *> author, std::optional<GameObject *> target, const rn::Json &props)
+	: TransferableAction(author, target, props)
 {}
 
 void ShipShootAction::play() 
@@ -10,10 +11,10 @@ void ShipShootAction::play()
 	
 }
 
-rn::Json ShipShootAction::toJson() const 
+TransferableAction::TransferJson ShipShootAction::toJson() const 
 {
 	return {
-		{ "id", id }
+		id
 	};
 }
 
