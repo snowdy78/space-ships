@@ -26,6 +26,13 @@ int main()
 }
 void loadGame(sf::RenderWindow &window)
 {
+	sf::Color background_color{ sf::Color::Black };
+	sf::Color progress_bar_outline_color{ sf::Color::White };
+	sf::Color progress_bar_progress_color{ sf::Color::White };
+	sf::Color progress_bar_background_color{ sf::Color::Transparent };
+	sf::Color progress_pointer_color{ sf::Color::White };
+	sf::Color text_color{ sf::Color::White };
+
 	FileLoader::Instance().loadFonts();
 	size_t count		= FileLoader::Instance().getTextureCount() + FileLoader::Instance().getSoundCount();
 	size_t count_loaded = 0;
@@ -39,24 +46,26 @@ void loadGame(sf::RenderWindow &window)
 	rn::Rect background{ screen_size };
 	rn::Rect progress{ progress_bar.getSize() };
 
-	progress_bar.setFillColor(sf::Color::Transparent);
-	progress_bar.setOutlineColor(sf::Color::Black);
+	background.setFillColor(background_color);
+
+	progress_bar.setFillColor(progress_bar_background_color);
+	progress_bar.setOutlineColor(progress_bar_outline_color);
 	progress_bar.setOutlineThickness(1.f);
 	progress_bar.setPosition((screen_size.x - progress_bar.getSize().x) / 2.f, screen_size.y / 2.f);
 
 	load_content_path.setFont(*Font::Default);
 	load_content_path.setCharacterSize(screen_size.y / 54);
-	load_content_path.setFillColor(sf::Color::Black);
+	load_content_path.setFillColor(text_color);
 	load_content_path.setString(count == 0 ? "No files to load" : "preparing...");
 	load_content_path.setPosition(
 		static_cast<int>((screen_size.x - load_content_path.getGlobalBounds().width) / 2.f),
 		static_cast<int>(progress_bar.getPosition().y - load_content_path.getCharacterSize() - 10)
 	);
 
-	progress.setFillColor(sf::Color::Black);
+	progress.setFillColor(progress_bar_progress_color);
 	progress.setPosition((screen_size.x - progress_bar.getSize().x) / 2.f, screen_size.y / 2.f);
 
-	progress_pointer.setFillColor(sf::Color::Black);
+	progress_pointer.setFillColor(progress_pointer_color);
 	progress_pointer.setPoint(0, { 10, 0 });
 	progress_pointer.setPoint(1, { 20, 20 });
 	progress_pointer.setPoint(2, { 0, 20 });
@@ -65,7 +74,7 @@ void loadGame(sf::RenderWindow &window)
 		progress.getPosition().y + progress.getSize().y
 	);
 
-	percentage.setFillColor(sf::Color::Black);
+	percentage.setFillColor(text_color);
 	percentage.setFont(*Font::Default);
 	percentage.setCharacterSize(screen_size.y / 45);
 	percentage.setString(
