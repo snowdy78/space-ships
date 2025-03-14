@@ -17,6 +17,6 @@ Gun *Pistol::copy() const
 }
 rn::Vec2f Pistol::getTrajectory() const
 {
-	auto angle = rn::math::rot(ship->getDirection()) + rn::math::radians(rn::random::real(-1.f, 1.f) * disperse_angle / 2.f);
+	auto angle = rn::math::rot(ship->getDirection()) + rn::math::degrees(rn::random::real(-1.f, 1.f) * disperse_angle / 2.f);
 	return rn::math::direction(angle);
 }

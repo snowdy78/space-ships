@@ -21,7 +21,7 @@ int main()
 	loadGame(window);
 
 	// TODO: ServerTestBranch is temporary 
-	rn::MenuBranch::start_branch<ServerTestBranch>(window);
+	rn::MenuBranch::start_branch<AudioMenu>(window);
 	return 0;
 }
 void loadGame(sf::RenderWindow &window)
