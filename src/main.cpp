@@ -1,4 +1,5 @@
 #include "AudioMenu.hpp"
+#include "MainMenu.hpp"
 #include "ServerTestBranch.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
@@ -21,7 +22,7 @@ int main()
 	loadGame(window);
 
 	// TODO: ServerTestBranch is temporary 
-	rn::MenuBranch::start_branch<AudioMenu>(window);
+	rn::MenuBranch::start_branch<MainMenu>(window);
 	return 0;
 }
 void loadGame(sf::RenderWindow &window)

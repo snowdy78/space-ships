@@ -15,6 +15,11 @@ AudioMenu::AudioMenu(sf::RenderWindow &window)
 	info.setVisible(dev_mode);
 }
 
+AudioMenu::~AudioMenu()
+{
+	window.setView(window.getDefaultView());
+}
+
 void AudioMenu::start()
 {
 	camera.reset(new ShipCamera(window, [&]() {
@@ -128,22 +133,4 @@ void AudioMenu::ShipCamera::onCameraMove()
 {
 	target.setView(getView());
 	update_on_move();
-}
-
-void AudioMenu::Background::start()
-{
-	shader.setUniform("iResolution", rn::Vec2f(res));
-}
-
-void AudioMenu::Background::update()
-{
-	shader.setUniform("iPosition", -getPosition());
-	shader.setUniform("iTime", clock.getElapsedTime().asMilliseconds() / 1000.f);
-}
-
-void AudioMenu::Background::onEvent(sf::Event &event) {}
-
-void AudioMenu::Background::draw(sf::RenderTarget &target, sf::RenderStates states) const
-{
-	target.draw(shader, states);
 }
