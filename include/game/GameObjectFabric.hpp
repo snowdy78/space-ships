@@ -1,38 +1,77 @@
 #pragma once
 
-#include "decl.hpp"
 #include "GameObject.hpp"
 #include "coop/TransferableObject.hpp"
+#include "decl.hpp"
 
 template<class T>
 concept GameObjectConcept = std::is_base_of<GameObject, T>::value && !std::is_same_v<GameObject, T>;
 
 class GameObjectFabric
 {
-    std::unordered_map<size_t, GameObject *> objects{};
-    size_t id_encounter = 0;
+	std::unordered_map<size_t, GameObject *> objects{};
+	size_t id_encounter = 0;
 
-    GameObjectFabric();
-    std::vector<std::unique_ptr<TransferableObject>> assign(const GameObjectFabricTranslator &translator);
+	void emplace(size_t id, GameObject *object);
+	friend class GameObjectFabricTranslator;
+	GameObjectFabric();
 
-    friend class ClientSocket;
-    friend class GameObjectFabricTranslator;
 public:
-    static GameObjectFabric &instance();
-    
-    GameObject * const &get(size_t id);
-    size_t push(GameObject *);
-    size_t getByValue(GameObject *object);
-    void erase(size_t id);
-    void clear();
+	using Iterator		= std::unordered_map<size_t, GameObject *>::iterator;
+	using ConstIterator = std::unordered_map<size_t, GameObject *>::const_iterator;
+
+	static GameObjectFabric &instance();
+
+	Iterator begin();
+	ConstIterator cbegin() const;
+	ConstIterator begin() const;
+	Iterator end();
+	ConstIterator cend() const;
+	ConstIterator end() const;
+
+	std::vector<std::unique_ptr<TransferableObject>> assign(const GameObjectFabricTranslator &translator);
+	std::vector<std::unique_ptr<TransferableObject>> update(const GameObjectFabricTranslator &translator);
+    void remove(const GameObjectFabricTranslator &translator, std::function<void(GameObject *)> on_remove = [](GameObject *) {});
+	GameObject *const &get(size_t id);
+	size_t push(GameObject *);
+	size_t find(GameObject *object);
+	void erase(size_t id);
+	void clear();
+	size_t size() const;
 };
 
 class GameObjectFabricTranslator : public TransferableObject
 {
-    static size_t id;
+	std::unordered_map<size_t, size_t> data_to_update{};
+	static constexpr size_t npos = -1;
+    friend class GameObjectFabric;
 public:
-    GameObjectFabricTranslator();
-    void receiveJson(const rn::Json &json) override;
-    TransferableObject::TransferJson toJson() const override;
-};
+	enum class TranslateType
+	{
+		Append = 'a',
+		Clear  = 'c',
+	};
+	GameObjectFabricTranslator();
 
+	TranslateType getTranslateType() const;
+	void setTranslateType(TranslateType type);
+
+	void assignUpdateData(GameObjectFabric::ConstIterator begin, const GameObjectFabric::ConstIterator &end);
+	/**
+	 * @brief returns true, if the object was inserted
+	 * 
+	 * @param iterator 
+	 */
+    bool insert(GameObjectFabric::ConstIterator iterator);
+	size_t erase(size_t game_object_id);
+	size_t updateCount() const;
+    void clearUpdateData();
+
+	void receiveJson(const rn::Json &json) override;
+	TransferableObject::TransferJson toJson() const override;
+	void updateFabric();
+
+private:
+	TranslateType translate_type = TranslateType::Append;
+	static size_t id;
+};

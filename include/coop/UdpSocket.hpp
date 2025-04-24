@@ -2,6 +2,7 @@
 
 #include "decl.hpp"
 #include <variant>
+#include "Transferable.hpp"
 
 struct incorrect_json_format : public std::exception
 {
@@ -37,7 +38,7 @@ class UdpSocket : public sf::UdpSocket
 public:
 	class ReceiveType
 	{
-		rn::Json data_json;
+		Transferable::TransferJson transfer_json;
 		ReceiveType(const rn::Json &data_json = {});
         friend class UdpSocket;    
     public:
@@ -46,7 +47,7 @@ public:
 		bool is_object() const;
         std::unique_ptr<TransferableObject> object() const;
         std::unique_ptr<TransferableAction> action() const;
-		const rn::Json &json() const;
+		const Transferable::TransferJson &json() const;
 	};
 	UdpSocket(sf::IpAddress remote_ip, uint16_t remote_port = sf::Socket::AnyPort);
 	sf::Socket::Status sendObject(const TransferableObject *data);

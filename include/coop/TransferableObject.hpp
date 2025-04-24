@@ -20,7 +20,6 @@ public:
 
 	virtual void receiveJson(const rn::Json &json) {}
 };
-
 class TransferableObjectFabric 
 {
     using create_func = std::function<std::unique_ptr<TransferableObject>()>;

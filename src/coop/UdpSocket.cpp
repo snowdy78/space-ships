@@ -47,11 +47,8 @@ std::variant<rn::Json, sf::Socket::Status> UdpSocket::recieveJson()
 
 sf::Socket::Status UdpSocket::sendObject(const TransferableObject *data)
 {
-	rn::Json send_data;
+	auto send_data	  = data->toJson();
 	send_data["type"] = TransferType::object;
-	send_data["data"] = static_cast<const rn::Json &>(data->toJson());
-	std::cout << "request body: " << send_data.dump(-1, 0) << "\n";
-	std::cout << "asdfsadfasf\n";
 	return _send(send_data);
 }
 
@@ -61,8 +58,8 @@ UdpSocket::sendAction(std::optional<size_t> author_id, std::optional<size_t> tar
 	using namespace std::string_literals;
 	if (!action)
 		return sf::Socket::Status::Error;
-	rn::Json send_data;
-	send_data["type"] = TransferType::action;
+	rn::Json send_data = action->toJson();
+	send_data["type"]  = TransferType::action;
 	if (author_id)
 		send_data["author_id"] = *author_id;
 	else
@@ -71,8 +68,6 @@ UdpSocket::sendAction(std::optional<size_t> author_id, std::optional<size_t> tar
 		send_data["target_id"] = *target_id;
 	else
 		send_data["target_id"] = nullptr;
-	send_data["props"] = action->toJson();
-
 	return _send(send_data);
 }
 
@@ -89,12 +84,12 @@ std::variant<sf::Socket::Status, UdpSocket::ReceiveType> UdpSocket::recieve()
 	auto type = json.at("type");
 	if (type != TransferType::action && type != TransferType::object)
 		throw incorrect_json_format("invalid type name");
-	std::cout << "response body: " << json.dump(-1, 0) << "\n";
+	std::cout << "response body: " << json.dump(-1, 0) << "\n"; // TODO: remove
 	return UdpSocket::ReceiveType(json);
 }
 
 UdpSocket::ReceiveType::ReceiveType(const rn::Json &data_json)
-	: data_json(data_json)
+	: transfer_json(data_json["id"], data_json)
 {}
 
 bool UdpSocket::ReceiveType::is_unknown() const
@@ -104,12 +99,12 @@ bool UdpSocket::ReceiveType::is_unknown() const
 
 bool UdpSocket::ReceiveType::is_action() const
 {
-	return data_json["type"] == TransferType::action;
+	return transfer_json["type"] == TransferType::action;
 }
 
 bool UdpSocket::ReceiveType::is_object() const
 {
-	return data_json["type"] == TransferType::object;
+	return transfer_json["type"] == TransferType::object;
 }
 
 std::unique_ptr<TransferableAction> UdpSocket::ReceiveType::action() const
@@ -118,29 +113,33 @@ std::unique_ptr<TransferableAction> UdpSocket::ReceiveType::action() const
 		return nullptr;
 	try
 	{
-		auto &author = GameObjectFabric::instance().get(data_json["author_id"]);
-		auto &target = GameObjectFabric::instance().get(data_json["target_id"]);
-		return TransferableActionFabric::instance().get(data_json["props"]["id"])(
-			author, target, data_json["props"]
+		auto &author = GameObjectFabric::instance().get(transfer_json["author_id"]);
+		auto &target = GameObjectFabric::instance().get(transfer_json["target_id"]);
+		return std::move(
+			TransferableActionFabric::instance().get(transfer_json.id())(author, target, transfer_json.data())
 		);
 	}
-	catch (std::out_of_range &err) {}
+	catch (rn::Json::out_of_range &err)
+	{}
 	return nullptr;
 }
 
-const rn::Json &UdpSocket::ReceiveType::json() const
+const Transferable::TransferJson &UdpSocket::ReceiveType::json() const
 {
-	return data_json;
+	return transfer_json;
 }
 
 std::unique_ptr<TransferableObject> UdpSocket::ReceiveType::object() const
 {
-	try 
+	if (!is_object())
+		return nullptr;
+	try
 	{
-		auto transferable = TransferableObjectFabric::instance().get(data_json["data"]["id"])();
-		transferable->receiveJson(data_json["data"]);
-		return transferable;
+		auto transferable = TransferableObjectFabric::instance().get(transfer_json.id())();
+		transferable->receiveJson(transfer_json.data());
+		return std::move(transferable);
 	}
-	catch (std::out_of_range &err) {}
+	catch (std::out_of_range &err)
+	{}
 	return nullptr;
 }

@@ -1,14 +1,13 @@
 #include "game/actions/ActionManager.hpp"
 
-void ActionManager::realizeActions() 
+void ActionManager::realizeActions()
 {
-    do
+	do
 	{
 		start_loop = true;
 		for (auto iaction = actions.begin(); iaction != actions.end(); iaction = actions.erase(iaction))
 		{
 			(*iaction)->play();
-			actions.erase(iaction);
 		}
 		start_loop = false;
 		actions.swap(stack);
@@ -17,22 +16,20 @@ void ActionManager::realizeActions()
 	while (!actions.empty());
 }
 
-template<class ActionT, class... Args>
-void ActionManager::addToTop(Args &&...args)
+void ActionManager::addToTop(std::unique_ptr<AbstractAction> &&action) 
 {
 	if (!start_loop)
 	{
-		actions.push_back(new ActionT(args...));
+		actions.push_back(std::move(action));
 	}
 	else
 	{
-		stack.push_back(new ActionT(args...));
+		stack.push_back(std::move(action));
 	}
 }
-
-void ActionManager::clear() 
+void ActionManager::clear()
 {
-    actions.clear();
+	actions.clear();
 	stack.clear();
 }
 

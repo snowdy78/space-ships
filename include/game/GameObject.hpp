@@ -8,5 +8,6 @@ struct GameObject
 public:
 	GameObject();
 
+	size_t getGameObjectId() const;
 	virtual ~GameObject() = 0;
 };

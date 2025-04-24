@@ -6,4 +6,9 @@ GameObject::GameObject()
 {   
 }
 
+size_t GameObject::getGameObjectId() const
+{
+	return id;
+}
+
 GameObject::~GameObject() = default;

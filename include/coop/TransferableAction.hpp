@@ -7,9 +7,9 @@
 template<class T>
 concept TransferActionConcept
 	= is_fabric_type_v<TransferableAction, T>
-	  && requires(
-		  T *ptr, T value, std::optional<GameObject *> author, std::optional<GameObject *> target, rn::Json props
-	  ) { ptr = new T(author, target, props); };
+	  && requires(T *ptr, T value, GameObject *author, GameObject *target, const rn::Json &props) {
+			 ptr = new T(author, target, props);
+		 };
 
 class TransferableAction : public AbstractAction, public Transferable
 {
@@ -18,17 +18,14 @@ protected:
 	static size_t identify();
 
 public:
-	TransferableAction() = delete;
-	TransferableAction(std::optional<GameObject *> author, std::optional<GameObject *> target, const rn::Json &props);
+	TransferableAction(GameObject *author, GameObject *target, const rn::Json &props);
 };
-
 
 
 class TransferableActionFabric
 {
-	using create_action_func = std::function<std::unique_ptr<TransferableAction>(
-		std::optional<GameObject *> author, std::optional<GameObject *> target, const rn::Json &props
-	)>;
+	using create_action_func = std::function<
+		std::unique_ptr<TransferableAction>(GameObject *author, GameObject *target, const rn::Json &props)>;
 
 	std::unordered_map<size_t, create_action_func> transfer_actions{};
 	size_t id_encounter		   = 0;
@@ -49,9 +46,8 @@ size_t TransferableActionFabric::push()
 {
 	transfer_actions.emplace(
 		id_encounter,
-		[](std::optional<GameObject *> author, std::optional<GameObject *> target,
-		   const rn::Json &props) -> std::unique_ptr<TransferableAction> {
-			return std::unique_ptr<TransferableAction>{new T(author, target, props)};
+		[](GameObject *author, GameObject *target, const rn::Json &props) -> std::unique_ptr<TransferableAction> {
+			return std::unique_ptr<TransferableAction>{ new T(author, target, props) };
 		}
 	);
 	return id_encounter++;

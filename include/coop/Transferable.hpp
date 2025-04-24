@@ -7,11 +7,10 @@ class Transferable
 	class TransferData : public rn::Json
 	{
 	public:
-		TransferData(size_t id, const rn::Json &data = {})
-			: rn::Json({ {"id", id} })
-		{
-			update(data);
-		}
+		TransferData(size_t id, const rn::Json &data = {});
+		const size_t id() const;
+		const rn::Json &data() const;
+		rn::Json &data();
 	};
 
 public:
