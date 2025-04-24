@@ -79,7 +79,7 @@ const FileLoader::LoadingContent<T> &FileLoader::addToUpload(std::vector<Loading
 	upload_container.emplace_back(new LoadingContent<T>(path, [](const sf::String &path, T &content) {
 		if (!content.loadFromFile(path))
 		{
-			throw new std::out_of_range("File not found: '" + path + "'");
+			throw std::out_of_range("File not found: '" + path + "'");
 		}
 	}));
 	return *upload_container.back();
