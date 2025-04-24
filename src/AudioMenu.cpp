@@ -18,25 +18,24 @@ AudioMenu::AudioMenu(sf::RenderWindow &window)
 AudioMenu::~AudioMenu()
 {
 	window.setView(window.getDefaultView());
+	space->clear();
 }
 
 void AudioMenu::start()
 {
-	camera.reset(new ShipCamera(window, [&]() {
-		background.setPosition(camera->getPosition());
+	GameGlobals::create(window, [&]() {
+		background.setPosition(space->camera.getPosition());
 		info.updateData("camera_pos");
 		info.updateData("view_area");
 		info.updateData("fps");
-	}));
-	field.setCamera(camera.get());
+	});
+	space = GameGlobals::instance();
 	info.addData("camera_pos", [&]() -> sf::String {
-		if (!camera)
-			return "null";
-		rn::Vec2i p{ camera->getPosition() };
+		rn::Vec2i p{ space->camera.getPosition() };
 		return "{ " + std::to_string(p.x) + ", " + std::to_string(p.y) + " }";
 	});
 	info.addData("view_area", [&]() -> sf::String {
-		const sf::View &view = field.getBulletMother().getViewArea();
+		const sf::View &view = space->field.getBulletMother().getViewArea();
 
 		return "{ " + std::to_string(view.getCenter().x) + ", " + std::to_string(view.getCenter().y) + ", "
 			   + std::to_string(view.getSize().x) + ", " + std::to_string(view.getSize().y) + " }";
@@ -44,28 +43,30 @@ void AudioMenu::start()
 	info.addData("fps", [&]() -> sf::String {
 		return std::to_string(rn::FPS);
 	});
-	field.appendShip<Ship>(camera.get());
-	player = field[0];
 	rn::Vec2f res{ rn::VideoSettings::getResolution() };
-	player->setPosition(res / 2.f);
 	summonShip();
+	if (space)
+	{
+		space->player->setPosition(res / 2.f);
+		space->field.start();
+		space->action_manager.start();
+	}
 	background.start();
-	field.start();
 	fps_clock.start();
 }
 
 void AudioMenu::update()
 {
-	window.clear();
-
+	if (!space)
+		return;
 	th->launch();
 	background.update();
 	th->wait();
 	sf::Transform bg_transform;
-	if (camera)
-		bg_transform = camera->getTransform();
+	bg_transform = space->camera.getTransform();
+	window.clear();
 	window.draw(background, bg_transform);
-	window.draw(field);
+	window.draw(space->field);
 	window.draw(info, bg_transform);
 	window.display();
 }
@@ -73,10 +74,13 @@ void AudioMenu::update()
 void AudioMenu::onEvent(sf::Event &event)
 {
 	background.onEvent(event);
-
-	if (window.hasFocus())
+	if (space)
 	{
-		field.onEvent(event);
+		space->action_manager.onEvent(event);
+		if (window.hasFocus())
+		{
+			space->field.onEvent(event);
+		}
 	}
 	if (event.type == sf::Event::Closed)
 	{
@@ -98,29 +102,27 @@ void AudioMenu::onEvent(sf::Event &event)
 }
 void AudioMenu::updateObjectsState()
 {
-	if (!window.hasFocus())
-	{
+	if (!window.hasFocus() || !space)
 		return;
-	}
-	field.update();
+	space->field.update();
+	space->action_manager.update();
 	Collidable::updateCollisionState();
 }
 
 void AudioMenu::summonShip()
 {
+	if (!space)
+		return;
 	auto res = rn::Vec2f(rn::VideoSettings::getResolution());
-	field.appendShip<EnemyShip>();
-	auto ship = dynamic_cast<EnemyShip *>(field[field.size() - 1]);
+	space->field.appendShip<EnemyShip>();
+	auto ship = dynamic_cast<EnemyShip *>(space->field[space->field.size() - 1]);
 	if (ship)
 	{
 		ship->start();
-		ship->setTarget(player);
-		if (camera)
-		{
-			rn::Vec2f randomPosition{ rn::random::real(0.f, 1.f) * camera->getViewSize().x,
-									  rn::random::real(0.f, 1.f) * camera->getViewSize().x };
-			ship->setPosition(camera->getPosition() + randomPosition);
-		}
+		ship->setTarget(space->player);
+		rn::Vec2f randomPosition{ rn::random::real(0.f, 1.f) * space->camera.getViewSize().x,
+								  rn::random::real(0.f, 1.f) * space->camera.getViewSize().x };
+		ship->setPosition(space->camera.getPosition() + randomPosition);
 	}
 }
 

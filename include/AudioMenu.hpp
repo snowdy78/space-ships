@@ -3,6 +3,7 @@
 #include "components/GameInfo.hpp"
 #include "decl.hpp"
 #include "game/Camera2d.hpp"
+#include "game/GameGlobals.hpp"
 #include "game/SpaceField.hpp"
 #include "components/Background.hpp"
 
@@ -24,10 +25,7 @@ class AudioMenu : public rn::MenuBranch
 	Background background{};
 	GameInfo info;
 	std::unique_ptr<sf::Thread> th;
-	AbstractShip *player = nullptr;
-	std::unique_ptr<ShipCamera> camera = nullptr;
-	SpaceField field;
-
+	GameGlobals *space = nullptr;
 	rn::Stopwatch fps_clock;
 	bool dev_mode = true;
 

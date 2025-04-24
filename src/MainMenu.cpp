@@ -1,6 +1,6 @@
 #include "MainMenu.hpp"
 #include "AudioMenu.hpp"
-#include "ServerTestBranch.hpp"
+#include "ConnectToGameBranch.hpp"
 #include "HostGameBranch.hpp"
 
 MainMenu::~MainMenu()
@@ -64,7 +64,7 @@ void MainMenu::onEvent(sf::Event &event)
     }
     else if (connect_button.isClicked(sf::Mouse::Left))
     {
-        next_branch<ServerTestBranch>(window);
+        next_branch<ConnectToGameBranch>(window);
     }
     else if (exit_button.isClicked(sf::Mouse::Left))
     {

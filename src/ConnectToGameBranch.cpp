@@ -1,12 +1,14 @@
-#include "HostGameBranch.hpp"
+#include "ConnectToGameBranch.hpp"
 #include <memory>
 #include "coop/TransferableAction.hpp"
 #include "coop/UdpSocket.hpp"
+#include "game/EnemyShip.hpp"
 #include "game/GameObjectFabric.hpp"
 #include "game/SpaceField.hpp"
+#include "game/actions/AbstractAction.hpp"
 
 
-void HostGameBranch::start()
+void ConnectToGameBranch::start()
 {
 	auto res = rn::Vec2f(rn::VideoSettings::getResolution());
 	rn::Table table{
@@ -14,41 +16,27 @@ void HostGameBranch::start()
 		10,
 		{ res.x / 5, res.y / 10 }
 	};
+
 	send_status.setPosition(table.getCellGlobalPos(1, 2));
 	receive_status.setPosition(table.getCellGlobalPos(1, 3));
 	GameGlobals::create(window, [this] {
 		background.setPosition(space->camera.getPosition());
 	});
-	
 	space = GameGlobals::instance();
 	client.setBlocking(false);
 	client.bind(remote_port, ip_address);
 	if (space)
 	{
 		space->player->setPosition(res / 2.f);
-		background.start();
 		space->field.start();
-		space->action_manager.start();
-		GameObjectFabricTranslator translator;
-		translator.assignUpdateData(GameObjectFabric::instance().begin(), GameObjectFabric::instance().end());
-		auto status = client.sendObject(&translator);
-		if (status != sf::Socket::Done)
-		{
-			std::cerr << "Failed to send with code: " << status << "\n";
-		}
-		else 
-		{
-			std::cout << "Successfully sent data: " << translator.toJson().dump(2, ' ', '\n') << "\n";
-		}
+		space->field.appendShip<EnemyShip>();
 	}
-
 }
-void HostGameBranch::update()
+void ConnectToGameBranch::update()
 {
 	if (!space)
 		return;
 	space->field.update();
-	space->action_manager.update();
 	background.update();
 	receivePackets();
 	window.clear();
@@ -60,18 +48,19 @@ void HostGameBranch::update()
 	window.draw(receive_status);
 	window.display();
 }
-void HostGameBranch::onEvent(sf::Event &event)
+void ConnectToGameBranch::onEvent(sf::Event &event)
 {
 	if (event.type == sf::Event::Closed)
 	{
 		window.close();
 	}
 	space->field.onEvent(event);
-	space->action_manager.onEvent(event);
 }
 
-void HostGameBranch::receivePackets()
+void ConnectToGameBranch::receivePackets()
 {
+	if (!space)
+		return;
 	auto various_data = client.recieve();
 	if (std::holds_alternative<UdpSocket::ReceiveType>(various_data))
 	{
@@ -109,7 +98,7 @@ void HostGameBranch::receivePackets()
 		}
 		if (received.is_action())
 		{
-			std::unique_ptr<AbstractAction> action{ received.action().release() };
+			std::unique_ptr<AbstractAction> action = std::move(received.action());
 			if (action)
 			{
 				space->action_manager.addToTop(std::move(action));
