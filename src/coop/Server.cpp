@@ -6,7 +6,7 @@ void Server::start()
 	int connect_code = bind(getPort(), getIPv4());
 	if (connect_code != Done)
 	{
-		std::cout << "Failed to connect with code: " << connect_code << "\n";
+		std::cerr << "Failed to connect with code: " << connect_code << "\n";
 		throw std::exception();
 	}
 	type_remote_address();
