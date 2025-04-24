@@ -46,10 +46,11 @@ public:
 
 	template<ShipT T, class... Args>
 	void appendShip(const Args &...args);
+	void summonShip(AbstractShip *const &object);
 	void summonBullet(Bullet *const &bullet, const rn::Vec2f &direction);
 	void destroyBullet(const Bullet *const &bullet);
 
-	void remove(AbstractShip *ship);
+	void remove(const AbstractShip *ship);
 
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 	SpaceField &operator=(const SpaceField &other);

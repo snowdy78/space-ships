@@ -24,6 +24,7 @@ public:
 	void rotation() override;
 	void onMove() override;
 	void onHit() override;
+	void summonCopy(SpaceField *field) const override;
 	AbstractShip *copy() const override;
 	
 };

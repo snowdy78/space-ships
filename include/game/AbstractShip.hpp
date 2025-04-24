@@ -26,12 +26,16 @@ protected:
 	EllipseCollider collider;
 	bool is_dead	 = false;
 	bool accelerated = getVelocity() + 0.3f;
+	bool is_friendly = false;
 
 	inline static loading<sf::SoundBuffer> hit_buffer = FileLoader::Instance().addSoundToUpload("hit.ogg").get();
 	SoundDisperseEntity hit_sound{ 20.f, 100.f };
 
 public:
 	AbstractShip(const sf::Texture &texture);
+
+	bool friendly() const;
+	void friendly(bool friendly);
 	void setGun(const Gun &gun);
 	const Gun *getGun() const;
 	rn::Vec2f getSize() const;
@@ -59,6 +63,7 @@ public:
 	void onCollisionEnter(Collidable *collidable) override;
 	bool resolve(const Collidable *collidable) const override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+	void destroyFromField() const override;
 	virtual AbstractShip *copy() const = 0;
 };
 

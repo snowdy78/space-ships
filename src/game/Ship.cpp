@@ -2,6 +2,10 @@
 #include "RuneEngine/variables.hpp"
 #include "game/AbstractShip.hpp"
 #include "game/Camera2d.hpp"
+#include "game/EnemyShip.hpp"
+#include "game/GameGlobals.hpp"
+#include "game/SpaceField.hpp"
+#include "game/actions/ShipShootAction.hpp"
 
 Ship::Ship(Camera2d *camera)
 	: AbstractShip(*texture),
@@ -74,7 +78,10 @@ void Ship::onEvent(sf::Event &event)
 	AbstractShip::onEvent(event);
 	if (rn::isKeydown(sf::Mouse::Left))
 	{
-		shoot();
+		if (GameGlobals::instance())
+		{
+			GameGlobals::instance()->action_manager.emplaceToTop<ShipShootAction>(this, nullptr, rn::Json{{"direction", {{"x", getDirection().x}, {"y", getDirection().y}}}});
+		}
 	}
 }
 void Ship::onRotation()
@@ -86,6 +93,17 @@ void Ship::onRotation()
 void Ship::onHit()
 {
 	AbstractShip::onHit();
+}
+void Ship::summonCopy(SpaceField *field) const 
+{
+	if (friendly())
+	{
+		// field->appendShip<FriendlyShip>();
+	}
+	else if (!friendly())
+	{
+		field->appendShip<EnemyShip>();
+	}
 }
 AbstractShip *Ship::copy() const
 {

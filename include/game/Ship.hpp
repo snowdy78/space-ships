@@ -26,5 +26,6 @@ public:
 	void onEvent(sf::Event &event) override;
 	void onRotation() override;
 	void onHit() override;
+	void summonCopy(SpaceField *field) const override;
 	AbstractShip *copy() const override;
 };

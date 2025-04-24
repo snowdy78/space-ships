@@ -1,5 +1,6 @@
 #include "game/EnemyShip.hpp"
 #include "game/AbstractShip.hpp"
+#include "game/SpaceField.hpp"
 
 EnemyShip::EnemyShip()
 	: AbstractShip(*texture)
@@ -24,6 +25,11 @@ void EnemyShip::onMove()
 void EnemyShip::onHit()
 {
 	AbstractShip::onHit();
+}
+
+void EnemyShip::summonCopy(SpaceField *field) const 
+{
+	field->appendShip<EnemyShip>();
 }
 
 AbstractShip *EnemyShip::copy() const

@@ -4,11 +4,20 @@
 #include "game/SpaceField.hpp"
 #include "game/guns/Pistol.hpp"
 
+
 AbstractShip::AbstractShip(const sf::Texture &texture)
 	: sprite(texture),
 	  gun(new Pistol(this))
 {
 	hit_sound.setBuffer(*hit_buffer);
+}
+bool AbstractShip::friendly() const 
+{
+	return is_friendly;
+}
+void AbstractShip::friendly(bool friendly) 
+{
+	is_friendly = friendly;
 }
 rn::Vec2f AbstractShip::getSize() const
 {
@@ -77,6 +86,13 @@ void AbstractShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	states.transform *= getTransform();
 	target.draw(sprite, states);
 	target.draw(health_bar, st);
+}
+void AbstractShip::destroyFromField() const
+{
+	if (field)
+	{
+		field->remove(this);
+	}
 }
 void AbstractShip::onMove()
 {

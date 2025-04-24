@@ -44,7 +44,7 @@ public:
 	float getAcceleration() const;
 	rn::Vec2f getSize() const;
 
-	void destroy() const;
+	void destroyFromField() const override;
 
 	virtual void beforeDestroy() const {}
 	void onCollisionEnter(Collidable *obstacle) override;
@@ -62,5 +62,6 @@ public:
 	bool resolve(const Collidable *collidable) const override;
 	void update() override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+	void summonCopy(SpaceField *field) const override;
 	virtual Bullet *copy() const = 0;
 };

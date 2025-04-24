@@ -3,8 +3,7 @@
 SpaceField::SpaceField(Camera2d *camera)
 	: camera(camera),
 	  mother(camera)
-{
-}
+{}
 
 SpaceField::SpaceField(const SpaceField &field)
 	: camera(field.camera)
@@ -39,7 +38,7 @@ const BulletMother &SpaceField::getBulletMother() const
 	return mother;
 }
 
-void SpaceField::remove(AbstractShip *ship)
+void SpaceField::remove(const AbstractShip *ship)
 {
 	auto it = std::find(ships.begin(), ships.end(), ship);
 	if (it != ships.end())
@@ -126,6 +125,7 @@ void SpaceField::summonBullet(Bullet *const &bullet, const rn::Vec2f &direction)
 	{
 		bullet->setField(this);
 		mother.summon(bullet, direction);
+		bullet->onSummon();
 	}
 }
 

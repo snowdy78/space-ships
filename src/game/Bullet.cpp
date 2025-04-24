@@ -108,7 +108,7 @@ const sf::Sprite &Bullet::getSprite() const
 {
 	return sprite;
 }
-void Bullet::destroy() const
+void Bullet::destroyFromField() const
 {
 	if (field)
 	{
@@ -120,7 +120,7 @@ void Bullet::onCollisionEnter(Collidable *obstacle)
 {
 	if (auto hittable = dynamic_cast<Hittable *>(obstacle))
 	{
-		destroy();
+		destroyFromField();
 	}
 }
 void Bullet::setTexture(const sf::Texture &texture)
@@ -136,4 +136,8 @@ void Bullet::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
 	states.transform = getTransform();
 	target.draw(sprite, states);
+}
+void Bullet::summonCopy(SpaceField *field) const 
+{
+	field->summonBullet(copy(), getDirection());
 }

@@ -4,9 +4,11 @@
 
 class ShipShootAction : public TransferableAction 
 {
-    const static size_t id; 
+    const static size_t id;
+    AbstractShip *ship = nullptr;
+    rn::Vec2f direction{};
 public:
-    ShipShootAction(std::optional<GameObject *> author = std::nullopt, std::optional<GameObject *> target = std::nullopt, const rn::Json &props = {});
+    ShipShootAction(GameObject *author = nullptr, GameObject *target = nullptr, const rn::Json &props = {});
     void play() override;
     virtual TransferJson toJson() const override;
     virtual AbstractAction *copy() const override;
