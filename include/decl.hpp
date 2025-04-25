@@ -27,6 +27,12 @@ class TransferableObject;
 class TransferableObjectFabric;
 class TransferableAction;
 class TransferableActionFabric;
+class BasicRouterResponse;
+template<class RespT = BasicRouterResponse>
+class BasicRouter;
+using Router = BasicRouter<>;
+
+class UdpRouter;
 
 class GameObject;
 class GameObjectFabric;

@@ -2,23 +2,16 @@
 
 const size_t Request::id = TransferableObjectFabric::instance().push<Request>();
 
-Request::Request(const rn::Json &data)
-    : object(id, data)
-{
 
-}
-
-rn::Json &Request::at(const char *key) 
+void Request::receiveJson(const rn::Json &json) 
 {
-    return object.data().at(key);
-}
-
-const rn::Json &Request::at(const char *key) const 
-{
-    return object.data().at(key);
+    clear();
+    rn::Json::operator=(json);
 }
 
 Request::TransferJson Request::toJson() const 
 {
-    return object;
+    return {
+        id, *this
+    };
 }

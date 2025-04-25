@@ -1,7 +1,8 @@
 #include "HostGameBranch.hpp"
 #include <memory>
+#include "coop/Request.hpp"
 #include "coop/TransferableAction.hpp"
-#include "coop/UdpSocket.hpp"
+#include "coop/UdpRouter.hpp"
 #include "game/GameObjectFabric.hpp"
 #include "game/SpaceField.hpp"
 
@@ -29,17 +30,6 @@ void HostGameBranch::start()
 		background.start();
 		space->field.start();
 		space->action_manager.start();
-		GameObjectFabricTranslator translator;
-		translator.assignUpdateData(GameObjectFabric::instance().begin(), GameObjectFabric::instance().end());
-		auto status = client.sendObject(&translator);
-		if (status != sf::Socket::Done)
-		{
-			std::cerr << "Failed to send with code: " << status << "\n";
-		}
-		else 
-		{
-			std::cout << "Successfully sent data: " << translator.toJson().dump(2, ' ', '\n') << "\n";
-		}
 	}
 
 }
@@ -73,33 +63,28 @@ void HostGameBranch::onEvent(sf::Event &event)
 void HostGameBranch::receivePackets()
 {
 	auto various_data = client.recieve();
-	if (std::holds_alternative<UdpSocket::ReceiveType>(various_data))
+	if (std::holds_alternative<UdpRouter::Response>(various_data))
 	{
-		auto received = std::get<UdpSocket::ReceiveType>(various_data);
+		auto received = std::get<UdpRouter::Response>(various_data);
 		if (received.is_object())
 		{
 			auto object = received.object();
-			if (auto translator = dynamic_cast<GameObjectFabricTranslator *>(object.get()))
+			if (auto request_ptr = dynamic_cast<Request *>(object.get()))
 			{
-				if (translator->getTranslateType() == GameObjectFabricTranslator::TranslateType::Append)
+				auto &request = *request_ptr;
+				if (request.contains("type") && request["type"] == "connect")
 				{
-					auto objects = GameObjectFabric::instance().update(*translator);
-					for (auto &unique_object: objects)
+					GameObjectFabricTranslator translator;
+					translator.assignUpdateData(GameObjectFabric::instance().begin(), GameObjectFabric::instance().end());
+					auto status = client.sendObject(&translator);
+					if (status != sf::Socket::Done)
 					{
-						if (auto space_object = dynamic_cast<SpaceFieldObject *>(unique_object.get()))
-						{
-							space_object->summonCopy(&space->field);
-						}
+						std::cerr << "Failed to send with code: " << status << "\n";
 					}
-				}
-				else if (translator->getTranslateType() == GameObjectFabricTranslator::TranslateType::Clear)
-				{
-					GameObjectFabric::instance().remove(*translator, [&](GameObject *game_object) {
-						if (auto space_object = dynamic_cast<SpaceFieldObject *>(game_object))
-						{
-							space_object->destroyFromField();
-						}
-					});
+					else 
+					{
+						std::cout << "Successfully sent data: " << translator.toJson().dump(2, ' ', '\n') << "\n";
+					}
 				}
 			}
 			if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))

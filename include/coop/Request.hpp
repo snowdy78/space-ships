@@ -1,18 +1,15 @@
 #pragma once
 
-#include "decl.hpp"
 #include "TransferableObject.hpp"
+#include "decl.hpp"
 
-struct Request : public TransferableObject
+
+struct Request : public TransferableObject, public rn::Json
 {
-    static const size_t id;
-    TransferJson object;
+	static const size_t id;
 public:
-    Request(const rn::Json &data = {});
-    rn::Json &at(const char *key);
-    const rn::Json &at(const char *key) const;
-    TransferJson toJson() const override;
+    using rn::Json::Json;
+    Request() = default;
+    void receiveJson(const rn::Json &json) override;
+	TransferJson toJson() const override;
 };
-
-
-

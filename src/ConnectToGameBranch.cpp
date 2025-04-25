@@ -1,7 +1,8 @@
 #include "ConnectToGameBranch.hpp"
 #include <memory>
+#include "coop/Request.hpp"
 #include "coop/TransferableAction.hpp"
-#include "coop/UdpSocket.hpp"
+#include "coop/UdpRouter.hpp"
 #include "game/EnemyShip.hpp"
 #include "game/GameObjectFabric.hpp"
 #include "game/SpaceField.hpp"
@@ -28,8 +29,20 @@ void ConnectToGameBranch::start()
 	if (space)
 	{
 		space->player->setPosition(res / 2.f);
+		background.start();
 		space->field.start();
-		space->field.appendShip<EnemyShip>();
+		space->action_manager.start();
+		Request request;
+		request["type"] = "connect";
+		auto status = client.sendObject(&request);
+		if (status != sf::Socket::Done)
+		{
+			std::cerr << "Failed to send with code: " << status << "\n";
+		}
+		else
+		{
+			std::cout << "Successfully sent data: " << request.toJson().dump(2, ' ', '\n') << "\n";
+		}
 	}
 }
 void ConnectToGameBranch::update()
@@ -37,6 +50,7 @@ void ConnectToGameBranch::update()
 	if (!space)
 		return;
 	space->field.update();
+	space->action_manager.update();
 	background.update();
 	receivePackets();
 	window.clear();
@@ -55,6 +69,7 @@ void ConnectToGameBranch::onEvent(sf::Event &event)
 		window.close();
 	}
 	space->field.onEvent(event);
+	space->action_manager.onEvent(event);
 }
 
 void ConnectToGameBranch::receivePackets()
@@ -62,9 +77,9 @@ void ConnectToGameBranch::receivePackets()
 	if (!space)
 		return;
 	auto various_data = client.recieve();
-	if (std::holds_alternative<UdpSocket::ReceiveType>(various_data))
+	if (std::holds_alternative<UdpRouter::Response>(various_data))
 	{
-		auto received = std::get<UdpSocket::ReceiveType>(various_data);
+		auto received = std::get<UdpRouter::Response>(various_data);
 		if (received.is_object())
 		{
 			auto object = received.object();

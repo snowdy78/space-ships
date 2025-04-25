@@ -1,12 +1,12 @@
 #pragma once
 
+#include "decl.hpp"
 #include "components/Background.hpp"
 #include "components/TargetCamera.hpp"
-#include "decl.hpp"
 #include "game/GameGlobals.hpp"
 #include "game/SpaceField.hpp"
 #include "game/Ship.hpp"
-#include "coop/UdpSocket.hpp"
+#include "coop/UdpRouter.hpp"
 #include "game/actions/ActionManager.hpp"
 
 class HostGameBranch : public rn::MenuBranch 
@@ -14,7 +14,7 @@ class HostGameBranch : public rn::MenuBranch
     sf::IpAddress ip_address = sf::IpAddress::getLocalAddress();
     size_t port = 12344;
     size_t remote_port = 12345;
-    UdpSocket client = UdpSocket(ip_address, port);
+    UdpRouter client = UdpRouter(ip_address, port);
  
     sf::Text send_status{"", *Font::Default};
     sf::Text receive_status{"", *Font::Default};
