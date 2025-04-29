@@ -1,17 +1,13 @@
 #pragma once
 
-#include <chrono>
-#include "decl.hpp"
 #include "Effect.hpp"
 
 struct AnimationDataInfo
 {
-	AnimationDataInfo(
-		const sf::String &path_to_data_folder, const sf::String &mime_file_type
-	);
+	AnimationDataInfo(const sf::String &path_to_data_folder, const std::filesystem::path &file_extention);
 
 	const sf::String path_to_folder;
-	const sf::String mime_file_type;
+	const std::filesystem::path file_extention;
 };
 
 /**
@@ -19,29 +15,44 @@ struct AnimationDataInfo
  */
 class AnimatedSprite : public Effect
 {
-	class Keyframe;
 public:
-private:
-	using keyframe_vector = std::vector<std::unique_ptr<Keyframe>>;
-	
 	class Keyframe
 	{
 		friend class AnimatedSprite;
 		Keyframe(const time_digit_t &duration, sf::Texture *const &texture);
+		Keyframe(const Keyframe &keyframe);
+		Keyframe(Keyframe &&) noexcept = default;
+
 	public:
-		Keyframe(const Keyframe &) = delete;
-		Keyframe(Keyframe &&) noexcept = delete;
 		const time_digit_t &getDuration() const;
 		const sf::Texture &getTexture() const;
-		Keyframe &operator=(const Keyframe &) = delete;
-		Keyframe &operator=(Keyframe &&) noexcept = delete;
+
 	private:
 		void setDuration(const time_digit_t &duration);
 		void setTexture(sf::Texture *texture);
 
+		Keyframe &operator=(const Keyframe &keyframe);
+		Keyframe &operator=(Keyframe &&) noexcept = default;
+
 	private:
 		time_digit_t m_duration;
 		std::unique_ptr<sf::Texture> m_texture;
+	};
+
+private:
+	struct PrivKeyframe;
+	using keyframe_vector = std::vector<std::unique_ptr<PrivKeyframe>>;
+
+	struct PrivKeyframe : public Keyframe
+	{
+		friend class AnimatedSprite;
+		using Keyframe::Keyframe;
+		PrivKeyframe(const PrivKeyframe &)	   = default;
+		PrivKeyframe(PrivKeyframe &&) noexcept = default;
+		using Keyframe::setDuration;
+		using Keyframe::setTexture;
+		PrivKeyframe &operator=(const PrivKeyframe &)	 = default;
+		PrivKeyframe &operator=(PrivKeyframe &) noexcept = default;
 	};
 
 public:
@@ -52,6 +63,7 @@ public:
 
 	AnimatedSprite() = default;
 	AnimatedSprite(const time_digit_t &duration);
+	AnimatedSprite(const AnimatedSprite &);
 
 	bool load(const AnimationDataInfo &datainfo);
 	void setDuration(const time_digit_t &duration);
@@ -92,20 +104,21 @@ public:
 	void spanKeyframes(IterT start, const IterT &stop);
 	void setRepeating(bool repeating);
 
+	AnimatedSprite &operator=(const AnimatedSprite &anim);
 private:
 	bool m_repeating = false;
-	sf::Clock m_clock;
+	rn::Stopwatch m_clock;
 	keyframe_vector m_keyframes{};
 	time_digit_t m_duration{ 0 };
 	iterator m_current_keyframe{ end() };
 };
 
 template<class IterT>
-void AnimatedSprite::spanKeyframes(IterT start, const IterT &stop) 
+void AnimatedSprite::spanKeyframes(IterT start, const IterT &stop)
 {
 	if (start == m_keyframes.end())
 		throw std::out_of_range("keyframe is out of range");
-	time_digit_t add_duration{0};
+	time_digit_t add_duration{ 0 };
 	auto &keyframe = *start;
 	if (++start == m_keyframes.end())
 		throw std::out_of_range("keyframe is out of range");

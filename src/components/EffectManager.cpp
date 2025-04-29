@@ -4,11 +4,6 @@ EffectManager::const_iterator EffectManager::begin() { return m_effects.begin();
 
 EffectManager::const_iterator EffectManager::end() { return m_effects.end(); }
 
-void EffectManager::push_back(const Effect &sprite) 
-{
-    m_effects.push_back(&sprite);
-}
-
 EffectManager::const_iterator EffectManager::erase(const_iterator index) 
 {
     return m_effects.erase(index);
@@ -42,13 +37,9 @@ void EffectManager::update()
         if (*effect)
         {
             if ((*effect)->played())
-            {
-                erase(effect);
-            }
-        }
-        else 
-        {
-            erase(effect);
+                effect = --erase(effect);
+            else 
+                (*effect)->update();
         }
     }
 }

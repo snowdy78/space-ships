@@ -1,11 +1,12 @@
 #include "components/AnimatedSprite.hpp"
 #include <algorithm>
 #include <filesystem>
+#include <stdexcept>
 
 
-AnimationDataInfo::AnimationDataInfo(const sf::String &path_to_data_folder, const sf::String &mime_file_type)
+AnimationDataInfo::AnimationDataInfo(const sf::String &path_to_data_folder, const std::filesystem::path &file_extention)
 	: path_to_folder(path_to_data_folder),
-	  mime_file_type(mime_file_type)
+	  file_extention(file_extention)
 {}
 
 AnimatedSprite::Keyframe::Keyframe(const time_digit_t &duration, sf::Texture *const &texture)
@@ -34,6 +35,25 @@ AnimatedSprite::AnimatedSprite(const time_digit_t &duration)
 	: m_duration(duration)
 {}
 
+AnimatedSprite::AnimatedSprite(const AnimatedSprite &anim)
+	: Effect(anim),
+	  m_repeating(anim.getRepeating()),
+	  m_clock(anim.m_clock),
+	  m_duration(anim.m_duration)
+{
+	long long cur_kf_index = 0;	
+	for (long long kf_index = 0; kf_index < anim.m_keyframes.size(); ++kf_index)
+	{
+		auto ik = anim.m_keyframes.begin() + kf_index;
+		m_keyframes.emplace_back(new PrivKeyframe(**ik));
+		if (ik == anim.m_current_keyframe) // finding current keyframe in a new array
+		{
+			cur_kf_index = kf_index;
+		}
+	}
+	m_current_keyframe = m_keyframes.begin() + cur_kf_index;
+}
+
 bool AnimatedSprite::load(const AnimationDataInfo &datainfo)
 {
 	std::filesystem::directory_iterator di{ datainfo.path_to_folder.toAnsiString() };
@@ -44,12 +64,7 @@ bool AnimatedSprite::load(const AnimationDataInfo &datainfo)
 		{
 			std::wstring str{ item.path() };
 			std::string path{ str.begin(), str.end() };
-			auto sep = datainfo.mime_file_type.find("/");
-			if (sep == sf::String::InvalidPos)
-				sep = datainfo.mime_file_type.find("\\");
-			if (sep == sf::String::InvalidPos)
-				continue;
-			if (path.find("." + datainfo.mime_file_type.substring(sep + 1)))
+			if (str.find(datainfo.file_extention.c_str()))
 			{
 				paths.push_back(std::move(path));
 			}
@@ -68,12 +83,12 @@ bool AnimatedSprite::load(const AnimationDataInfo &datainfo)
 			m_keyframes.clear();
 			return false;
 		}
-		std::unique_ptr<Keyframe> keyframe{ new Keyframe(average_keyframe_time, texture) };
+		std::unique_ptr<PrivKeyframe> keyframe{ new PrivKeyframe(average_keyframe_time, texture) };
 		m_keyframes.push_back(std::move(keyframe));
 	}
 	if (getKeyframeCount())
 	{
-		start();
+		setCurrentKeyframe(0);
 	}
 	return true;
 }
@@ -82,29 +97,31 @@ void AnimatedSprite::start()
 {
 	m_current_keyframe = begin();
 	setTexture(getKeyframe(0).getTexture());
-	m_clock.restart();
+	m_clock.reset();
+	m_clock.start();
 }
 
 void AnimatedSprite::update()
 {
-	if (m_current_keyframe != end() && *m_current_keyframe
-		&& m_clock.getElapsedTime().asMilliseconds() > (*m_current_keyframe)->getDuration().count())
+	if (!m_clock.is_stopped() && m_clock.time<time_digit_t>().count() > (*m_current_keyframe)->getDuration().count())
 	{
 		++m_current_keyframe;
 		if (m_current_keyframe == end())
 		{
 			if (m_repeating)
-				m_current_keyframe = begin();
+				start();
+			else
+				m_clock.stop();
 		}
 		else
 			setTexture((*m_current_keyframe)->getTexture());
-		m_clock.restart();
+		m_clock.reset();
 	}
 }
 
-bool AnimatedSprite::played() const 
+bool AnimatedSprite::played() const
 {
-	return !m_keyframes.empty() && m_current_keyframe == end() && !m_repeating;
+	return m_clock.is_stopped() && !m_keyframes.empty() && m_current_keyframe == end() && !m_repeating;
 }
 
 AnimatedSprite::const_iterator AnimatedSprite::begin() const
@@ -191,6 +208,29 @@ void AnimatedSprite::setRepeating(bool repeating)
 	m_repeating = repeating;
 }
 
+AnimatedSprite &AnimatedSprite::operator=(const AnimatedSprite &anim) 
+{
+	if (this != &anim)
+	{
+		m_repeating = anim.m_repeating;
+		m_clock = anim.m_clock;
+		m_duration = anim.m_duration;
+		m_keyframes.clear();
+		long long cur_kf_index = 0;	
+		for (long long kf_index = 0; kf_index < anim.m_keyframes.size(); ++kf_index)
+		{
+			auto ik = anim.m_keyframes.begin() + kf_index;
+			m_keyframes.emplace_back(new PrivKeyframe(**ik));
+			if (ik == anim.m_current_keyframe) // finding current keyframe in a new array
+			{
+				cur_kf_index = kf_index;
+			}
+		}
+		m_current_keyframe = m_keyframes.begin() + cur_kf_index;
+	}
+	return *this;
+}
+
 const AnimatedSprite::time_digit_t &AnimatedSprite::getDuration() const
 {
 	return m_duration;
@@ -203,5 +243,26 @@ bool AnimatedSprite::getRepeating() const
 
 void AnimatedSprite::setCurrentKeyframe(size_t index)
 {
+	if (index > getKeyframeCount())
+		throw std::out_of_range("invalid keyframe index");
+	if (index == getKeyframeCount())
+		m_clock.stop();
 	m_current_keyframe = begin() + static_cast<long long>(index);
+	if (index != getKeyframeCount())
+	{
+		setTexture(m_keyframes.at(index)->getTexture());
+	}
+}
+AnimatedSprite::Keyframe::Keyframe(const Keyframe &keyframe)
+	: m_duration(keyframe.m_duration),
+	  m_texture(new sf::Texture(*keyframe.m_texture))
+{}
+AnimatedSprite::Keyframe &AnimatedSprite::Keyframe::operator=(const Keyframe &keyframe)
+{
+	if (this != &keyframe)
+	{
+		m_duration = keyframe.m_duration;
+		m_texture.reset(new sf::Texture(*keyframe.m_texture));
+	}
+	return *this;
 }
