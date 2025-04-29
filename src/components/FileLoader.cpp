@@ -80,10 +80,10 @@ const FileLoader::LoadingTexture &FileLoader::addTextureToUpload(const char *pat
 	});
 }
 
-const FileLoader::LoadingAnimatedSprite &FileLoader::addAnimatedSpriteToUpload(const char *path, const sf::String &mime_type)
+const FileLoader::LoadingAnimatedSprite &FileLoader::addAnimatedSpriteToUpload(const char *path, const std::filesystem::path &file_extention)
 {
-	return addToUpload(anim_sprites, path, [mime_type](const sf::String &path, AnimatedSprite &content) {
-		if (!content.load({path, mime_type}))
+	return addToUpload(anim_sprites, path, [file_extention](const sf::String &path, AnimatedSprite &content) {
+		if (!content.load({path, file_extention}))
 		{
 			throw std::out_of_range("File not found: '" + path + "'");
 		}

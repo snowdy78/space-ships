@@ -1,7 +1,6 @@
 #pragma once
 
 #include "components/AnimatedSprite.hpp"
-#include "decl.hpp"
 
 template<class T>
 using loading = const T *const &;
@@ -27,6 +26,8 @@ public:
 		bool isLoaded() const;
 		loading<T> get() const;
 		loading_ptr<T> ptr() const;
+		sf::String base_name(const sf::String & delims = "/\\");
+		sf::String name_noext();
 
 		void setLoadPath(const sf::String &path);
 		void setLoadFunction(load_func_t load_function);
@@ -69,7 +70,7 @@ public:
 	const LoadingSound &addSoundToUpload(const char *path);
 	const LoadingFont &addFontToUpload(const char *path);
 	const LoadingTexture &addTextureToUpload(const char *path);
-	const LoadingAnimatedSprite &addAnimatedSpriteToUpload(const char *path, const sf::String &mime_type);
+	const LoadingAnimatedSprite &addAnimatedSpriteToUpload(const char *path, const std::filesystem::path &file_extention);
 
 private:
 	std::vector<LoadingAnimatedSprite *> anim_sprites;
@@ -173,6 +174,32 @@ template<class T>
 inline const T *const *FileLoader::LoadingContent<T>::ptr() const
 {
 	return texture;
+}
+
+/**
+ * @brief returns a name of file
+ * example: a path `foo/bar/myfile.png` be `myfile.png`  
+ * 
+ */
+template<class T>
+inline sf::String FileLoader::LoadingContent<T>::base_name(const sf::String & delims)
+{
+	std::wstring wpath{path.begin(), path.end()};
+	sf::String result{wpath.substr(wpath.find_last_of(delims) + 1)};
+	return result;
+}
+
+/**
+ * @brief returns a name of file
+ * example: a path `foo/bar/myfile.png` be `myfile`  
+ * 
+ */
+template<class T>
+inline sf::String FileLoader::LoadingContent<T>::name_noext()
+{
+	std::wstring base_name{this->base_name()};
+	size_t p(base_name.find_last_of('.'));
+	return {p > 0 && p != sf::String::InvalidPos ? base_name.substr(0, p) : base_name};
 }
 
 template<class T>
