@@ -7,15 +7,11 @@
 struct AnimationDataInfo
 {
 	AnimationDataInfo(
-		const sf::String &path_to_data_folder, const sf::String &mime_file_type,
-		const sf::String &file_indexing_regex = "^[0-9]+|^[a-zA-Z]+",
-		const sf::String &keyframes_sort	  = "0123456789AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
+		const sf::String &path_to_data_folder, const sf::String &mime_file_type
 	);
 
 	const sf::String path_to_folder;
 	const sf::String mime_file_type;
-	const sf::String file_indexing_regex;
-	const sf::String keyframes_sort;
 };
 
 /**
@@ -23,9 +19,12 @@ struct AnimationDataInfo
  */
 class AnimatedSprite : public rn::LogicalObject, public sf::Transformable, public sf::Drawable
 {
+	class Keyframe;
 public:
 	using time_digit_t = std::chrono::milliseconds;
-
+private:
+	using keyframe_vector = std::vector<std::unique_ptr<Keyframe>>;
+	
 	class Keyframe
 	{
 		friend class AnimatedSprite;
@@ -43,11 +42,8 @@ public:
 
 	private:
 		time_digit_t m_duration;
-		sf::Texture *m_texture;
+		std::unique_ptr<sf::Texture> m_texture;
 	};
-
-private:
-	using keyframe_vector = std::vector<Keyframe>;
 
 public:
 	using iterator				 = keyframe_vector::iterator;
@@ -59,6 +55,7 @@ public:
 	AnimatedSprite(const time_digit_t &duration);
 
 	bool load(const AnimationDataInfo &datainfo);
+	void start() override;
 	void update() override;
 
 	const_iterator begin() const;
@@ -80,6 +77,7 @@ public:
 	const time_digit_t &getDuration() const;
 	bool getRepeating() const;
 
+	void setCurrentKeyframe(size_t index);
 	void setKeyframeTexture(size_t index, sf::Texture *);
 	void setKeyframeDuration(size_t index, const time_digit_t &new_duration);
 	/**

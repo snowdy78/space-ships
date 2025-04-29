@@ -1,5 +1,6 @@
 #pragma once
 
+#include "components/AnimatedSprite.hpp"
 #include "components/GameInfo.hpp"
 #include "decl.hpp"
 #include "game/Camera2d.hpp"
@@ -13,6 +14,7 @@ class AudioMenu : public rn::MenuBranch
 {
 	
 	
+	AnimatedSprite sprite{std::chrono::seconds{1}};
 	class ShipCamera : public Camera2d
 	{
 		sf::RenderTarget &target;

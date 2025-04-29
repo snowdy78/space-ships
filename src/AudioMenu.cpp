@@ -25,6 +25,8 @@ AudioMenu::~AudioMenu()
 
 void AudioMenu::start()
 {
+	sprite.load({"./img/animation/Explosion4", "image/png"});
+	sprite.setRepeating(true);
 	GameGlobals::create(window, [&]() {
 		background.setPosition(space->camera.getPosition());
 		info.updateData("camera_pos");
@@ -64,6 +66,7 @@ void AudioMenu::update()
 		return;
 	th->launch();
 	background.update();
+	sprite.update();
 	th->wait();
 	sf::Transform bg_transform;
 	bg_transform = space->camera.getTransform();
@@ -71,6 +74,7 @@ void AudioMenu::update()
 	window.draw(background, bg_transform);
 	window.draw(space->field);
 	window.draw(info, bg_transform);
+	window.draw(sprite);
 	window.display();
 }
 
