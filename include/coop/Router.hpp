@@ -3,12 +3,15 @@
 #include <variant>
 #include <optional>
 #include "decl.hpp"
-#include "Transferable.hpp"
+#include "TransferableObject.hpp"
+#include "TransferableAction.hpp"
 
 class BasicRouterResponse
 {
-    Transferable::TransferJson transfer_json;
+    std::unique_ptr<Transferable::TransferJson> transfer_json = nullptr;
+    sf::Socket::Status m_status = sf::Socket::Done;
     BasicRouterResponse(const rn::Json &data_json = {});
+    BasicRouterResponse(const sf::Socket::Status &status);
     template<class RespT>
     friend class BasicRouter;
 
@@ -19,6 +22,8 @@ public:
 		inline static constexpr std::string action = "action";
 	};
     
+    bool success();
+    sf::Socket::Status status();
     bool is_unknown() const;
     bool is_action() const;
     bool is_object() const;
@@ -32,12 +37,59 @@ class BasicRouter
 {
 public:
     using Response = RespT;
+    using StatusOrJson = std::variant<sf::Socket::Status, rn::Json>;
 
-	BasicRouter();
+    BasicRouter() = default;
 
-    virtual sf::Socket::Status sendObject(const TransferableObject *data) = 0;
-	virtual sf::Socket::Status sendAction(std::optional<size_t> author_id, std::optional<size_t> target_id, TransferableAction *action) = 0;
-	virtual std::variant<sf::Socket::Status, BasicRouter::Response> recieve() = 0;
+    sf::Socket::Status send(const TransferableObject *data);
+	sf::Socket::Status send(std::optional<size_t> author_id, std::optional<size_t> target_id, TransferableAction *action);
+	Response receive();
 protected:
-    BasicRouter::Response createResponseBody(const rn::Json &data);
+    virtual sf::Socket::Status sendJson(const rn::Json &) = 0;
+    virtual StatusOrJson receiveJson() = 0;
 };
+
+template<class RespT>
+sf::Socket::Status BasicRouter<RespT>::send(const TransferableObject *data) 
+{
+    auto send_data	  = data->toJson();
+	send_data["type"] = Response::TransferType::object;
+	return sendJson(send_data);
+}
+
+template<class RespT>
+sf::Socket::Status BasicRouter<RespT>::send(std::optional<size_t> author_id, std::optional<size_t> target_id, TransferableAction *action)
+{
+    using namespace std::string_literals;
+	if (!action)
+		return sf::Socket::Status::Error;
+	rn::Json send_data = action->toJson();
+	send_data["type"]  = Response::TransferType::action;
+	if (author_id)
+		send_data["author_id"] = *author_id;
+	else
+		send_data["author_id"] = nullptr;
+	if (target_id)
+		send_data["target_id"] = *target_id;
+	else
+		send_data["target_id"] = nullptr;
+	return sendJson(send_data);
+}
+
+template<class RespT>
+typename BasicRouter<RespT>::Response BasicRouter<RespT>::receive() 
+{
+    auto json_or_status = receiveJson();
+	if (std::holds_alternative<sf::Socket::Status>(json_or_status))
+	{
+		return std::get<sf::Socket::Status>(json_or_status);
+	}
+
+	auto &json = std::get<rn::Json>(json_or_status);
+	if (!json.contains("type") || !json.at("type").is_string())
+		throw incorrect_json_format("invalid json format");
+	auto type = json.at("type");
+	if (type != Response::TransferType::action && type != Response::TransferType::object)
+		throw incorrect_json_format("invalid type name");
+	return Response(json);
+}

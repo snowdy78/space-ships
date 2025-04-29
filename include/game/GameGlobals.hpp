@@ -12,7 +12,8 @@ class GameGlobals
     GameGlobals(sf::RenderTarget &target, func_update_on_move update_on_move);
 public:
     static void create(sf::RenderTarget &target, func_update_on_move update_on_move);
-    static GameGlobals *instance();
+    static GameGlobals &instance();
+    static bool exist();
     void reset(sf::RenderTarget &new_target, func_update_on_move new_update_on_move);
     void clear();
 private:
@@ -37,7 +38,12 @@ inline void GameGlobals::create(sf::RenderTarget &target, func_update_on_move up
     instance_ptr.reset(new GameGlobals(target, update_on_move));
 }
 
-inline GameGlobals *GameGlobals::instance() 
+inline GameGlobals &GameGlobals::instance() 
+{
+    return *instance_ptr.get();
+}
+
+inline bool GameGlobals::exist() 
 {
     return instance_ptr.get();
 }

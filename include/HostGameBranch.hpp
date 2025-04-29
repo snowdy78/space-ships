@@ -2,12 +2,8 @@
 
 #include "decl.hpp"
 #include "components/Background.hpp"
-#include "components/TargetCamera.hpp"
 #include "game/GameGlobals.hpp"
-#include "game/SpaceField.hpp"
-#include "game/Ship.hpp"
 #include "coop/UdpRouter.hpp"
-#include "game/actions/ActionManager.hpp"
 
 class HostGameBranch : public rn::MenuBranch 
 {
@@ -24,6 +20,7 @@ class HostGameBranch : public rn::MenuBranch
     GameGlobals *space = nullptr;
 public:
     using rn::MenuBranch::MenuBranch;
+    ~HostGameBranch() override;
     void start() override;
     void update() override;
     void onEvent(sf::Event &event) override;

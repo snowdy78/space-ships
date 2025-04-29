@@ -3,7 +3,6 @@
 #include "RuneEngine/SettingsFile.hpp"
 #include "decl.hpp"
 #include "game/EnemyShip.hpp"
-#include "game/Ship.hpp"
 
 
 AudioMenu::AudioMenu(sf::RenderWindow &window)
@@ -18,7 +17,10 @@ AudioMenu::AudioMenu(sf::RenderWindow &window)
 AudioMenu::~AudioMenu()
 {
 	window.setView(window.getDefaultView());
-	space->clear();
+	if (GameGlobals::exist())
+	{
+		GameGlobals::instance().clear();
+	}
 }
 
 void AudioMenu::start()
@@ -29,7 +31,8 @@ void AudioMenu::start()
 		info.updateData("view_area");
 		info.updateData("fps");
 	});
-	space = GameGlobals::instance();
+	if (GameGlobals::exist())
+		space = &GameGlobals::instance();
 	info.addData("camera_pos", [&]() -> sf::String {
 		rn::Vec2i p{ space->camera.getPosition() };
 		return "{ " + std::to_string(p.x) + ", " + std::to_string(p.y) + " }";

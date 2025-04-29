@@ -1,13 +1,23 @@
 #include "ConnectToGameBranch.hpp"
 #include <memory>
+#include "MainMenu.hpp"
+#include "RuneEngine/EngineDecl.hpp"
 #include "coop/Request.hpp"
-#include "coop/TransferableAction.hpp"
 #include "coop/UdpRouter.hpp"
-#include "game/EnemyShip.hpp"
+#include "game/GameGlobals.hpp"
 #include "game/GameObjectFabric.hpp"
 #include "game/SpaceField.hpp"
 #include "game/actions/AbstractAction.hpp"
 
+
+ConnectToGameBranch::~ConnectToGameBranch()
+{
+	window.setView(window.getDefaultView());
+    if (GameGlobals::exist())
+	{
+		GameGlobals::instance().clear();
+	}
+}
 
 void ConnectToGameBranch::start()
 {
@@ -23,7 +33,8 @@ void ConnectToGameBranch::start()
 	GameGlobals::create(window, [this] {
 		background.setPosition(space->camera.getPosition());
 	});
-	space = GameGlobals::instance();
+	if (GameGlobals::exist())
+		space = &GameGlobals::instance();
 	client.setBlocking(false);
 	client.bind(remote_port, ip_address);
 	if (space)
@@ -34,7 +45,7 @@ void ConnectToGameBranch::start()
 		space->action_manager.start();
 		Request request;
 		request["type"] = "connect";
-		auto status = client.sendObject(&request);
+		auto status = client.send(&request);
 		if (status != sf::Socket::Done)
 		{
 			std::cerr << "Failed to send with code: " << status << "\n";
@@ -68,6 +79,10 @@ void ConnectToGameBranch::onEvent(sf::Event &event)
 	{
 		window.close();
 	}
+	if (rn::isKeydown(sf::Keyboard::Escape))
+	{
+		next_branch<MainMenu>(window);
+	}
 	space->field.onEvent(event);
 	space->action_manager.onEvent(event);
 }
@@ -76,13 +91,12 @@ void ConnectToGameBranch::receivePackets()
 {
 	if (!space)
 		return;
-	auto various_data = client.recieve();
-	if (std::holds_alternative<UdpRouter::Response>(various_data))
+	auto response = client.receive();
+	if (response.success())
 	{
-		auto received = std::get<UdpRouter::Response>(various_data);
-		if (received.is_object())
+		if (response.is_object())
 		{
-			auto object = received.object();
+			auto object = response.object();
 			if (auto translator = dynamic_cast<GameObjectFabricTranslator *>(object.get()))
 			{
 				if (translator->getTranslateType() == GameObjectFabricTranslator::TranslateType::Append)
@@ -111,9 +125,9 @@ void ConnectToGameBranch::receivePackets()
 				space_object->summonCopy(&space->field);
 			}
 		}
-		if (received.is_action())
+		if (response.is_action())
 		{
-			std::unique_ptr<AbstractAction> action = std::move(received.action());
+			std::unique_ptr<AbstractAction> action = std::move(response.action());
 			if (action)
 			{
 				space->action_manager.addToTop(std::move(action));

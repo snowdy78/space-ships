@@ -78,9 +78,9 @@ void Ship::onEvent(sf::Event &event)
 	AbstractShip::onEvent(event);
 	if (rn::isKeydown(sf::Mouse::Left))
 	{
-		if (GameGlobals::instance())
+		if (GameGlobals::exist())
 		{
-			GameGlobals::instance()->action_manager.emplaceToTop<ShipShootAction>(this, nullptr, rn::Json{{"direction", {{"x", getDirection().x}, {"y", getDirection().y}}}});
+			GameGlobals::instance().action_manager.emplaceToTop<ShipShootAction>(this, nullptr, rn::Json{{"direction", {{"x", getDirection().x}, {"y", getDirection().y}}}});
 		}
 	}
 }
