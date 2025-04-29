@@ -125,7 +125,20 @@ void loadGame(sf::RenderWindow &window)
 				mutex.unlock();
 			}
 		);
+		FileLoader::Instance().loadAnimatedSprites(
+			[&](FileLoader::LoadingAnimatedSprite &texture) {
+				mutex.lock();
+				load_content_path.setString("loading animation: " + texture.getLoadPath());
+				beforeLoad();
+				mutex.unlock();
+			},
+			[&](FileLoader::LoadingAnimatedSprite &texture) {
+				mutex.lock();
 
+				afterLoad();
+				mutex.unlock();
+			}
+		);
 		FileLoader::Instance().loadSounds(
 			[&](FileLoader::LoadingSound &sound) {
 				mutex.lock();

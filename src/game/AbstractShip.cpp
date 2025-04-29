@@ -3,7 +3,8 @@
 #include "game/RigitBody2d.hpp"
 #include "game/SpaceField.hpp"
 #include "game/guns/Pistol.hpp"
-
+#include "game/GameGlobals.hpp"
+#include "components/EffectManager.hpp"
 
 AbstractShip::AbstractShip(const sf::Texture &texture)
 	: sprite(texture),
@@ -146,11 +147,22 @@ void AbstractShip::onHit()
 	hit_sound.play();
 	if (getHealth() <= 0 && field)
 	{
-		beforeDie();
+		is_dead = true;
+		onDeath();
 		field->remove(this);
 	}
 }
 bool AbstractShip::isDead() const
 {
 	return is_dead;
+}
+
+void AbstractShip::onDeath()
+{
+	if (GameGlobals::exist())
+	{
+		auto a = *destroy_animation;
+		a.setOrigin(getSize()/2.f);
+		GameGlobals::instance().effect_manager.emplace_back<AnimatedSprite>(getPosition(), std::move(a));
+	}
 }

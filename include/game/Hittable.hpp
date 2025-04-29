@@ -31,5 +31,7 @@ public:
 	float getMaxHealth() const;
 	void takeDamage(float damage);
 	float getHealth();
+
+	virtual void onDeath() {}
 	virtual void onHit();
 };

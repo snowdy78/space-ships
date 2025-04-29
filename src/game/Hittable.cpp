@@ -1,4 +1,5 @@
 #include "game/Hittable.hpp"
+#include "game/GameGlobals.hpp"
 
 Hittable::HealthBar::HealthBar(const Hittable &hittable)
 	: ui({ 32, 8 }),

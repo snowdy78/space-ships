@@ -5,10 +5,12 @@
 #include "RigitBody2d.hpp"
 #include "SoundDisperseEntity.hpp"
 #include "SpaceFieldObject.hpp"
+#include "components/AnimatedSprite.hpp"
+#include "components/FileLoader.hpp"
 #include "decl.hpp"
 #include "game/Gun.hpp"
 #include "game/colliders/EllipseCollider.hpp"
-#include "components/FileLoader.hpp"
+
 
 template<class T>
 concept GunConcept = std::is_base_of<Gun, T>::value && !std::is_same_v<Gun, T>;
@@ -28,6 +30,8 @@ protected:
 	bool accelerated = getVelocity() + 0.3f;
 	bool is_friendly = false;
 
+	inline static loading<AnimatedSprite> destroy_animation
+		= FileLoader::Instance().addAnimatedSpriteToUpload("./img/animation/Explosion4", ".png").get();
 	inline static loading<sf::SoundBuffer> hit_buffer = FileLoader::Instance().addSoundToUpload("hit.ogg").get();
 	SoundDisperseEntity hit_sound{ 20.f, 100.f };
 
@@ -50,11 +54,11 @@ public:
 	void update() override;
 	void onEvent(sf::Event &event) override;
 	bool isDead() const;
+	void onDeath() override;
 	sf::FloatRect getLocalBounds() const;
 	sf::FloatRect getGlobalBounds() const;
 	const sf::Sprite &getSprite() const;
 	const Collider *getCollider() const override;
-	virtual void beforeDie() {}
 	template<GunConcept T>
 	void setGun();
 	void onRotation() override;
