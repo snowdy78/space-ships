@@ -6,6 +6,7 @@
 
 #include "Font.hpp"
 #include "components/GameInfo.hpp"
+#include "exceptions/exceptions.hpp"
 
 inline sf::Mutex mutex;
 struct ChatSocket;
