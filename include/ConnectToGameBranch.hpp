@@ -20,6 +20,7 @@ class ConnectToGameBranch : public rn::MenuBranch
     GameGlobals *space = nullptr;
 public:
 	using rn::MenuBranch::MenuBranch;
+    ~ConnectToGameBranch() override;
     void start() override;
     void update() override;
     void onEvent(sf::Event &event) override;

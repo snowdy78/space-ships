@@ -5,7 +5,20 @@ set(MY_PROJECT_BINARY_DIR ${PROJECT_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MY_PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${MY_PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${MY_PROJECT_SOURCE_DIR}/bin)
+# disable build .dll files
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+
 include(FetchContent)
+
+function(target_link_sfml TARGET)
+    
+    target_link_libraries(${PROJECT_NAME} PUBLIC sfml-graphics)
+    target_link_libraries(${PROJECT_NAME} PUBLIC sfml-window)
+    target_link_libraries(${PROJECT_NAME} PUBLIC sfml-audio)
+    target_link_libraries(${PROJECT_NAME} PUBLIC sfml-system)
+    target_link_libraries(${PROJECT_NAME} PUBLIC sfml-network)
+    target_link_libraries(${PROJECT_NAME} PUBLIC sfml-main)
+endfunction()
 
 FetchContent_Declare(RuneEngine
     GIT_REPOSITORY https://github.com/snowdy78/cmake-rune-engine.git
@@ -24,13 +37,9 @@ file(GLOB_RECURSE
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES} ${PROJECT_INCLUDE_FILES})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin)
-set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin)
 target_link_libraries(${PROJECT_NAME} PUBLIC RuneEngine)
-
-target_include_directories(${PROJECT_NAME} PRIVATE "${MY_PROJECT_SOURCE_DIR}/include")
+target_link_sfml(${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME} PRIVATE ${MY_PROJECT_SOURCE_DIR}/include)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
 if(WIN32)
@@ -50,19 +59,4 @@ function(target_link_sfml_libraries TARGET)
     target_link_libraries(${TARGET} PUBLIC sfml-main)
 endfunction()
 
-set(PROJECT_LIBRARY_NAME ${PROJECT_NAME}Lib)
-
-add_library(${PROJECT_LIBRARY_NAME} STATIC ${PROJECT_SOURCE_FILES} ${PROJECT_INCLUDE_FILES})
-target_link_libraries(${PROJECT_LIBRARY_NAME} PUBLIC RuneEngine)
-target_link_sfml_libraries(${PROJECT_LIBRARY_NAME})
-target_include_directories(
-    ${PROJECT_LIBRARY_NAME}
-    PRIVATE
-    ${APP_SOURCE_DIR}/include
-)
-target_include_directories(
-    ${PROJECT_LIBRARY_NAME}
-    PRIVATE
-    ${PROJECT_SOURCE_DIR}/include
-)
 add_subdirectory(test)

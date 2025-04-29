@@ -1,11 +1,10 @@
 #include "HostGameBranch.hpp"
 #include <memory>
 #include "coop/Request.hpp"
-#include "coop/TransferableAction.hpp"
 #include "coop/UdpRouter.hpp"
+#include "game/GameGlobals.hpp"
 #include "game/GameObjectFabric.hpp"
 #include "game/SpaceField.hpp"
-
 
 void HostGameBranch::start()
 {
@@ -20,8 +19,8 @@ void HostGameBranch::start()
 	GameGlobals::create(window, [this] {
 		background.setPosition(space->camera.getPosition());
 	});
-	
-	space = GameGlobals::instance();
+	if (GameGlobals::exist())
+		space = &GameGlobals::instance();
 	client.setBlocking(false);
 	client.bind(remote_port, ip_address);
 	if (space)
@@ -32,6 +31,14 @@ void HostGameBranch::start()
 		space->action_manager.start();
 	}
 
+}
+HostGameBranch::~HostGameBranch()
+{
+	window.setView(window.getDefaultView());
+	if (GameGlobals::exist())
+	{
+		GameGlobals::instance().clear();
+	}
 }
 void HostGameBranch::update()
 {
@@ -62,13 +69,12 @@ void HostGameBranch::onEvent(sf::Event &event)
 
 void HostGameBranch::receivePackets()
 {
-	auto various_data = client.recieve();
-	if (std::holds_alternative<UdpRouter::Response>(various_data))
+	auto response = client.receive();
+	if (response.success())
 	{
-		auto received = std::get<UdpRouter::Response>(various_data);
-		if (received.is_object())
+		if (response.is_object())
 		{
-			auto object = received.object();
+			auto object = response.object();
 			if (auto request_ptr = dynamic_cast<Request *>(object.get()))
 			{
 				auto &request = *request_ptr;
@@ -76,7 +82,7 @@ void HostGameBranch::receivePackets()
 				{
 					GameObjectFabricTranslator translator;
 					translator.assignUpdateData(GameObjectFabric::instance().begin(), GameObjectFabric::instance().end());
-					auto status = client.sendObject(&translator);
+					auto status = client.send(&translator);
 					if (status != sf::Socket::Done)
 					{
 						std::cerr << "Failed to send with code: " << status << "\n";
@@ -92,9 +98,9 @@ void HostGameBranch::receivePackets()
 				space_object->summonCopy(&space->field);
 			}
 		}
-		if (received.is_action())
+		if (response.is_action())
 		{
-			std::unique_ptr<AbstractAction> action{ received.action().release() };
+			std::unique_ptr<AbstractAction> action{ response.action().release() };
 			if (action)
 			{
 				space->action_manager.addToTop(std::move(action));
