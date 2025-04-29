@@ -1,5 +1,6 @@
 #pragma once
 
+#include "components/AnimatedSprite.hpp"
 #include "decl.hpp"
 
 template<class T>
@@ -11,15 +12,10 @@ class FileLoader
 {
 public:
 	template<class T>
-	class LoadingContent
+	struct LoadingContent
 	{
 		using load_func_t = std::function<void(const sf::String &path, T &)>;
 
-		T **texture				  = new T *(nullptr);
-		sf::String path			  = "";
-		load_func_t load_function = [](const sf::String &path, T &) {};
-
-	public:
 		LoadingContent();
 		LoadingContent(const sf::String &path, load_func_t load_function);
 		LoadingContent(const LoadingContent &other) = delete;
@@ -37,11 +33,17 @@ public:
 
 		LoadingContent &operator=(const LoadingContent &other) = delete;
 		LoadingContent &operator=(LoadingContent &&other) noexcept;
+
+	private:
+		T **texture				  = new T *(nullptr);
+		sf::String path			  = "";
+		load_func_t load_function = [](const sf::String &path, T &) {};
 	};
 
-	using LoadingTexture = LoadingContent<sf::Texture>;
-	using LoadingSound	 = LoadingContent<sf::SoundBuffer>;
-	using LoadingFont	 = LoadingContent<sf::Font>;
+	using LoadingTexture		= LoadingContent<sf::Texture>;
+	using LoadingSound			= LoadingContent<sf::SoundBuffer>;
+	using LoadingFont			= LoadingContent<sf::Font>;
+	using LoadingAnimatedSprite = LoadingContent<AnimatedSprite>;
 
 	static FileLoader &Instance();
 	void loadTextures(
@@ -56,20 +58,30 @@ public:
 		std::function<void(LoadingSound &)> before_every_load = [](LoadingSound &) {},
 		std::function<void(LoadingSound &)> after_every_load  = [](LoadingSound &) {}
 	);
+	void loadAnimatedSprites(
+		std::function<void(LoadingAnimatedSprite &)> before_every_load = [](LoadingAnimatedSprite &) {},
+		std::function<void(LoadingAnimatedSprite &)> after_every_load  = [](LoadingAnimatedSprite &) {}
+	);
 	size_t getTextureCount() const;
 	size_t getSoundCount() const;
 	size_t getFontCount() const;
+	size_t getAnimatedSpriteCount() const;
 	const LoadingSound &addSoundToUpload(const char *path);
 	const LoadingFont &addFontToUpload(const char *path);
 	const LoadingTexture &addTextureToUpload(const char *path);
+	const LoadingAnimatedSprite &addAnimatedSpriteToUpload(const char *path, const sf::String &mime_type);
 
 private:
-	std::vector<LoadingContent<sf::SoundBuffer> *> sound_buffers;
-	std::vector<LoadingContent<sf::Font> *> fonts;
-	std::vector<LoadingContent<sf::Texture> *> textures;
+	std::vector<LoadingAnimatedSprite *> anim_sprites;
+	std::vector<LoadingSound *> sound_buffers;
+	std::vector<LoadingFont *> fonts;
+	std::vector<LoadingTexture *> textures;
 
 	template<class T>
-	const LoadingContent<T> &addToUpload(std::vector<LoadingContent<T> *> &upload_container, const char *path);
+	const LoadingContent<T> &addToUpload(
+		std::vector<LoadingContent<T> *> &upload_container, const char *path,
+		const LoadingContent<T>::load_func_t &load_function
+	);
 
 	template<class T>
 	void loadContent(
@@ -80,6 +92,7 @@ private:
 	void clearSoundLoadingContent();
 	void clearFontLoadingContent();
 	void clearTextureLoadingContent();
+	void clearAnimSpriteLoadingContent();
 
 	template<class T>
 	void clearLoadingContent(std::vector<LoadingContent<T> *> &upload_container);

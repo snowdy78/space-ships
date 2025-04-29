@@ -54,6 +54,7 @@ public:
 	AnimatedSprite(const time_digit_t &duration);
 
 	bool load(const AnimationDataInfo &datainfo);
+	void setDuration(const time_digit_t &duration);
 	void start() override;
 	void update() override;
 	bool played() const override;

@@ -28,6 +28,13 @@ void FileLoader::loadSounds(
 	loadContent(sound_buffers, before_every_load, after_every_load);
 }
 
+void FileLoader::loadAnimatedSprites(
+		std::function<void(LoadingAnimatedSprite &)> before_every_load,
+		std::function<void(LoadingAnimatedSprite &)> after_every_load) 
+{
+	loadContent(anim_sprites, before_every_load, after_every_load);
+}
+
 size_t FileLoader::getTextureCount() const
 {
 	return textures.size();
@@ -45,17 +52,42 @@ size_t FileLoader::getFontCount() const
 
 const FileLoader::LoadingSound &FileLoader::addSoundToUpload(const char *path)
 {
-	return addToUpload(sound_buffers, path);
+	return addToUpload(sound_buffers, path, [](const sf::String &path, sf::SoundBuffer &content) {
+		if (!content.loadFromFile(path))
+		{
+			throw std::out_of_range("File not found: '" + path + "'");
+		}
+	});
 }
 
 const FileLoader::LoadingFont &FileLoader::addFontToUpload(const char *path)
 {
-	return addToUpload(fonts, path);
+	return addToUpload(fonts, path, [](const sf::String &path, sf::Font &content) {
+		if (!content.loadFromFile(path))
+		{
+			throw std::out_of_range("File not found: '" + path + "'");
+		}
+	});
 }
 
 const FileLoader::LoadingTexture &FileLoader::addTextureToUpload(const char *path)
 {
-	return addToUpload(textures, path);
+	return addToUpload(textures, path, [](const sf::String &path, sf::Texture &content) {
+		if (!content.loadFromFile(path))
+		{
+			throw std::out_of_range("File not found: '" + path + "'");
+		}
+	});
+}
+
+const FileLoader::LoadingAnimatedSprite &FileLoader::addAnimatedSpriteToUpload(const char *path, const sf::String &mime_type)
+{
+	return addToUpload(anim_sprites, path, [mime_type](const sf::String &path, AnimatedSprite &content) {
+		if (!content.load({path, mime_type}))
+		{
+			throw std::out_of_range("File not found: '" + path + "'");
+		}
+	});
 }
 
 void FileLoader::clearSoundLoadingContent()
@@ -73,23 +105,26 @@ void FileLoader::clearTextureLoadingContent()
 	clearLoadingContent(textures);
 }
 
-template<class T>
-const FileLoader::LoadingContent<T> &FileLoader::addToUpload(std::vector<LoadingContent<T> *> &upload_container, const char *path)
+void FileLoader::clearAnimSpriteLoadingContent() 
 {
-	upload_container.emplace_back(new LoadingContent<T>(path, [](const sf::String &path, T &content) {
-		if (!content.loadFromFile(path))
-		{
-			throw std::out_of_range("File not found: '" + path + "'");
-		}
-	}));
+	clearLoadingContent(anim_sprites);
+}
+
+template<class T>
+const FileLoader::LoadingContent<T> &FileLoader::addToUpload(
+	std::vector<LoadingContent<T> *> &upload_container, const char *path,
+	const LoadingContent<T>::load_func_t &load_function
+)
+{
+	upload_container.emplace_back(new LoadingContent<T>(path, load_function));
 	return *upload_container.back();
 }
 
 template<class T>
 void FileLoader::loadContent(
-		std::vector<LoadingContent<T> *> &upload_container,
-		std::function<void(LoadingContent<T> &)> before_every_load,
-		std::function<void(LoadingContent<T> &)> after_every_load)
+	std::vector<LoadingContent<T> *> &upload_container, std::function<void(LoadingContent<T> &)> before_every_load,
+	std::function<void(LoadingContent<T> &)> after_every_load
+)
 {
 	for (auto &content: upload_container)
 	{
@@ -102,20 +137,19 @@ void FileLoader::loadContent(
 template<class T>
 void FileLoader::clearLoadingContent(std::vector<LoadingContent<T> *> &upload_container)
 {
-	for (auto &content : upload_container)
+	for (auto &content: upload_container)
 	{
 		delete content;
 	}
 	upload_container.clear();
 }
 
-FileLoader::FileLoader() 
-{
-}
+FileLoader::FileLoader() {}
 
-FileLoader::~FileLoader() 
+FileLoader::~FileLoader()
 {
 	clearSoundLoadingContent();
 	clearFontLoadingContent();
 	clearTextureLoadingContent();
+	clearAnimSpriteLoadingContent();
 }
