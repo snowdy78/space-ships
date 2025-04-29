@@ -2,7 +2,7 @@
 
 #include <chrono>
 #include "decl.hpp"
-
+#include "Effect.hpp"
 
 struct AnimationDataInfo
 {
@@ -17,11 +17,10 @@ struct AnimationDataInfo
 /**
  * @brief displays sprite that uses animation with keyframes.
  */
-class AnimatedSprite : public rn::LogicalObject, public sf::Transformable, public sf::Drawable
+class AnimatedSprite : public Effect
 {
 	class Keyframe;
 public:
-	using time_digit_t = std::chrono::milliseconds;
 private:
 	using keyframe_vector = std::vector<std::unique_ptr<Keyframe>>;
 	
@@ -57,6 +56,7 @@ public:
 	bool load(const AnimationDataInfo &datainfo);
 	void start() override;
 	void update() override;
+	bool played() const override;
 
 	const_iterator begin() const;
 	const_iterator cbegin() const;
@@ -91,11 +91,9 @@ public:
 	void spanKeyframes(IterT start, const IterT &stop);
 	void setRepeating(bool repeating);
 
-	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 private:
 	bool m_repeating = false;
 	sf::Clock m_clock;
-	sf::Sprite m_sprite{};
 	keyframe_vector m_keyframes{};
 	time_digit_t m_duration{ 0 };
 	iterator m_current_keyframe{ end() };

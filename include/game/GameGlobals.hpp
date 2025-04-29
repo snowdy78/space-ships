@@ -1,6 +1,7 @@
 #pragma once
 
 #include "decl.hpp"
+#include "components/EffectManager.hpp"
 #include "SpaceField.hpp"
 #include "actions/ActionManager.hpp"
 #include "components/TargetCamera.hpp"
@@ -23,7 +24,7 @@ public:
     ActionManager action_manager;
     SpaceField field;
     AbstractShip *player = nullptr;
-
+    EffectManager effect_manager;
 };
 
 inline GameGlobals::GameGlobals(sf::RenderTarget &target, func_update_on_move update_on_move) 

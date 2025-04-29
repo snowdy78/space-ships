@@ -81,7 +81,7 @@ bool AnimatedSprite::load(const AnimationDataInfo &datainfo)
 void AnimatedSprite::start()
 {
 	m_current_keyframe = begin();
-	m_sprite.setTexture(getKeyframe(0).getTexture());
+	setTexture(getKeyframe(0).getTexture());
 	m_clock.restart();
 }
 
@@ -97,9 +97,14 @@ void AnimatedSprite::update()
 				m_current_keyframe = begin();
 		}
 		else
-			m_sprite.setTexture((*m_current_keyframe)->getTexture());
+			setTexture((*m_current_keyframe)->getTexture());
 		m_clock.restart();
 	}
+}
+
+bool AnimatedSprite::played() const 
+{
+	return !m_keyframes.empty() && m_current_keyframe == end() && !m_repeating;
 }
 
 AnimatedSprite::const_iterator AnimatedSprite::begin() const
@@ -184,12 +189,6 @@ size_t AnimatedSprite::getKeyframeCount() const
 void AnimatedSprite::setRepeating(bool repeating)
 {
 	m_repeating = repeating;
-}
-
-void AnimatedSprite::draw(sf::RenderTarget &target, sf::RenderStates states) const
-{
-	states.transform *= getTransform();
-	target.draw(m_sprite, states);
 }
 
 const AnimatedSprite::time_digit_t &AnimatedSprite::getDuration() const
