@@ -1,9 +1,10 @@
 #include "components/GameInfo.hpp"
+#include "components/GameInfoData.hpp"
 
 rn::Vec2f GameInfo::getSampleSize()
 {
 	rn::Vec2f res{ rn::VideoSettings::getResolution() };
-	return { res.x / 2.f, 38 };
+	return { res.x / 2.f, static_cast<float>(GameInfoData::character_size) };
 }
 
 size_t GameInfo::getRowCount() 

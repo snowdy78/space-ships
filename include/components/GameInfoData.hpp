@@ -8,6 +8,7 @@ class GameInfoData : public sf::Drawable, public sf::Transformable
     sf::Text text;
     std::function<sf::String()> get_data;
 public:
+    static unsigned character_size;
     GameInfoData(const sf::String &name, std::function<sf::String()> get_data);
 
     void updateData();
