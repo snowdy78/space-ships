@@ -93,6 +93,18 @@ bool AnimatedSprite::load(const AnimationDataInfo &datainfo)
 	return true;
 }
 
+void AnimatedSprite::setDuration(const time_digit_t &duration) 
+{
+	m_duration = duration;
+	time_digit_t keyframe_duration{static_cast<size_t>(static_cast<double>(duration.count()) / static_cast<double>(m_keyframes.size()))};
+	for (auto &keyframe : m_keyframes)
+	{
+		keyframe->setDuration(keyframe_duration);
+	}
+	setCurrentKeyframe(0);
+	m_clock.reset();
+}
+
 void AnimatedSprite::start()
 {
 	m_current_keyframe = begin();

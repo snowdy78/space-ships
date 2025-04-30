@@ -1,8 +1,9 @@
+#include <thread>
 #include "AudioMenu.hpp"
 #include "MainMenu.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
-#include <thread>
+
 
 void loadGame(sf::RenderWindow &window);
 
@@ -20,7 +21,7 @@ int main()
 
 	loadGame(window);
 
-	// TODO: ServerTestBranch is temporary 
+	// TODO: ServerTestBranch is temporary
 	rn::MenuBranch::start_branch<MainMenu>(window);
 	return 0;
 }
@@ -78,7 +79,10 @@ void loadGame(sf::RenderWindow &window)
 	percentage.setFont(*Font::Default);
 	percentage.setCharacterSize(screen_size.y / 45);
 	percentage.setString(
-		count == 0 ? "100%" : std::to_string(static_cast<size_t>(static_cast<float>(count_loaded) / count * 100)) + "%"
+		count == 0 ? "100%"
+				   : std::to_string(static_cast<size_t>(
+						 std::floor(static_cast<double>(count_loaded) / static_cast<double>(count * 100))
+					 )) + "%"
 	);
 	percentage.setPosition(
 		progress_pointer.getPosition().x, progress_pointer.getPosition().y + percentage.getGlobalBounds().height
@@ -108,7 +112,9 @@ void loadGame(sf::RenderWindow &window)
 					   : std::to_string(static_cast<size_t>(static_cast<float>(count_loaded) / count * 100)) + "%"
 		);
 		percentage.setOrigin(static_cast<int>(percentage.getGlobalBounds().width / 2.f), percentage.getOrigin().y);
-		percentage.setPosition(static_cast<int>(progress_pointer.getPosition().x), static_cast<int>(percentage.getPosition().y));
+		percentage.setPosition(
+			static_cast<int>(progress_pointer.getPosition().x), static_cast<int>(percentage.getPosition().y)
+		);
 	};
 	sf::Thread thread([&]() {
 		FileLoader::Instance().loadTextures(

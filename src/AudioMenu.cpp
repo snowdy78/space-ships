@@ -52,6 +52,8 @@ void AudioMenu::start()
 	{
 		space->player->setPosition(res / 2.f);
 		space->field.start();
+		space->effect_manager.start();
+		space->sound_manager.start();
 		space->action_manager.start();
 	}
 	background.start();
@@ -64,6 +66,7 @@ void AudioMenu::update()
 		return;
 	th->launch();
 	background.update();
+	space->sound_manager.update();
 	space->effect_manager.update();
 	th->wait();
 	sf::Transform bg_transform;

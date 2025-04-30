@@ -11,6 +11,16 @@ SoundDisperseEntity::SoundDisperseEntity(
 		setBuffer(*buffer);
 	}
 }
+SoundDisperseEntity::SoundDisperseEntity(
+		SoundDisperseTraits traits, const sf::SoundBuffer *buffer)
+	: clear_dist(traits.clear_sound_distance),
+	  disperse_radius(traits.disperse_force)
+{
+	if (buffer)
+	{
+		setBuffer(*buffer);
+	}
+}
 void SoundDisperseEntity::setClearSoundDistance(float distance)
 {
 	clear_dist = distance;
@@ -61,4 +71,9 @@ void SoundDisperseEntity::update()
 const rn::Vec3f &SoundDisperseEntity::getPosition() const
 {
 	return position;
+}
+
+void SoundDisperseEntity::setPosition(const rn::Vec3f &position) 
+{
+	this->position = position; 
 }

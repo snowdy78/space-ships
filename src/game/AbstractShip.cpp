@@ -1,22 +1,23 @@
 #include "game/AbstractShip.hpp"
+#include "SoundDisperseEntity.hpp"
+#include "components/AnimatedSprite.hpp"
+#include "components/EffectManager.hpp"
+#include "game/GameGlobals.hpp"
 #include "game/Gun.hpp"
 #include "game/RigitBody2d.hpp"
 #include "game/SpaceField.hpp"
 #include "game/guns/Pistol.hpp"
-#include "game/GameGlobals.hpp"
-#include "components/EffectManager.hpp"
+
 
 AbstractShip::AbstractShip(const sf::Texture &texture)
 	: sprite(texture),
 	  gun(new Pistol(this))
-{
-	hit_sound.setBuffer(*hit_buffer);
-}
-bool AbstractShip::friendly() const 
+{}
+bool AbstractShip::friendly() const
 {
 	return is_friendly;
 }
-void AbstractShip::friendly(bool friendly) 
+void AbstractShip::friendly(bool friendly)
 {
 	is_friendly = friendly;
 }
@@ -144,7 +145,17 @@ void AbstractShip::onCollisionEnter(Collidable *collidable)
 void AbstractShip::onHit()
 {
 	Hittable::onHit();
-	hit_sound.play();
+	if (GameGlobals::exist())
+	{
+		GameGlobals::instance().sound_manager.emplace_back<SoundDisperseEntity>(
+			[this](auto sound) {
+				sound->setPosition(rn::Vec3f(getPosition().x, getPosition().y, 0.f));
+				
+			},
+			hit_sound_traits,
+			hit_buffer
+		);
+	}
 	if (getHealth() <= 0 && field)
 	{
 		is_dead = true;
@@ -161,8 +172,20 @@ void AbstractShip::onDeath()
 {
 	if (GameGlobals::exist())
 	{
-		auto a = *destroy_animation;
-		a.setOrigin(getSize()/2.f);
-		GameGlobals::instance().effect_manager.emplace_back<AnimatedSprite>(getPosition(), std::move(a));
+		GameGlobals::instance().effect_manager.emplace_back<AnimatedSprite>(
+			[this](auto effect) {
+				effect->setOrigin(getSize() / 2.f);
+				effect->setPosition(getPosition());
+				effect->setDuration(std::chrono::milliseconds(750));
+			},
+			*destroy_animation
+		);
+		GameGlobals::instance().sound_manager.emplace_back<SoundDisperseEntity>(
+			[this](auto sound) {
+				sound->setPosition(rn::Vec3f(getPosition().x, getPosition().y, 0.f));
+			},
+			destroy_sound_traits,
+			destroy_buffer
+		);
 	}
 }

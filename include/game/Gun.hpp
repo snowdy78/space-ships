@@ -12,17 +12,13 @@ class Gun : public sf::Transformable, public rn::LogicalObject
 
 protected:
 	const AbstractShip *ship;
-	SoundDisperseEntity sound{ 20.f, 100.f };
-
-	void setClearSoundDistance(float distance);
-	void setDisperseRadius(float radius);
 
 	friend class Bullet;
 	void startRollback();
 
 public:
 	const AbstractShip *const &user = ship;
-	Gun(const AbstractShip *user, const sf::SoundBuffer *buffer = nullptr);
+	Gun(const AbstractShip *user);
 	virtual ~Gun() = 0;
 	virtual void shoot(const rn::Vec2f &direction);
 	virtual Bullet *createBullet() const	= 0;
@@ -31,4 +27,5 @@ public:
 	bool hasRollback() const;
 	void update() override;
 	virtual float getMillisDelay() const;
+	virtual void onShoot() {}
 };

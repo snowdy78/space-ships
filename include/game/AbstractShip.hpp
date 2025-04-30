@@ -33,7 +33,9 @@ protected:
 	inline static loading<AnimatedSprite> destroy_animation
 		= FileLoader::Instance().addAnimatedSpriteToUpload("./img/animation/Explosion4", ".png").get();
 	inline static loading<sf::SoundBuffer> hit_buffer = FileLoader::Instance().addSoundToUpload("hit.ogg").get();
-	SoundDisperseEntity hit_sound{ 20.f, 100.f };
+	inline static loading<sf::SoundBuffer> destroy_buffer{FileLoader::Instance().addSoundToUpload("./assets/explosion.wav").get()};
+	SoundDisperseTraits hit_sound_traits{ 100, 300 };
+	SoundDisperseTraits destroy_sound_traits{ 200, 1000};	
 
 public:
 	AbstractShip(const sf::Texture &texture);

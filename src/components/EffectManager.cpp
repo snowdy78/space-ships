@@ -1,45 +1,24 @@
 #include "components/EffectManager.hpp"
 
-EffectManager::const_iterator EffectManager::begin() { return m_effects.begin(); }
-
-EffectManager::const_iterator EffectManager::end() { return m_effects.end(); }
-
-EffectManager::const_iterator EffectManager::erase(const_iterator index) 
+bool EffectManager::need_erase(const const_iterator &value) const 
 {
-    return m_effects.erase(index);
+    return (*value)->played();
 }
 
-size_t EffectManager::size() const 
+void EffectManager::update_item(const const_iterator &value) 
 {
-    return m_effects.size();
+    (*value)->update();
 }
 
-void EffectManager::clear() 
+void EffectManager::onPushValue(const const_iterator &value)
 {
-    m_effects.clear();
+    (*value)->start();
 }
 
 void EffectManager::draw(sf::RenderTarget &target, sf::RenderStates states) const 
 {
-    for (auto &effect : m_effects)
+    for (auto &value : *this)
     {
-        if (effect)
-        {
-            target.draw(*effect, states);
-        }
-    }
-}
-
-void EffectManager::update() 
-{
-    for (auto effect = begin(); effect != end(); ++effect)
-    {
-        if (*effect)
-        {
-            if ((*effect)->played())
-                effect = --erase(effect);
-            else 
-                (*effect)->update();
-        }
+        target.draw(*value, states);
     }
 }

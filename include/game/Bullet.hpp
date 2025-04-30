@@ -1,15 +1,19 @@
 #pragma once
 
-#include "decl.hpp"
-#include "DamageDealer.hpp"
 #include "Collidable.hpp"
-#include "colliders/EllipseCollider.hpp"
+#include "DamageDealer.hpp"
+#include "SFML/Audio/SoundBuffer.hpp"
+#include "SoundDisperseEntity.hpp"
 #include "SpaceFieldObject.hpp"
+#include "colliders/EllipseCollider.hpp"
 #include "components/FileLoader.hpp"
+#include "decl.hpp"
+
 
 class Bullet : public rn::MonoBehaviour, public Collidable, virtual public DamageDealer, public SpaceFieldObject
 {
-	inline static loading<sf::Texture> texture = FileLoader::Instance().addTextureToUpload("img/bullet_shoot.png").get();
+	inline static loading<sf::Texture> texture
+		= FileLoader::Instance().addTextureToUpload("img/bullet_shoot.png").get();
 	sf::Sprite sprite;
 
 	float mass		   = 0.100f;
@@ -18,6 +22,14 @@ class Bullet : public rn::MonoBehaviour, public Collidable, virtual public Damag
 	rn::Vec2f direction{};
 	EllipseCollider collider;
 	const Gun *author = nullptr;
+
+	struct bullet_sound : SoundDisperseEntity
+	{
+		using SoundDisperseEntity::SoundDisperseEntity;
+		void start() override;
+	};
+	inline static loading<sf::SoundBuffer> fly_buf = FileLoader::Instance().addSoundToUpload("./assets/bullet_fly.wav").get();
+	bullet_sound fly_sound{300, 150, fly_buf};
 
 protected:
 	void updateCollider();
@@ -32,6 +44,7 @@ public:
 	void setMass(float mass);
 	void setVelocity(float velocity);
 	void setAcceleration(float acceleration);
+	virtual void onMove();
 	void setPosition(float x, float y);
 	void setPosition(const rn::Vec2f &vector);
 	void move(float x, float y);

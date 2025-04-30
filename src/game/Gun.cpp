@@ -1,30 +1,19 @@
 #include "game/Gun.hpp"
 #include "Helpers.hpp"
+#include "SoundDisperseEntity.hpp"
 #include "game/AbstractShip.hpp"
 #include "game/SpaceField.hpp"
 
 Gun::~Gun() {}
 
-void Gun::setClearSoundDistance(float distance)
-{
-	sound.setClearSoundDistance(distance);
-}
-void Gun::setDisperseRadius(float radius)
-{
-	sound.setDisperseRadius(radius);
-}
 void Gun::startRollback()
 {
 	has_rollback = true;
 	clock.start();
 }
-Gun::Gun(const AbstractShip *user, const sf::SoundBuffer *buffer)
+Gun::Gun(const AbstractShip *user)
 	: ship(user)
 {
-	if (buffer)
-	{
-		sound.setBuffer(*buffer);
-	}
 };
 
 void Gun::shoot(const rn::Vec2f &direction)
@@ -32,7 +21,7 @@ void Gun::shoot(const rn::Vec2f &direction)
 	if (ship && ship->field && !has_rollback)
 	{
 		ship->field->summonBullet(createBullet(), getTrajectory());
-		sound.play();
+		onShoot();
 		startRollback();
 	}
 }

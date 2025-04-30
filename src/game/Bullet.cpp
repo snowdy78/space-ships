@@ -14,6 +14,7 @@ Bullet::Bullet(const Gun *gun)
 	setTexture(*texture);
 	setOrigin(rn::Vec2f{ texture->getSize() / 2u });
 	updateCollider();
+	fly_sound.start();
 }
 
 Bullet::~Bullet() {}
@@ -23,6 +24,7 @@ void Bullet::update()
 	velocity += acceleration;
 	acceleration *= 0.99f;
 	move(direction * velocity);
+	fly_sound.update();
 }
 rn::Vec2f Bullet::getSize() const
 {
@@ -67,22 +69,22 @@ bool Bullet::isIntersected(const rn::Vec2f &point) const
 void Bullet::setPosition(float x, float y)
 {
 	sf::Transformable::setPosition(x, y);
-	updateCollider();
+	onMove();
 }
 void Bullet::setPosition(const rn::Vec2f &vector)
 {
 	sf::Transformable::setPosition(vector);
-	updateCollider();
+	onMove();
 }
 void Bullet::move(float x, float y)
 {
 	sf::Transformable::move(x, y);
-	updateCollider();
+	onMove();
 }
 void Bullet::move(const rn::Vec2f &p)
 {
 	sf::Transformable::move(p);
-	updateCollider();
+	onMove();
 }
 
 void Bullet::updateCollider()
@@ -140,4 +142,15 @@ void Bullet::draw(sf::RenderTarget &target, sf::RenderStates states) const
 void Bullet::summonCopy(SpaceField *field) const 
 {
 	field->summonBullet(copy(), getDirection());
+}
+void Bullet::onMove() 
+{
+	updateCollider();
+	//fly_sound.setPosition({getPosition().x, getPosition().y, 0});
+}
+
+void Bullet::bullet_sound::start() 
+{
+	setLoop(true);
+	play();
 }
