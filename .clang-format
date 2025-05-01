@@ -15,10 +15,14 @@ AllowShortBlocksOnASingleLine: Empty
 AllowShortCompoundRequirementOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortEnumsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: Empty
 AllowShortLoopsOnASingleLine: false
+InsertBraces: false
+RemoveBracesLLVM: true
+RemoveSemicolon: true
+BreakBeforeBraces: Custom
 BraceWrapping: 
   AfterCaseLabel: true
   AfterClass: true
@@ -34,11 +38,10 @@ BraceWrapping:
   BeforeLambdaBody: false
   BeforeWhile: true
   IndentBraces: false
-  SplitEmptyFunction: false
-  SplitEmptyRecord: false
-  SplitEmptyNamespace: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
 BreakBeforeBinaryOperators: All
-BreakBeforeBraces: Custom
 BreakBeforeInlineASMColon: Never
 PackConstructorInitializers: Never 
 PenaltyBreakAssignment: 1
