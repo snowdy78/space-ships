@@ -26,6 +26,9 @@ public:
 		void start() override;
 		void update() override;
 		void onEvent(sf::Event &event) override;
+
+		bool operator==(const Bullet &bullet) const;
+		bool operator!=(const Bullet &bullet) const;
 	};
 
 private:

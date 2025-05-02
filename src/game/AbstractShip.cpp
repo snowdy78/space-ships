@@ -5,9 +5,9 @@
 #include "game/GameGlobals.hpp"
 #include "game/Gun.hpp"
 #include "game/RigitBody2d.hpp"
-#include "game/SpaceField.hpp"
+#include "game/actions/TakeDamageAction.hpp"
 #include "game/guns/Pistol.hpp"
-
+#include "game/actions/DestroyShipAction.hpp"
 
 AbstractShip::AbstractShip(const sf::Texture &texture)
 	: sprite(texture),
@@ -36,9 +36,8 @@ void AbstractShip::setGun(const Gun &gun)
 }
 void AbstractShip::shoot()
 {
-	if (!gun)
-		return;
-	gun->shoot(getDirection());
+	if (gun)
+		gun->shoot();
 }
 sf::FloatRect AbstractShip::getLocalBounds() const
 {
@@ -89,11 +88,11 @@ void AbstractShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	target.draw(sprite, states);
 	target.draw(health_bar, st);
 }
-void AbstractShip::destroyFromField() const
+void AbstractShip::destroyFromField()
 {
-	if (field)
+	if (GameGlobals::exist())
 	{
-		field->remove(this);
+		GameGlobals::instance().action_manager.emplaceToTop<DestroyShipAction>(this);
 	}
 }
 void AbstractShip::onMove()
@@ -137,38 +136,27 @@ bool AbstractShip::resolve(const Collidable *collidable) const
 }
 void AbstractShip::onCollisionEnter(Collidable *collidable)
 {
-	if (auto dd = dynamic_cast<const DamageDealer *>(collidable))
+	if (auto dd = dynamic_cast<DamageDealer *>(collidable); GameGlobals::exist())
 	{
-		takeDamage(dd->getDamage());
+		GameGlobals::instance().action_manager.emplaceToTop<TakeDamageAction>(this, dd);
 	}
 }
 void AbstractShip::onHit()
 {
 	Hittable::onHit();
-	if (GameGlobals::exist())
-	{
-		GameGlobals::instance().sound_manager.emplace_back<SoundDisperseEntity>(
-			[this](auto sound) {
-				sound->setPosition(rn::Vec3f(getPosition().x, getPosition().y, 0.f));
-				
-			},
-			hit_sound_traits,
-			hit_buffer
-		);
-	}
-	if (getHealth() <= 0 && field)
-	{
-		is_dead = true;
-		onDeath();
-		field->remove(this);
-	}
+	
+	if (!GameGlobals::exist())
+		return;
+	GameGlobals::instance().sound_manager.emplace_back<SoundDisperseEntity>(
+		[this](auto sound) {
+			sound->setPosition(rn::Vec3f(getPosition().x, getPosition().y, 0.f));
+			
+		},
+		hit_sound_traits,
+		hit_buffer
+	);
 }
-bool AbstractShip::isDead() const
-{
-	return is_dead;
-}
-
-void AbstractShip::onDeath()
+void AbstractShip::onDestroy()
 {
 	if (GameGlobals::exist())
 	{

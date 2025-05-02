@@ -3,21 +3,20 @@
 #include "decl.hpp"
 #include "GameObject.hpp"
 
-class SpaceFieldObject : public GameObject
+class SpaceFieldObject : public virtual GameObject
 {
     friend class SpaceField;
 protected:
-    SpaceField *field;
-	void setField(SpaceField *field);
-    
+    virtual void onDestroy() {}
+    virtual void destroyFromField() = 0;
 public:
-	SpaceFieldObject(SpaceField *field = nullptr);
+	SpaceFieldObject();
 
     virtual void summonCopy(SpaceField *field) const = 0;
     /**
      * @brief destroying from the field 
      * 
      */
-    virtual void destroyFromField() const = 0;
+    void destroy();
     virtual void onSummon() const {}
 };

@@ -1,5 +1,4 @@
 #include "game/Hittable.hpp"
-#include "game/GameGlobals.hpp"
 
 Hittable::HealthBar::HealthBar(const Hittable &hittable)
 	: ui({ 32, 8 }),
@@ -34,10 +33,16 @@ void Hittable::takeDamage(float damage)
 	health = std::clamp(health - damage, 0.f, max_health);
 	onHit();
 }
-float Hittable::getHealth()
+float Hittable::getHealth() const
 {
 	return health;
 }
+
+bool Hittable::isDead() const
+{
+	return getHealth() <= 0;
+}
+
 void Hittable::onHit()
 {
 	health_bar.updateHealthBar();

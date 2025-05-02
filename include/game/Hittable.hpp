@@ -2,8 +2,9 @@
 
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
+#include "GameObject.hpp"
 
-class Hittable
+class Hittable : public virtual GameObject
 {
 	float health	 = 100.f;
 	float max_health = 100.f;
@@ -30,8 +31,8 @@ protected:
 public:
 	float getMaxHealth() const;
 	void takeDamage(float damage);
-	float getHealth();
-
-	virtual void onDeath() {}
+	float getHealth() const;
+	bool isDead() const;
+protected:
 	virtual void onHit();
 };

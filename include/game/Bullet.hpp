@@ -2,7 +2,6 @@
 
 #include "Collidable.hpp"
 #include "DamageDealer.hpp"
-#include "SFML/Audio/SoundBuffer.hpp"
 #include "SoundDisperseEntity.hpp"
 #include "SpaceFieldObject.hpp"
 #include "colliders/EllipseCollider.hpp"
@@ -10,7 +9,7 @@
 #include "decl.hpp"
 
 
-class Bullet : public rn::MonoBehaviour, public Collidable, virtual public DamageDealer, public SpaceFieldObject
+class Bullet : public rn::MonoBehaviour, public Collidable, public DamageDealer, public SpaceFieldObject
 {
 	inline static loading<sf::Texture> texture
 		= FileLoader::Instance().addTextureToUpload("img/bullet_shoot.png").get();
@@ -57,10 +56,8 @@ public:
 	float getAcceleration() const;
 	rn::Vec2f getSize() const;
 
-	void destroyFromField() const override;
-
-	virtual void beforeDestroy() const {}
 	void onCollisionEnter(Collidable *obstacle) override;
+	void destroyFromField() override;
 
 	bool isIntersected(const rn::Vec2f &point) const override;
 	const Collider *getCollider() const override;

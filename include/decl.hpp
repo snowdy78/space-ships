@@ -56,4 +56,4 @@ class Hittable;
 class AbstractAction;
 
 class ActionManager;
-class ShipShootAction;
+class ShootAction;

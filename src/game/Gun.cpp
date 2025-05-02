@@ -1,10 +1,13 @@
 #include "game/Gun.hpp"
 #include "Helpers.hpp"
-#include "SoundDisperseEntity.hpp"
 #include "game/AbstractShip.hpp"
-#include "game/SpaceField.hpp"
+#include "game/GameGlobals.hpp"
+#include "game/actions/ShootAction.hpp"
 
-Gun::~Gun() {}
+
+Gun::~Gun()
+{
+}
 
 void Gun::startRollback()
 {
@@ -14,13 +17,27 @@ void Gun::startRollback()
 Gun::Gun(const AbstractShip *user)
 	: ship(user)
 {
-};
+}
 
-void Gun::shoot(const rn::Vec2f &direction)
+void Gun::shoot()
 {
-	if (ship && ship->field && !has_rollback)
+	if (GameGlobals::exist() && !has_rollback)
 	{
-		ship->field->summonBullet(createBullet(), getTrajectory());
+		auto direction{getTrajectory()};
+		GameGlobals::instance().action_manager.emplaceToTop<ShootAction>(
+			this, nullptr,
+			rn::Json{
+				{ "direction", { { "x", direction.x }, { "y", direction.y } } }
+			}
+		);
+	}
+}
+
+void Gun::fire()
+{
+	if (GameGlobals::exist())
+	{
+		GameGlobals::instance().field.summonBullet(createBullet(), getTrajectory());
 		onShoot();
 		startRollback();
 	}

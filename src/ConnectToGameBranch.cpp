@@ -115,7 +115,7 @@ void ConnectToGameBranch::receivePackets()
 					GameObjectFabric::instance().remove(*translator, [&](GameObject *game_object) {
 						if (auto space_object = dynamic_cast<SpaceFieldObject *>(game_object))
 						{
-							space_object->destroyFromField();
+							space_object->destroy();
 						}
 					});
 				}

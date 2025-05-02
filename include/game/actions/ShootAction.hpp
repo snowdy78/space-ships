@@ -2,13 +2,13 @@
 
 #include "coop/TransferableAction.hpp"
 
-class ShipShootAction : public TransferableAction 
+class ShootAction : public TransferableAction 
 {
     const static size_t id;
-    AbstractShip *ship = nullptr;
-    rn::Vec2f direction{};
+    Gun *m_gun{nullptr};
+    rn::Vec2f m_direction{};
 public:
-    ShipShootAction(GameObject *author = nullptr, GameObject *target = nullptr, const rn::Json &props = {});
+    ShootAction(GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = {});
     void play() override;
     virtual TransferJson toJson() const override;
     virtual AbstractAction *copy() const override;

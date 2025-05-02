@@ -2,9 +2,10 @@
 
 #include <memory>
 #include "Collider.hpp"
+#include "GameObject.hpp"
 #include "decl.hpp"
 
-class Collidable
+class Collidable : public virtual GameObject
 {
 public:
 	enum CollisionState

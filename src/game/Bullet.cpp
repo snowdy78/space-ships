@@ -2,6 +2,9 @@
 #include "game/AbstractShip.hpp"
 #include "game/Gun.hpp"
 #include "game/SpaceField.hpp"
+#include "game/GameGlobals.hpp"
+#include "game/actions/DealDamageAction.hpp"
+#include "game/actions/DestroyBulletAction.hpp"
 
 /**
  * \brief Default constructor for Bullet
@@ -87,6 +90,14 @@ void Bullet::move(const rn::Vec2f &p)
 	onMove();
 }
 
+void Bullet::destroyFromField() 
+{
+	if (GameGlobals::exist())
+	{
+		GameGlobals::instance().action_manager.emplaceToTop<DestroyBulletAction>(this);
+	}	
+}
+
 void Bullet::updateCollider()
 {
 	rn::Circle circle(getSize().x / 2.f);
@@ -110,18 +121,11 @@ const sf::Sprite &Bullet::getSprite() const
 {
 	return sprite;
 }
-void Bullet::destroyFromField() const
-{
-	if (field)
-	{
-		beforeDestroy();
-		field->destroyBullet(this);
-	}
-}
 void Bullet::onCollisionEnter(Collidable *obstacle)
 {
-	if (auto hittable = dynamic_cast<Hittable *>(obstacle))
+	if (auto hittable = dynamic_cast<Hittable *>(obstacle); GameGlobals::exist())
 	{
+		GameGlobals::instance().action_manager.emplaceToTop<DealDamageAction>(this, hittable);
 		destroyFromField();
 	}
 }

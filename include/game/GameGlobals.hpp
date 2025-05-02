@@ -10,8 +10,17 @@
 
 class GameGlobals 
 {
+public:
+    struct OnlineTraits
+    {
+       OnlineTraits() noexcept {}
+    private:
+        bool is_host{false};
+    };
+private:
     using func_update_on_move = const std::function<void()> &;
-    GameGlobals(sf::RenderTarget &target, func_update_on_move update_on_move);
+    
+    GameGlobals(sf::RenderTarget &target, func_update_on_move update_on_move, const OnlineTraits &traits = OnlineTraits());
 public:
     static void create(sf::RenderTarget &target, func_update_on_move update_on_move);
     static GameGlobals &instance();
@@ -27,10 +36,11 @@ public:
     AbstractShip *player = nullptr;
     EffectManager effect_manager;
     SoundManager sound_manager;
+    std::unique_ptr<OnlineTraits> traits{nullptr};
 };
 
-inline GameGlobals::GameGlobals(sf::RenderTarget &target, func_update_on_move update_on_move) 
-    : camera(target, update_on_move), field(&camera)
+inline GameGlobals::GameGlobals(sf::RenderTarget &target, func_update_on_move update_on_move, const OnlineTraits &traits) 
+    : camera(target, update_on_move), field(&camera), traits(std::make_unique<OnlineTraits>(traits))
 {
     field.appendShip<Ship>(&camera);
     player = field[0];

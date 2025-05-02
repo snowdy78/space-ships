@@ -132,6 +132,16 @@ void BulletMother::ChildBullet::onEvent(sf::Event &event)
 		bullet->onEvent(event);
 }
 
+bool BulletMother::ChildBullet::operator==(const Bullet &bullet) const 
+{
+	return this->bullet.get() == &bullet;
+}
+
+bool BulletMother::ChildBullet::operator!=(const Bullet &bullet) const 
+{
+	return !operator==(bullet);	
+}
+
 void BulletMother::start()
 {
 	for (auto &iterator: bullets)

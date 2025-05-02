@@ -11,7 +11,13 @@ concept ShipT = std::is_base_of<AbstractShip, T>::value && !std::is_same<T, Abst
 
 class SpaceField : public sf::Drawable, public rn::LogicalObject
 {
-	std::vector<AbstractShip *> ships{};
+public:
+	template<class T>
+	using container = std::vector<T>;
+	using ship_t = AbstractShip *;
+	using ships_container = container<ship_t>;
+private:
+	ships_container ships{};
 
 	Camera2d *camera;
 	BulletMother mother{camera};
@@ -34,14 +40,9 @@ public:
 
 	AbstractShip *get(size_t index);
 	AbstractShip *operator[](size_t index);
-	iterator begin();
-	iterator end();
-	size_t size();
+	const ships_container &getShips() const;
 
-	const_iterator cbegin() const;
-	const_iterator cend() const;
-	const_iterator begin() const;
-	const_iterator end() const;
+	size_t size();
 	void clear();
 
 	template<ShipT T, class... Args>
@@ -61,7 +62,5 @@ public:
 template<ShipT T, class... Args>
 void SpaceField::appendShip(const Args &...args)
 {
-	T *ship = new T(args...);
-	ship->setField(this);
-	ships.push_back(ship);
+	ships.push_back(new T(args...));
 }

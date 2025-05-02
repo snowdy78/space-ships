@@ -26,7 +26,6 @@ protected:
 	void updateGunPosition();
 	void updateCollider();
 	EllipseCollider collider;
-	bool is_dead	 = false;
 	bool accelerated = getVelocity() + 0.3f;
 	bool is_friendly = false;
 
@@ -55,8 +54,7 @@ public:
 	void start() override;
 	void update() override;
 	void onEvent(sf::Event &event) override;
-	bool isDead() const;
-	void onDeath() override;
+	void onDestroy() override;
 	sf::FloatRect getLocalBounds() const;
 	sf::FloatRect getGlobalBounds() const;
 	const sf::Sprite &getSprite() const;
@@ -69,7 +67,7 @@ public:
 	void onCollisionEnter(Collidable *collidable) override;
 	bool resolve(const Collidable *collidable) const override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
-	void destroyFromField() const override;
+	void destroyFromField() override;
 	virtual AbstractShip *copy() const = 0;
 };
 

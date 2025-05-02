@@ -1,11 +1,8 @@
 #pragma once
 
-#include "components/AnimatedSprite.hpp"
 #include "components/GameInfo.hpp"
-#include "decl.hpp"
 #include "game/Camera2d.hpp"
 #include "game/GameGlobals.hpp"
-#include "game/SpaceField.hpp"
 #include "components/Background.hpp"
 
 // audio distance playing

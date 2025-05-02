@@ -5,7 +5,7 @@
 #include "game/EnemyShip.hpp"
 #include "game/GameGlobals.hpp"
 #include "game/SpaceField.hpp"
-#include "game/actions/ShipShootAction.hpp"
+#include "game/actions/ShootAction.hpp"
 
 Ship::Ship(Camera2d *camera)
 	: AbstractShip(*texture),
@@ -78,10 +78,7 @@ void Ship::onEvent(sf::Event &event)
 	AbstractShip::onEvent(event);
 	if (rn::isKeydown(sf::Mouse::Left))
 	{
-		if (GameGlobals::exist())
-		{
-			GameGlobals::instance().action_manager.emplaceToTop<ShipShootAction>(this, nullptr, rn::Json{{"direction", {{"x", getDirection().x}, {"y", getDirection().y}}}});
-		}
+		shoot();
 	}
 }
 void Ship::onRotation()
