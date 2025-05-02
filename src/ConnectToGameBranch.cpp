@@ -13,10 +13,8 @@
 ConnectToGameBranch::~ConnectToGameBranch()
 {
 	window.setView(window.getDefaultView());
-    if (GameGlobals::exist())
-	{
+	if (GameGlobals::exist())
 		GameGlobals::instance().clear();
-	}
 }
 
 void ConnectToGameBranch::start()
@@ -27,6 +25,18 @@ void ConnectToGameBranch::start()
 		10,
 		{ res.x / 5, res.y / 10 }
 	};
+	auto cs = client.connect(host_ip, host_port);
+	if (cs == sf::Socket::Done)
+	{
+		std::cerr << "connected\n";
+		Request request;
+		request["type"] = "connect";
+		auto status		= client.send(&request);
+		if (status != sf::Socket::Done)
+			std::cerr << "Failed to send with code: " << status << "\n";
+		else
+			std::cout << "Successfully sent data: " << request.toJson().dump(2, ' ', '\n') << "\n";
+	}
 
 	send_status.setPosition(table.getCellGlobalPos(1, 2));
 	receive_status.setPosition(table.getCellGlobalPos(1, 3));
@@ -36,30 +46,19 @@ void ConnectToGameBranch::start()
 	if (GameGlobals::exist())
 		space = &GameGlobals::instance();
 	client.setBlocking(false);
-	client.bind(remote_port, ip_address);
 	if (space)
 	{
 		space->player->setPosition(res / 2.f);
 		background.start();
 		space->field.start();
 		space->action_manager.start();
-		Request request;
-		request["type"] = "connect";
-		auto status = client.send(&request);
-		if (status != sf::Socket::Done)
-		{
-			std::cerr << "Failed to send with code: " << status << "\n";
-		}
-		else
-		{
-			std::cout << "Successfully sent data: " << request.toJson().dump(2, ' ', '\n') << "\n";
-		}
 	}
 }
 void ConnectToGameBranch::update()
 {
 	if (!space || !window.isOpen())
 		return;
+
 	space->field.update();
 	space->action_manager.update();
 	background.update();
@@ -75,14 +74,12 @@ void ConnectToGameBranch::update()
 }
 void ConnectToGameBranch::onEvent(sf::Event &event)
 {
+	if (!window.hasFocus())
+		return;
 	if (event.type == sf::Event::Closed)
-	{
 		window.close();
-	}
 	if (rn::isKeydown(sf::Keyboard::Escape))
-	{
 		next_branch<MainMenu>(window);
-	}
 	space->field.onEvent(event);
 	space->action_manager.onEvent(event);
 }
@@ -103,35 +100,25 @@ void ConnectToGameBranch::receivePackets()
 				{
 					auto objects = GameObjectFabric::instance().update(*translator);
 					for (auto &unique_object: objects)
-					{
 						if (auto space_object = dynamic_cast<SpaceFieldObject *>(unique_object.get()))
-						{
 							space_object->summonCopy(&space->field);
-						}
-					}
 				}
 				else if (translator->getTranslateType() == GameObjectFabricTranslator::TranslateType::Clear)
 				{
 					GameObjectFabric::instance().remove(*translator, [&](GameObject *game_object) {
 						if (auto space_object = dynamic_cast<SpaceFieldObject *>(game_object))
-						{
 							space_object->destroy();
-						}
 					});
 				}
 			}
 			if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))
-			{
 				space_object->summonCopy(&space->field);
-			}
 		}
 		if (response.is_action())
 		{
 			std::unique_ptr<AbstractAction> action = std::move(response.action());
 			if (action)
-			{
 				space->action_manager.addToTop(std::move(action));
-			}
 		}
 	}
 }

@@ -1,5 +1,6 @@
 #include "HostGameBranch.hpp"
 #include <memory>
+#include "MainMenu.hpp"
 #include "coop/Request.hpp"
 #include "coop/UdpRouter.hpp"
 #include "game/GameGlobals.hpp"
@@ -21,8 +22,10 @@ void HostGameBranch::start()
 	});
 	if (GameGlobals::exist())
 		space = &GameGlobals::instance();
+	auto ls = client.host();
+	if (ls == sf::Socket::Done)
+		std::cerr << "listening\n";
 	client.setBlocking(false);
-	client.bind(remote_port, ip_address);
 	if (space)
 	{
 		space->player->setPosition(res / 2.f);
@@ -30,20 +33,24 @@ void HostGameBranch::start()
 		space->field.start();
 		space->action_manager.start();
 	}
-
 }
 HostGameBranch::~HostGameBranch()
 {
 	window.setView(window.getDefaultView());
 	if (GameGlobals::exist())
-	{
 		GameGlobals::instance().clear();
-	}
 }
 void HostGameBranch::update()
 {
 	if (!space || !window.isOpen())
 		return;
+	auto connection_status = client.findConnection();
+	if (connection_status == sf::Socket::Disconnected)
+	{
+		std::cout << "disconnection\n";
+		next_branch<MainMenu>(window);
+		return;
+	}
 	space->field.update();
 	space->action_manager.update();
 	background.update();
@@ -59,10 +66,10 @@ void HostGameBranch::update()
 }
 void HostGameBranch::onEvent(sf::Event &event)
 {
+	if (!window.hasFocus())
+		return;
 	if (event.type == sf::Event::Closed)
-	{
 		window.close();
-	}
 	space->field.onEvent(event);
 	space->action_manager.onEvent(event);
 }
@@ -81,30 +88,24 @@ void HostGameBranch::receivePackets()
 				if (request.contains("type") && request["type"] == "connect")
 				{
 					GameObjectFabricTranslator translator;
-					translator.assignUpdateData(GameObjectFabric::instance().begin(), GameObjectFabric::instance().end());
+					translator.assignUpdateData(
+						GameObjectFabric::instance().begin(), GameObjectFabric::instance().end()
+					);
 					auto status = client.send(&translator);
 					if (status != sf::Socket::Done)
-					{
 						std::cerr << "Failed to send with code: " << status << "\n";
-					}
-					else 
-					{
+					else
 						std::cout << "Successfully sent data: " << translator.toJson().dump(2, ' ', '\n') << "\n";
-					}
 				}
 			}
 			if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))
-			{
 				space_object->summonCopy(&space->field);
-			}
 		}
 		if (response.is_action())
 		{
 			std::unique_ptr<AbstractAction> action{ response.action().release() };
 			if (action)
-			{
 				space->action_manager.addToTop(std::move(action));
-			}
 		}
 	}
 }
