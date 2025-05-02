@@ -42,7 +42,7 @@ public:
     BasicRouter() = default;
 
     sf::Socket::Status send(const TransferableObject *data);
-	sf::Socket::Status send(std::optional<size_t> author_id, std::optional<size_t> target_id, TransferableAction *action);
+	sf::Socket::Status send(TransferableAction *action);
 	Response receive();
 protected:
     virtual sf::Socket::Status sendJson(const rn::Json &) = 0;
@@ -58,19 +58,19 @@ sf::Socket::Status BasicRouter<RespT>::send(const TransferableObject *data)
 }
 
 template<class RespT>
-sf::Socket::Status BasicRouter<RespT>::send(std::optional<size_t> author_id, std::optional<size_t> target_id, TransferableAction *action)
+sf::Socket::Status BasicRouter<RespT>::send(TransferableAction *action)
 {
     using namespace std::string_literals;
 	if (!action)
 		return sf::Socket::Status::Error;
 	rn::Json send_data = action->toJson();
 	send_data["type"]  = Response::TransferType::action;
-	if (author_id)
-		send_data["author_id"] = *author_id;
+	if (action->author)
+		send_data["author_id"] = *action->author;
 	else
 		send_data["author_id"] = nullptr;
-	if (target_id)
-		send_data["target_id"] = *target_id;
+	if (action->contributor)
+		send_data["target_id"] = *action->contributor;
 	else
 		send_data["target_id"] = nullptr;
 	return sendJson(send_data);
