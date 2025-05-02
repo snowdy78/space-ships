@@ -42,7 +42,7 @@ HostGameBranch::~HostGameBranch()
 }
 void HostGameBranch::update()
 {
-	if (!space)
+	if (!space || !window.isOpen())
 		return;
 	space->field.update();
 	space->action_manager.update();

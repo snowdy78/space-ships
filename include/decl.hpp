@@ -12,6 +12,7 @@ inline sf::Mutex mutex;
 struct ChatSocket;
 struct Client;
 struct Server;
+class Node;
 
 class Transferable;
 

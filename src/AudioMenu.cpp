@@ -62,7 +62,7 @@ void AudioMenu::start()
 
 void AudioMenu::update()
 {
-	if (!space)
+	if (!space || !window.isOpen())
 		return;
 	th->launch();
 	background.update();

@@ -58,7 +58,7 @@ void ConnectToGameBranch::start()
 }
 void ConnectToGameBranch::update()
 {
-	if (!space)
+	if (!space || !window.isOpen())
 		return;
 	space->field.update();
 	space->action_manager.update();
