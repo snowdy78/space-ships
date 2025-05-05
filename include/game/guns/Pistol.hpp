@@ -17,4 +17,6 @@ public:
 	rn::Vec2f getTrajectory() const override;
 	Gun *copy() const override;
 	void onShoot() override;
+
+	float getMillisDelay() const override;
 };

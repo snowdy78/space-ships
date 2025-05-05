@@ -32,7 +32,7 @@ bool everyTime(rn::Stopwatch &clock, const float t)
 {
 	if (clock.is_stopped())
 		return false;
-	if (clock.time<std::chrono::milliseconds>().count() % 1000 > t * 1000.f)
+	if (clock.time<std::chrono::milliseconds>().count() > t)
 	{
 		clock.stop();
 		return true;

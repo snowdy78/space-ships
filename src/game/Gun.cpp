@@ -59,5 +59,5 @@ void Gun::update()
 
 float Gun::getMillisDelay() const
 {
-	return 0.3f;
+	return 300;
 }

@@ -30,6 +30,10 @@ void Pistol::onShoot()
 		);
 	}
 }
+float Pistol::getMillisDelay() const
+{
+	return 500;
+}
 rn::Vec2f Pistol::getTrajectory() const
 {
 	auto angle
