@@ -17,12 +17,7 @@ void EllipseCollider::transform(const rn::math::ellipse &ellipse)
 
 bool EllipseCollider::collide(const EllipseCollider &collider) const
 {
-	rn::Circle circle = rn::Circle(shape.r);
-	circle.setScale(shape.a, shape.b);
-	circle.setPosition(shape.center);
-	circle.setRotation(shape.rotation);
-	circle.setPointCount(25);
-	return rn::math::polygon(circle).collide(static_cast<const rn::math::ellipse &>(collider.getColliderShape()));
+	return shape.collide(static_cast<const rn::math::ellipse &>(collider.getColliderShape()));
 }
 
 Collider *EllipseCollider::copy() const
