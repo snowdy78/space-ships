@@ -5,21 +5,31 @@
 #include "game/GameGlobals.hpp"
 #include "game/Gun.hpp"
 #include "game/RigitBody2d.hpp"
+#include "game/actions/DestroyShipAction.hpp"
 #include "game/actions/TakeDamageAction.hpp"
 #include "game/guns/Pistol.hpp"
-#include "game/actions/DestroyShipAction.hpp"
+
 
 AbstractShip::AbstractShip(const sf::Texture &texture)
 	: sprite(texture),
 	  gun(new Pistol(this))
-{}
-bool AbstractShip::friendly() const
 {
-	return is_friendly;
 }
-void AbstractShip::friendly(bool friendly)
+bool AbstractShip::isFriend(const AbstractShip *other_ship)
 {
-	is_friendly = friendly;
+	return other_ship->getTeamName() == getTeamName();
+}
+void AbstractShip::setTeamName(const sf::String &team_name)
+{
+	this->team_name = team_name;
+}
+void AbstractShip::resetTeamName()
+{
+	team_name = generateRandomTeamName();
+}
+const sf::String &AbstractShip::getTeamName() const 
+{
+	return team_name;	
 }
 rn::Vec2f AbstractShip::getSize() const
 {
@@ -68,18 +78,7 @@ void AbstractShip::onEvent(sf::Event &event)
 {
 	RigitBody2d::onEvent(event);
 	if (gun)
-	{
 		gun->onEvent(event);
-	}
-
-	if (rn::isKeydown(sf::Keyboard::LShift))
-	{
-		setVelocity(accelerated);
-	}
-	else if (rn::isKeyup(sf::Keyboard::LShift))
-	{
-		setVelocity(accelerated);
-	}
 }
 void AbstractShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
@@ -91,9 +90,7 @@ void AbstractShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 void AbstractShip::destroyFromField()
 {
 	if (GameGlobals::exist())
-	{
 		GameGlobals::instance().action_manager.emplaceToTop<DestroyShipAction>(this);
-	}
 }
 void AbstractShip::onMove()
 {
@@ -118,6 +115,15 @@ const Collider *AbstractShip::getCollider() const
 {
 	return &collider;
 }
+void AbstractShip::setAcceleration(float acceleration) 
+{
+	m_acceleration = acceleration;
+	onAcceleration();
+}
+float AbstractShip::getAcceleration() const 
+{
+	return m_acceleration;
+}
 void AbstractShip::updateCollider()
 {
 	rn::Circle circle{ getSize().x / 2.f };
@@ -126,6 +132,17 @@ void AbstractShip::updateCollider()
 	circle.setRotation(getRotation());
 	circle.setScale(getScale());
 	collider.transform(rn::math::ellipse(circle));
+}
+sf::String AbstractShip::generateRandomTeamName(size_t length)
+{
+	static const sf::String hash_limit{ "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" };
+	sf::String result;
+	while (length != 0)
+	{
+		result += *rn::random::item(hash_limit.begin(), hash_limit.end());
+		length--;
+	}
+	return result;
 }
 bool AbstractShip::resolve(const Collidable *collidable) const
 {
@@ -137,23 +154,19 @@ bool AbstractShip::resolve(const Collidable *collidable) const
 void AbstractShip::onCollisionEnter(Collidable *collidable)
 {
 	if (auto dd = dynamic_cast<DamageDealer *>(collidable); GameGlobals::exist())
-	{
 		GameGlobals::instance().action_manager.emplaceToTop<TakeDamageAction>(this, dd);
-	}
 }
 void AbstractShip::onHit()
 {
 	Hittable::onHit();
-	
+
 	if (!GameGlobals::exist())
 		return;
 	GameGlobals::instance().sound_manager.emplace_back<SoundDisperseEntity>(
 		[this](auto sound) {
 			sound->setPosition(rn::Vec3f(getPosition().x, getPosition().y, 0.f));
-			
 		},
-		hit_sound_traits,
-		hit_buffer
+		hit_sound_traits, hit_buffer
 	);
 }
 void AbstractShip::onDestroy()
@@ -172,8 +185,7 @@ void AbstractShip::onDestroy()
 			[this](auto sound) {
 				sound->setPosition(rn::Vec3f(getPosition().x, getPosition().y, 0.f));
 			},
-			destroy_sound_traits,
-			destroy_buffer
+			destroy_sound_traits, destroy_buffer
 		);
 	}
 }

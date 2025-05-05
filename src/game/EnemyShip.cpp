@@ -1,6 +1,8 @@
 #include "game/EnemyShip.hpp"
 #include "game/AbstractShip.hpp"
 #include "game/SpaceField.hpp"
+#include "game/GameGlobals.hpp"
+#include "game/actions/MoveShipAction.hpp"
 
 EnemyShip::EnemyShip()
 	: AbstractShip(*texture)
@@ -48,7 +50,7 @@ void EnemyShip::rotation()
 void EnemyShip::movement()
 {
 	AbstractShip::movement();
-	if (!target)
+	if (!target || !GameGlobals::exist())
 		return;
 	if (static_cast<int>(clock.getElapsedTime().asSeconds()) % 2 == 0)
 	{
@@ -62,7 +64,9 @@ void EnemyShip::movement()
 		}
 		
 		*randomly_move *= rn::math::sgn(rn::math::length(target->getPosition() - getPosition()) - min_distance_to_target);
-		move(*randomly_move * getVelocity() * getDirection());
+		GameGlobals::instance().action_manager.emplaceToTop<MoveShipAction>(this, nullptr, rn::Json{
+			{MoveShipAction::md, to_json(float(*randomly_move) * getDirection())}
+		});
 	}
 	if (static_cast<int>(clock.getElapsedTime().asMilliseconds()) % 1000 > 500)
 	{
@@ -70,7 +74,9 @@ void EnemyShip::movement()
 		{
 			randomly_move.reset(new int(rn::random::integer(0, 1)));
 		}
-		move(*randomly_move * getVelocity() * rn::math::nor(getDirection()));
+		GameGlobals::instance().action_manager.emplaceToTop<MoveShipAction>(this, nullptr, rn::Json{
+			{MoveShipAction::md, to_json(float(*randomly_move) * rn::math::nor(getDirection()))}
+		});
 	}
 }
 

@@ -7,7 +7,8 @@ ShootAction::ShootAction(GameObject *author, GameObject *contributor, const rn::
 	: TransferableAction(author, contributor, props)
 {
 	auto gun = dynamic_cast<Gun *>(author);
-	auto d = "direction", x = "x", y = "y";
+	const char *x = "x", *y = "y";
+	auto &d = direction;
 	if (!gun
 		|| !(
 			props.contains(d) && props[d].is_object() && props[d].contains(x) && props[d].contains(y)
