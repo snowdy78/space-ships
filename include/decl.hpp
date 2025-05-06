@@ -23,7 +23,6 @@ inline sf::Mutex mutex;
 struct ChatSocket;
 struct Client;
 struct Server;
-class Node;
 class AbstractAction;
 
 class Transferable;
@@ -79,7 +78,15 @@ using Router = BasicRouter<>;
 
 class UdpRouter;
 
+class Effect;
+class EffectManager;
+class SoundManager;
+template<template<class T> class Container, class Ty>
+class AbstractManager;
+class ActionManager;
+class FileLoader;
 class GameGlobals;
+
 class GameObject;
 class GameObjectFabric;
 class GameObjectFabricTranslator;
@@ -100,5 +107,4 @@ class Hittable;
 
 class AbstractAction;
 
-class ActionManager;
 class ShootAction;

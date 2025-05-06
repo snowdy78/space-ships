@@ -18,14 +18,16 @@ Collider *PolygonCollider::copy() const
 {
 	return new PolygonCollider(shape);
 }
+sf::FloatRect PolygonCollider::getBounds() const 
+{
+	sf::ConvexShape polygon{shape.point_count()};
+	for (size_t i = 0; i < polygon.getPointCount(); i++)
+	{
+		polygon.setPoint(i, shape.point(i));
+	}
+	return polygon.getGlobalBounds();
+}
 const rn::math::shape &PolygonCollider::getColliderShape() const
 {
 	return shape;
-}
-sf::Drawable *PolygonCollider::toDrawable() const
-{
-	rn::Convex *convex = new rn::Convex(shape.point_count());
-	for (size_t i = 0; i < shape.point_count(); i++)
-		convex->setPoint(i, shape.points[i]);
-	return convex;
 }

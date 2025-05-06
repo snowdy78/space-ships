@@ -25,11 +25,11 @@ Collider *EllipseCollider::copy() const
 	return new EllipseCollider(shape);
 }
 
-sf::Drawable *EllipseCollider::toDrawable() const
+sf::FloatRect EllipseCollider::getBounds() const 
 {
-	rn::Circle *circle = new rn::Circle(shape.r);
-	circle->setScale(shape.a, shape.b);
-	circle->setPosition(shape.center);
-	circle->setRotation(shape.rotation);
-	return circle;
+	rn::Circle circle(shape.r);
+	circle.setScale(shape.a, shape.b);
+	circle.setPosition(shape.center);
+	circle.setRotation(shape.rotation);
+	return circle.getGlobalBounds();
 }

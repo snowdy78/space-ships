@@ -32,11 +32,29 @@ public:
 	void clear();
 
 	void update() override;
+	/**
+	 * @brief erase manager value predicate function
+	 *
+	 * @param item
+	 * @return boolean
+	 */
 	virtual bool need_erase(const const_iterator &item) const = 0;
-	virtual void update_item(const const_iterator &item)	  = 0;
+	/**
+	 * @brief item update function
+	 *
+	 * @param item
+	 */
+	virtual void update_item(const const_iterator &item) = 0;
 
 protected:
-	virtual void onPushValue(const const_iterator &value) {}
+	/**
+	 * @brief push value event handler
+	 *
+	 * @param value
+	 */
+	virtual void onPushValue(const const_iterator &value)
+	{
+	}
 
 private:
 	values_container m_container;
@@ -44,7 +62,8 @@ private:
 
 template<template<class T> class ContainerT, class Ty>
 AbstractManager<ContainerT, Ty>::~AbstractManager()
-{}
+{
+}
 
 template<template<class T> class ContainerT, class Ty>
 typename AbstractManager<ContainerT, Ty>::const_iterator AbstractManager<ContainerT, Ty>::begin() const
@@ -84,7 +103,8 @@ constexpr void AbstractManager<ContainerT, Ty>::push_back(value_type &&value) no
 
 template<template<class T> class ContainerT, class Ty>
 template<class T, class... Args>
-constexpr void AbstractManager<ContainerT, Ty>::emplace_back(const after_emplace_func<T *> &after_emplace, Args &&...args)
+constexpr void
+AbstractManager<ContainerT, Ty>::emplace_back(const after_emplace_func<T *> &after_emplace, Args &&...args)
 {
 	m_container.emplace_back(new T(std::move(args)...));
 	if (auto t = dynamic_cast<T *>(m_container.back().get()))

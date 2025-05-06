@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SFML/Graphics/Rect.hpp"
 #include "game/Collider.hpp"
 
 class EllipseCollider : public Collider
@@ -19,5 +20,5 @@ public:
 	virtual bool collide(const EllipseCollider &collider) const override;
 	const rn::math::shape &getColliderShape() const override;
 	Collider *copy() const override;
-	sf::Drawable *toDrawable() const override;
+	sf::FloatRect getBounds() const override;
 };
