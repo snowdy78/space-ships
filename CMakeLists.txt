@@ -42,14 +42,6 @@ target_link_sfml(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PRIVATE ${MY_PROJECT_SOURCE_DIR}/include)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
-if(WIN32)
-    add_custom_command(
-        TARGET ${PROJECT_NAME}
-        COMMENT "Copy OpenAL DLL"
-        PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${SFML_SOURCE_DIR}/extlibs/bin/$<IF:$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>,x64,x86>/openal32.dll $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    VERBATIM)
-endif()
-
 function(target_link_sfml_libraries TARGET)
     target_link_libraries(${TARGET} PUBLIC sfml-graphics)
     target_link_libraries(${TARGET} PUBLIC sfml-network)
