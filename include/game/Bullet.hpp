@@ -8,11 +8,8 @@
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
 
-
 class Bullet : public rn::MonoBehaviour, public Collidable, public DamageDealer, public SpaceFieldObject
 {
-	inline static loading<sf::Texture> texture
-		= FileLoader::Instance().addTextureToUpload("img/bullet_shoot.png").get();
 	sf::Sprite sprite;
 
 	float mass		   = 0.100f;
@@ -21,21 +18,14 @@ class Bullet : public rn::MonoBehaviour, public Collidable, public DamageDealer,
 	rn::Vec2f direction{};
 	EllipseCollider collider;
 	const Gun *author = nullptr;
+	std::optional<rn::Vec2f> size; // defined when texture is setted
 
-	struct bullet_sound : SoundDisperseEntity
-	{
-		using SoundDisperseEntity::SoundDisperseEntity;
-		void start() override;
-	};
-	inline static loading<sf::SoundBuffer> fly_buf = FileLoader::Instance().addSoundToUpload("./assets/bullet_fly.wav").get();
-	bullet_sound fly_sound{300, 150, fly_buf};
-
+	void setTexture(const sf::Texture &texture);
 protected:
 	void updateCollider();
-	void setTexture(const sf::Texture &texture);
-	const sf::Texture &getTexture() const;
-
+	virtual const sf::Texture &initTexture() const = 0;
 public:
+	const sf::Texture &getTexture() const;
 	Gun const *const &gun = author;
 	Bullet(const Gun *gun);
 	~Bullet() override = 0;
@@ -54,7 +44,7 @@ public:
 	float getMass() const;
 	float getVelocity() const;
 	float getAcceleration() const;
-	rn::Vec2f getSize() const;
+	const std::optional<rn::Vec2f> &getSize() const;
 
 	void onCollisionEnter(Collidable *obstacle) override;
 	void destroyFromField() override;
@@ -70,6 +60,7 @@ public:
 	 * \return True if the collision is resolved, false otherwise.
 	 */
 	bool resolve(const Collidable *collidable) const override;
+	void start() override;
 	void update() override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 	void summonCopy(SpaceField *field) const override;

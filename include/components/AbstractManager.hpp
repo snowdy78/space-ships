@@ -11,9 +11,14 @@ public:
 	using value_type	   = Ty;
 	using values_container = ContainerT<std::unique_ptr<Ty>>;
 	using const_iterator   = values_container::const_iterator;
-
+	using iterator		   = values_container::iterator;
 	const_iterator begin() const;
 	const_iterator end() const;
+	const_iterator cbegin() const;
+	const_iterator cend() const;
+	iterator begin();
+	iterator end();
+
 
 	AbstractManager()			= default;
 	~AbstractManager() override = 0;
@@ -27,7 +32,8 @@ public:
 	constexpr void emplace_back(const after_emplace_func<T *> &after_emplace, Args &&...args);
 	template<class T, class... Args>
 	constexpr void emplace_back(const after_emplace_func<T *> &after_emplace, const Args &...args);
-	const_iterator erase(const_iterator index);
+	
+	iterator erase(const_iterator index);
 	size_t size() const;
 	void clear();
 
@@ -73,6 +79,30 @@ typename AbstractManager<ContainerT, Ty>::const_iterator AbstractManager<Contain
 
 template<template<class T> class ContainerT, class Ty>
 typename AbstractManager<ContainerT, Ty>::const_iterator AbstractManager<ContainerT, Ty>::end() const
+{
+	return m_container.end();
+}
+
+template<template<class T> class ContainerT, class Ty>
+typename AbstractManager<ContainerT, Ty>::const_iterator AbstractManager<ContainerT, Ty>::cbegin() const
+{
+	return m_container.cbegin();
+}
+
+template<template<class T> class ContainerT, class Ty>
+typename AbstractManager<ContainerT, Ty>::const_iterator AbstractManager<ContainerT, Ty>::cend() const
+{
+	return m_container.cend();
+}
+
+template<template<class T> class ContainerT, class Ty>
+typename AbstractManager<ContainerT, Ty>::iterator AbstractManager<ContainerT, Ty>::begin()
+{
+	return m_container.begin();
+}
+
+template<template<class T> class ContainerT, class Ty>
+typename AbstractManager<ContainerT, Ty>::iterator AbstractManager<ContainerT, Ty>::end()
 {
 	return m_container.end();
 }
@@ -124,7 +154,7 @@ AbstractManager<ContainerT, Ty>::emplace_back(const after_emplace_func<T *> &aft
 }
 
 template<template<class T> class ContainerT, class Ty>
-typename AbstractManager<ContainerT, Ty>::const_iterator AbstractManager<ContainerT, Ty>::erase(const_iterator index)
+typename AbstractManager<ContainerT, Ty>::iterator AbstractManager<ContainerT, Ty>::erase(const_iterator index)
 {
 	return m_container.erase(index);
 }

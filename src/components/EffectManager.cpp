@@ -19,6 +19,9 @@ void EffectManager::draw(sf::RenderTarget &target, sf::RenderStates states) cons
 {
     for (auto &value : *this)
     {
-        target.draw(*value, states);
+        if (value)
+        {
+            target.draw(*value, states);
+        }
     }
 }

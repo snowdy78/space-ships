@@ -3,6 +3,13 @@
 #include "decl.hpp"
 #include "GameObject.hpp"
 
+struct summon_traits
+{
+    rn::Vec2f position;
+public:
+    summon_traits() = default;
+};
+
 class SpaceFieldObject : public virtual GameObject
 {
     friend class SpaceField;

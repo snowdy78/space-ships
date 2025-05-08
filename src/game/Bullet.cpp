@@ -1,10 +1,11 @@
 #include "game/Bullet.hpp"
 #include "game/AbstractShip.hpp"
+#include "game/GameGlobals.hpp"
 #include "game/Gun.hpp"
 #include "game/SpaceField.hpp"
-#include "game/GameGlobals.hpp"
 #include "game/actions/DealDamageAction.hpp"
 #include "game/actions/DestroyBulletAction.hpp"
+
 
 /**
  * \brief Default constructor for Bullet
@@ -14,24 +15,28 @@
 Bullet::Bullet(const Gun *gun)
 	: author(gun)
 {
-	setTexture(*texture);
-	setOrigin(rn::Vec2f{ texture->getSize() / 2u });
-	updateCollider();
-	fly_sound.start();
 }
 
-Bullet::~Bullet() {}
+Bullet::~Bullet()
+{
+}
+
+void Bullet::start() 
+{
+	setTexture(initTexture());
+	updateCollider();
+	setOrigin(*size / 2.f);
+}
 
 void Bullet::update()
 {
 	velocity += acceleration;
 	acceleration *= 0.99f;
 	move(direction * velocity);
-	fly_sound.update();
 }
-rn::Vec2f Bullet::getSize() const
+const std::optional<rn::Vec2f> &Bullet::getSize() const
 {
-	return rn::Vec2f{ sprite.getTexture()->getSize() };
+	return size;
 }
 void Bullet::setDirection(const rn::Vec2f &direction)
 {
@@ -90,22 +95,23 @@ void Bullet::move(const rn::Vec2f &p)
 	onMove();
 }
 
-void Bullet::destroyFromField() 
+void Bullet::destroyFromField()
 {
 	if (GameGlobals::exist())
-	{
 		GameGlobals::instance().action_manager.emplaceToTop<DestroyBulletAction>(this);
-	}	
 }
 
 void Bullet::updateCollider()
 {
-	rn::Circle circle(getSize().x / 2.f);
-	circle.setScale(getScale());
-	circle.setOrigin(getOrigin());
-	circle.setPosition(getPosition());
-	circle.setRotation(getRotation());
-	collider.transform(circle);
+	if (size)
+	{
+		rn::Circle circle(size->x / 2.f);
+		circle.setScale(getScale());
+		circle.setOrigin(getOrigin());
+		circle.setPosition(getPosition());
+		circle.setRotation(getRotation());
+		collider.transform(circle);
+	}
 }
 const Collider *Bullet::getCollider() const
 {
@@ -132,6 +138,7 @@ void Bullet::onCollisionEnter(Collidable *obstacle)
 void Bullet::setTexture(const sf::Texture &texture)
 {
 	sprite.setTexture(texture);
+	size = rn::Vec2f{texture.getSize()};
 }
 const sf::Texture &Bullet::getTexture() const
 {
@@ -143,18 +150,11 @@ void Bullet::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	states.transform = getTransform();
 	target.draw(sprite, states);
 }
-void Bullet::summonCopy(SpaceField *field) const 
+void Bullet::summonCopy(SpaceField *field) const
 {
 	field->summonBullet(copy(), getDirection());
 }
-void Bullet::onMove() 
+void Bullet::onMove()
 {
 	updateCollider();
-	//fly_sound.setPosition({getPosition().x, getPosition().y, 0});
-}
-
-void Bullet::bullet_sound::start() 
-{
-	setLoop(true);
-	play();
 }
