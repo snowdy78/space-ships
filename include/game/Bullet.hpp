@@ -14,7 +14,7 @@ class Bullet : public rn::MonoBehaviour, public Collidable, public DamageDealer,
 
 	float mass		   = 0.100f;
 	float velocity	   = 15.f;
-	float acceleration = (0.2f - 0.1f) / 250.f;
+	float acceleration = 0.1f / 250.f;
 	rn::Vec2f direction{};
 	EllipseCollider collider;
 	const Gun *author = nullptr;

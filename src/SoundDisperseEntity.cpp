@@ -6,6 +6,7 @@ SoundDisperseEntity::SoundDisperseEntity(
 	: clear_dist(clear_sound_distance),
 	  disperse_radius(disperse_force)
 {
+	setRelativeToListener(true);
 	if (buffer)
 	{
 		setBuffer(*buffer);
@@ -57,15 +58,16 @@ void SoundDisperseEntity::pause()
 }
 void SoundDisperseEntity::update()
 {
+	if (disperse_radius == 0.f)
+	{
+		setVolume(0);
+		return;
+	}
 	using namespace rn::math;
 
 	rn::Vec3f pdist = sf::Listener::getPosition() - getPosition();
 	float dist		= length(pdist);
-	float volume;
-	if (dist < 0.00001f)
-		volume = 100;
-	else
-		volume = (1.0f - std::clamp((clear_dist + dist) / disperse_radius, 0.f, 1.f)) * 100.f;
+	float volume = (1.0f - std::clamp((clear_dist + dist) / disperse_radius, 0.f, 1.f)) * 100.f;
 	setVolume(volume);
 }
 const rn::Vec3f &SoundDisperseEntity::getPosition() const
