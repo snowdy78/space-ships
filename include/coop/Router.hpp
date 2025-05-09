@@ -18,8 +18,8 @@ class BasicRouterResponse
 public:
     struct TransferType
 	{
-		inline static constexpr std::string object = "object";
-		inline static constexpr std::string action = "action";
+		static constexpr const char *object = "object";
+		static constexpr const char *action = "action";
 	};
     
     bool success();
