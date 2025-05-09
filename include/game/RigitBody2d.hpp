@@ -1,11 +1,13 @@
 #pragma once
 
+#include "RuneEngine/Math/math_functionality.hpp"
 #include "decl.hpp"
 
 class Direction : public rn::Vec2f
 {
 public:
-	explicit Direction(const rn::Vec2f &distance = {})
+	explicit Direction() = default;
+	explicit Direction(const rn::Vec2f &distance)
 		: rn::Vec2f(rn::math::norm(distance))
 	{}
 	explicit Direction(float angle)
@@ -31,6 +33,14 @@ class RigitBody2d : public rn::MonoBehaviour
 	float velocity = 5.f;
 	Direction direction{};
 	bool is_capable = true;
+	struct PullForce
+	{
+		rn::Vec2f pull{0.0f, 0.0f};
+		float force{0.0f};
+	};
+	PullForce pull_force;
+	float mass{1.0};
+	float m_acceleration{1.0f};
 public:
 	using Transformable::getPosition;
 
@@ -46,16 +56,24 @@ public:
 	void setDirection(float x, float y);
 	void setDirection(const rn::Vec2f &p);
 	void setVelocity(float velocity);
+	void setAcceleration(float acceleration);
+	float getAcceleration() const;
+	virtual void onAccelerate() {}
+	
 	Direction getDirection() const;
 	void move(float x, float y);
 	void move(const rn::Vec2f &p);
 	void setRotation(float angle);
 	void rotate(float angle);
+	virtual rn::Vec2f countMove() const = 0;
 
 	virtual void onMove() {}
 	virtual void onRotation() {}
 	float getVelocity() const;
 	static rn::Vec2f getDirection2d();
+	void push(const rn::Vec2f &force);
+	virtual void onPush() {}
+	void setPulling(const rn::Vec2f &point, float force);
 
 	const sf::Sprite &getSprite() const;
 

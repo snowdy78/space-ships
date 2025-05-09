@@ -23,8 +23,8 @@ void Pistol::onShoot()
 	{
 		SoundDisperseEntity sound{ shoot_sound_traits, sound_buffer };
 		GameGlobals::instance().sound_manager.emplace_back<SoundDisperseEntity>(
-			[this](auto sound) {
-				sound->setPosition({ getPosition().x, getPosition().y, 0 });
+			[this](SoundDisperseEntity &sound) {
+				sound.setPosition({ getPosition().x, getPosition().y, 0 });
 			},
 			shoot_sound_traits, sound_buffer
 		);

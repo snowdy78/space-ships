@@ -12,6 +12,15 @@ concept TransferActionConcept
 			 ptr = new T(author, contributor, props);
 		 };
 
+class TransferableActionProps
+{
+public:
+	GameObject *author;
+	GameObject *contributor;
+	rn::Json props;
+	TransferableActionProps(GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = {});
+};
+
 class TransferableAction : public AbstractAction, public Transferable
 {
 	template<class T>

@@ -4,7 +4,7 @@
 #include "AbstractShip.hpp"
 #include "Camera2d.hpp"
 #include "actions/MoveShipAction.hpp"
-#include "components/ControlsScheme.hpp"
+#include "components/ControlsScheme/ControlsScheme.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
 #include "game/actions/ShootAction.hpp"
@@ -77,4 +77,5 @@ public:
 	void onHit() override;
 	void summonCopy(SpaceField *field) const override;
 	AbstractShip *copy() const override;
+	rn::Vec2f countMove() const override;
 };

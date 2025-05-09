@@ -78,3 +78,26 @@ void RigitBody2d::setCapability(bool capability)
 {
 	is_capable = capability;
 }
+void RigitBody2d::setAcceleration(float acceleration)
+{
+	m_acceleration = acceleration;
+	onAccelerate();
+}
+float RigitBody2d::getAcceleration() const
+{
+	return m_acceleration;
+}
+void RigitBody2d::push(const rn::Vec2f &force)
+{
+	using rn::math::length;
+	rn::Vec2f v{ velocity * direction };
+	velocity  = length(v + force);
+	direction = rn::math::norm(v + force);
+	setAcceleration(0.f);
+	onPush();
+}
+void RigitBody2d::setPulling(const rn::Vec2f &point, float force)
+{
+	pull_force.pull	 = point;
+	pull_force.force = force;
+}

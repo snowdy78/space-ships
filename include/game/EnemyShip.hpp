@@ -10,9 +10,9 @@ class EnemyShip : public AbstractShip
 	inline static loading<sf::Texture> texture = FileLoader::Instance().addTextureToUpload("img/enemy_ship.png").get();
 	inline static constexpr float min_distance_to_target = 100.f;
 	sf::Clock clock;
-	AbstractShip *target			   = nullptr;
-	std::unique_ptr<int> randomly_move = nullptr;
-	bool ready_to_shoot				   = false;
+	AbstractShip *target					 = nullptr;
+	mutable std::optional<int> randomly_move = std::nullopt;
+	bool ready_to_shoot						 = false;
 
 public:
 	EnemyShip();
@@ -26,5 +26,5 @@ public:
 	void onHit() override;
 	void summonCopy(SpaceField *field) const override;
 	AbstractShip *copy() const override;
-	
+	rn::Vec2f countMove() const override;
 };

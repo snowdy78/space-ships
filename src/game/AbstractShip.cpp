@@ -15,7 +15,7 @@ AbstractShip::AbstractShip(const sf::Texture &texture)
 	  gun(new Pistol(this))
 {
 }
-bool AbstractShip::isFriend(const AbstractShip *other_ship)
+bool AbstractShip::isFriend(const AbstractShip *other_ship) const
 {
 	return other_ship->getTeamName() == getTeamName();
 }
@@ -27,9 +27,9 @@ void AbstractShip::resetTeamName()
 {
 	team_name = generateRandomTeamName();
 }
-const sf::String &AbstractShip::getTeamName() const 
+const sf::String &AbstractShip::getTeamName() const
 {
-	return team_name;	
+	return team_name;
 }
 rn::Vec2f AbstractShip::getSize() const
 {
@@ -115,15 +115,6 @@ const Collider *AbstractShip::getCollider() const
 {
 	return &collider;
 }
-void AbstractShip::setAcceleration(float acceleration) 
-{
-	m_acceleration = acceleration;
-	onAcceleration();
-}
-float AbstractShip::getAcceleration() const 
-{
-	return m_acceleration;
-}
 void AbstractShip::updateCollider()
 {
 	rn::Circle circle{ getSize().x / 2.f };
@@ -163,8 +154,8 @@ void AbstractShip::onHit()
 	if (!GameGlobals::exist())
 		return;
 	GameGlobals::instance().sound_manager.emplace_back<SoundDisperseEntity>(
-		[this](auto sound) {
-			sound->setPosition(rn::Vec3f(getPosition().x, getPosition().y, 0.f));
+		[this](SoundDisperseEntity &sound) {
+			sound.setPosition(rn::Vec3f(getPosition().x, getPosition().y, 0.f));
 		},
 		hit_sound_traits, hit_buffer
 	);
@@ -174,18 +165,28 @@ void AbstractShip::onDestroy()
 	if (GameGlobals::exist())
 	{
 		GameGlobals::instance().effect_manager.emplace_back<AnimatedSprite>(
-			[this](auto effect) {
-				effect->setOrigin(getSize() / 2.f);
-				effect->setPosition(getPosition());
-				effect->setDuration(std::chrono::milliseconds(750));
+			[this](AnimatedSprite &effect) {
+				effect.setOrigin(getSize() / 2.f);
+				effect.setPosition(getPosition());
+				effect.setDuration(std::chrono::milliseconds(750));
 			},
 			*destroy_animation
 		);
 		GameGlobals::instance().sound_manager.emplace_back<SoundDisperseEntity>(
-			[this](auto sound) {
-				sound->setPosition(rn::Vec3f(getPosition().x, getPosition().y, 0.f));
+			[this](SoundDisperseEntity &sound) {
+				sound.setPosition(rn::Vec3f(getPosition().x, getPosition().y, 0.f));
 			},
 			destroy_sound_traits, destroy_buffer
 		);
 	}
+}
+void AbstractShip::setMoveDirection(const rn::Vec2f &move_dir)
+{
+	m_move_dir = move_dir;
+	if (m_move_dir.x != m_move_dir.x || m_move_dir.y != m_move_dir.y)
+		m_move_dir = {};
+}
+const rn::Vec2f &AbstractShip::getMoveDirection() const
+{
+	return m_move_dir;
 }

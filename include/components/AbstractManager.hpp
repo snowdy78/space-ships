@@ -10,8 +10,8 @@ class AbstractManager : public rn::LogicalObject
 public:
 	using value_type	   = Ty;
 	using values_container = ContainerT<std::unique_ptr<Ty>>;
-	using const_iterator   = values_container::const_iterator;
-	using iterator		   = values_container::iterator;
+	using const_iterator   = typename values_container::const_iterator;
+	using iterator		   = typename values_container::iterator;
 	const_iterator begin() const;
 	const_iterator end() const;
 	const_iterator cbegin() const;
@@ -29,9 +29,7 @@ public:
 	template<class T>
 	using after_emplace_func = std::function<void(T value)>;
 	template<class T, class... Args>
-	constexpr void emplace_back(const after_emplace_func<T *> &after_emplace, Args &&...args);
-	template<class T, class... Args>
-	constexpr void emplace_back(const after_emplace_func<T *> &after_emplace, const Args &...args);
+	constexpr void emplace_back(const after_emplace_func<T &> &after_emplace, const Args &...args);
 	
 	iterator erase(const_iterator index);
 	size_t size() const;
@@ -112,9 +110,7 @@ constexpr void AbstractManager<ContainerT, Ty>::push_back(const value_type &valu
 {
 	if constexpr (!std::is_abstract_v<value_type>)
 	{
-		std::unique_ptr<value_type> p = nullptr;
-		p.reset(new value_type(value));
-		m_container.push_back(std::move(p));
+		m_container.push_back(std::move(std::unique_ptr<value_type>{ new value_type(value) }));
 		onPushValue(--m_container.end());
 	}
 }
@@ -124,9 +120,7 @@ constexpr void AbstractManager<ContainerT, Ty>::push_back(value_type &&value) no
 {
 	if constexpr (!std::is_abstract_v<value_type>)
 	{
-		std::unique_ptr<value_type> p = nullptr;
-		p.reset(new value_type(std::move(value)));
-		m_container.push_back(std::move(p));
+		m_container.push_back(std::move(std::unique_ptr<value_type>{ new value_type(std::move(value)) }));
 		onPushValue(--m_container.end());
 	}
 }
@@ -134,22 +128,11 @@ constexpr void AbstractManager<ContainerT, Ty>::push_back(value_type &&value) no
 template<template<class T> class ContainerT, class Ty>
 template<class T, class... Args>
 constexpr void
-AbstractManager<ContainerT, Ty>::emplace_back(const after_emplace_func<T *> &after_emplace, Args &&...args)
-{
-	m_container.emplace_back(new T(std::move(args)...));
-	if (auto t = dynamic_cast<T *>(m_container.back().get()))
-		after_emplace(t);
-	onPushValue(--m_container.end());
-}
-
-template<template<class T> class ContainerT, class Ty>
-template<class T, class... Args>
-constexpr void
-AbstractManager<ContainerT, Ty>::emplace_back(const after_emplace_func<T *> &after_emplace, const Args &...args)
+AbstractManager<ContainerT, Ty>::emplace_back(const after_emplace_func<T &> &after_emplace, const Args &...args)
 {
 	m_container.emplace_back(new T(args...));
 	if (auto t = dynamic_cast<T *>(m_container.back().get()))
-		after_emplace(t);
+		after_emplace(*t);
 	onPushValue(--m_container.end());
 }
 

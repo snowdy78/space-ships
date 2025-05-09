@@ -1,12 +1,14 @@
 #include "game/EnemyShip.hpp"
 #include "game/AbstractShip.hpp"
-#include "game/SpaceField.hpp"
 #include "game/GameGlobals.hpp"
+#include "game/SpaceField.hpp"
 #include "game/actions/MoveShipAction.hpp"
+
 
 EnemyShip::EnemyShip()
 	: AbstractShip(*texture)
-{}
+{
+}
 
 void EnemyShip::setTarget(AbstractShip *ship)
 {
@@ -29,7 +31,7 @@ void EnemyShip::onHit()
 	AbstractShip::onHit();
 }
 
-void EnemyShip::summonCopy(SpaceField *field) const 
+void EnemyShip::summonCopy(SpaceField *field) const
 {
 	field->appendShip<EnemyShip>();
 }
@@ -37,6 +39,18 @@ void EnemyShip::summonCopy(SpaceField *field) const
 AbstractShip *EnemyShip::copy() const
 {
 	return new EnemyShip();
+}
+rn::Vec2f EnemyShip::countMove() const
+{
+	if (!target)
+		return {};
+	if (!randomly_move)
+		randomly_move = rn::random::integer(0, 1);
+	float sign = *randomly_move
+				 * rn::math::sgn(rn::math::length(target->getPosition() - getPosition()) - min_distance_to_target);
+	rn::Vec2f dir{ getMoveDirection() * sign };
+
+	return getAcceleration() * getVelocity() * dir;
 }
 void EnemyShip::rotation()
 {
@@ -53,30 +67,16 @@ void EnemyShip::movement()
 	if (!target || !GameGlobals::exist())
 		return;
 	if (static_cast<int>(clock.getElapsedTime().asSeconds()) % 2 == 0)
-	{
-		randomly_move = nullptr;
-	}
+		randomly_move = std::nullopt;
 	if (static_cast<int>(clock.getElapsedTime().asSeconds()) % 3 == 1)
 	{
-		if (!randomly_move)
-		{
-			randomly_move.reset(new int(rn::random::integer(0, 1)));
-		}
-		
-		*randomly_move *= rn::math::sgn(rn::math::length(target->getPosition() - getPosition()) - min_distance_to_target);
-		GameGlobals::instance().action_manager.emplaceToTop<MoveShipAction>(this, nullptr, rn::Json{
-			{MoveShipAction::md, to_json(float(*randomly_move) * getDirection())}
-		});
+		setMoveDirection(getDirection());
+		GameGlobals::instance().action_manager.emplaceToTop<MoveShipAction>(this, nullptr);
 	}
-	if (static_cast<int>(clock.getElapsedTime().asMilliseconds()) % 1000 > 500)
+	if (clock.getElapsedTime().asMilliseconds() % 1000 > 500)
 	{
-		if (!randomly_move)
-		{
-			randomly_move.reset(new int(rn::random::integer(0, 1)));
-		}
-		GameGlobals::instance().action_manager.emplaceToTop<MoveShipAction>(this, nullptr, rn::Json{
-			{MoveShipAction::md, to_json(float(*randomly_move) * rn::math::nor(getDirection()))}
-		});
+		setMoveDirection(Direction{ rn::math::nor(getDirection()) });
+		GameGlobals::instance().action_manager.emplaceToTop<MoveShipAction>(this, nullptr);
 	}
 }
 
@@ -87,7 +87,7 @@ void EnemyShip::update()
 	{
 		ready_to_shoot = true;
 	}
-	else if (static_cast<int>(clock.getElapsedTime().asMilliseconds()) % 1000 > 500 && ready_to_shoot)
+	else if (clock.getElapsedTime().asMilliseconds() % 1000 > 500 && ready_to_shoot)
 	{
 		shoot();
 		ready_to_shoot = false;

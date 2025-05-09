@@ -13,7 +13,7 @@
 
 
 template<class T>
-concept GunConcept = std::is_base_of<Gun, T>::value && !std::is_same_v<Gun, T>;
+concept GunConcept = std::is_base_of_v<Gun, T> && !std::is_same_v<Gun, T>;
 
 class AbstractShip : public RigitBody2d, public Collidable, public Hittable, public SpaceFieldObject
 {
@@ -24,10 +24,13 @@ protected:
 	void updateGunPosition();
 	void updateCollider();
 	static sf::String generateRandomTeamName(size_t length = 16);
+	void setMoveDirection(const rn::Vec2f &move_dir);
+
 public:
 	AbstractShip(const sf::Texture &texture);
 
-	bool isFriend(const AbstractShip *);
+	const rn::Vec2f &getMoveDirection() const;
+	bool isFriend(const AbstractShip *) const;
 	void setTeamName(const sf::String &team_name);
 	void resetTeamName();
 	const sf::String &getTeamName() const;
@@ -51,9 +54,6 @@ public:
 	const Collider *getCollider() const override;
 	template<GunConcept T>
 	void setGun();
-	void setAcceleration(float acceleration);
-	float getAcceleration() const;
-	virtual void onAcceleration() {}
 	void onRotation() override;
 	void onMove() override;
 	void onHit() override;
@@ -62,21 +62,24 @@ public:
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 	void destroyFromField() override;
 	virtual AbstractShip *copy() const = 0;
-protected:
 
-	std::unique_ptr<Gun> gun;
-	sf::Sprite sprite;
-	EllipseCollider collider;
+protected:
 
 	inline static loading<AnimatedSprite> destroy_animation
 		= FileLoader::Instance().addAnimatedSpriteToUpload("./img/animation/Explosion4", ".png").get();
 	inline static loading<sf::SoundBuffer> hit_buffer = FileLoader::Instance().addSoundToUpload("hit.ogg").get();
-	inline static loading<sf::SoundBuffer> destroy_buffer{FileLoader::Instance().addSoundToUpload("./assets/explosion.wav").get()};
+	inline static loading<sf::SoundBuffer> destroy_buffer{
+		FileLoader::Instance().addSoundToUpload("./assets/explosion.wav").get()
+	};
+	sf::Sprite sprite;
+	std::unique_ptr<Gun> gun;
+	EllipseCollider collider;
+
 	SoundDisperseTraits hit_sound_traits{ 100, 300 };
-	SoundDisperseTraits destroy_sound_traits{ 200, 1000};	
+	SoundDisperseTraits destroy_sound_traits{ 200, 1000 };
 
 	sf::String team_name = generateRandomTeamName();
-	float m_acceleration{1};
+	rn::Vec2f m_move_dir{};
 };
 
 template<GunConcept T>

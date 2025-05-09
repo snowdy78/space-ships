@@ -1,5 +1,4 @@
 #include "game/PlayerShip.hpp"
-#include <variant>
 #include "RuneEngine/EngineDecl.hpp"
 #include "RuneEngine/variables.hpp"
 #include "SFML/Window/Keyboard.hpp"
@@ -16,13 +15,15 @@ const PlayerControls PlayerShip::basic_controls = {
 	{ PlayerControlsTypeSep::Movement,
 	  {
 		  PlayerControls::create<MoveShipAction>(sf::Keyboard::Key::W, "Move Forward", MovementProps({ 0, -1 })),
-		  PlayerControls::create<MoveShipAction>(sf::Keyboard::Key::S, "Move Backward", MovementProps{ { 0, 1 } }),
 		  PlayerControls::create<MoveShipAction>(sf::Keyboard::Key::A, "Move Left", MovementProps{ { -1, 0 } }),
+		  PlayerControls::create<MoveShipAction>(sf::Keyboard::Key::S, "Move Backward", MovementProps{ { 0, 1 } }),
 		  PlayerControls::create<MoveShipAction>(sf::Keyboard::Key::D, "Move Right", MovementProps{ { 1, 0 } }),
-	  }																											},
+	  }		},
 	{ PlayerControlsTypeSep::WindowEvent,
 	  { PlayerControls::create<ShootAction>(sf::Mouse::Button::Left, "Shoot", ShootProps({})),
-		PlayerControls::create<AccelerateShipAction>(sf::Keyboard::Key::LShift, "NitroFly", AccelerationProps()) } }
+		PlayerControls::create<AccelerateShipAction>(
+			sf::Keyboard::Key::LShift, "Increase speed", AccelerationProps()
+		) } }
 };
 
 
@@ -34,69 +35,63 @@ PlayerShip::PlayerShip(Camera2d *camera)
 
 void PlayerShip::rotation()
 {
-	using namespace rn::math;
 	rn::Vec2f camera_pos = camera->getPosition();
 	Direction dir{ rn::Vec2f(rn::mouse_position) - getPosition() + camera_pos };
 	setDirection(dir.x, dir.y);
-	setRotation(rot(getDirection()));
+	setRotation(rn::math::rot(getDirection()));
 }
 
 void PlayerShip::movement()
 {
 	if (!GameGlobals::exist())
 		return;
-	for (auto &i: basic_controls.classified(PlayerControlsTypeSep::Movement))
-	{
-		i->pushIfReleased<sf::Keyboard::Key, MovementProps>(
-			[](auto k) {
-				return rn::isKeyhold(k);
-			},
-			[](auto &props) {
-				return rn::Json{
-					{ MoveShipAction::md, to_json(props.move_dir) }
-				};
-			},
-			this, nullptr
-		);
-	}
+	auto classification = basic_controls.find(PlayerControlsTypeSep::Movement);
+	rn::Vec2f md;
+	classification.pushAsOneAction<MovementProps, sf::Keyboard::Key>(
+		rn::isKeyhold,
+		[this, &md](const MovementProps &props) {
+			md = rn::math::norm(md + props.move_dir);
+			setMoveDirection(md);
+		},
+		{ this, nullptr }
+	);
 }
 
 void PlayerShip::onMove()
 {
+	if (getPosition().x != getPosition().x || getPosition().y != getPosition().y)
+	{
+		std::cout << "position is nan '" << to_json(getPosition()).dump() << "'\n";
+		return;
+	}
 	if (camera)
 		camera->setPosition(getPosition() - camera->getViewSize() / 2.f);
 	sf::Listener::setPosition(getPosition().x, getPosition().y, 0);
 	rn::Vec2f perp = rn::math::nor(getPosition());
 	sf::Listener::setUpVector(perp.x, perp.y, 0.f);
 	AbstractShip::onMove();
-	updateCollider();
 }
 void PlayerShip::onEvent(sf::Event &event)
 {
 	using MButton = sf::Mouse::Button;
 	using Key	  = sf::Keyboard::Key;
 	AbstractShip::onEvent(event);
-	for (auto &i: basic_controls.classified(PlayerControlsTypeSep::WindowEvent))
-	{
-
-		if (gun && i->released<MButton, ShootProps>([](auto b) {
-				return rn::isKeydown(MButton::Left);
-			}))
-		{
-			shoot();
-		}
-		bool down		   = false;
-		float acceleration = 1;
-		i->pushIfReleased<Key, AccelerationProps>(
-			[&down, &acceleration](auto k) {
-				down		 = rn::isKeydown(k);
-				acceleration = down ? shift_acceleration : 1;
-				return down || rn::isKeyup(k);
-		},
-			this, nullptr, rn::Json{ { AccelerateShipAction::acceleration, acceleration } }
-		);
-	}
+	auto classification = basic_controls.find(PlayerControlsTypeSep::WindowEvent);
+	if (classification.oneOf<ShootProps, MButton>(rn::isKeydown))
+		shoot();
+	classification.pushActionIfOneOf<AccelerationProps, Key>(
+		rn::isKeydown, { this, nullptr, rn::Json{ { AccelerateShipAction::acceleration, shift_acceleration } } }
+	);
+	classification.pushActionIfOneOf<AccelerationProps, Key>(
+		rn::isKeyup, { this, nullptr, rn::Json{ { AccelerateShipAction::acceleration, 1 } } }
+	);
 }
+
+rn::Vec2f PlayerShip::countMove() const
+{
+	return getAcceleration() * getVelocity() * getMoveDirection();
+}
+
 void PlayerShip::onRotation()
 {
 	sf::Listener::setDirection({ getDirection().x, getDirection().y, 0.f });

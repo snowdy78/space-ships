@@ -15,5 +15,4 @@ public:
 private:
     static const size_t id;
     AbstractShip *m_ship{nullptr}; // author
-    rn::Vec2f m_move_direction{};
 };
