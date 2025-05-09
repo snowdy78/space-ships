@@ -44,11 +44,10 @@ Collidable::Collidable()
 
 Collidable::~Collidable()
 {
-	auto i = std::find(collidables.begin(), collidables.end(), this);
-	if (i != collidables.end())
+	if (const auto i = std::ranges::find(collidables, this); i != collidables.end())
 	{
 		collidables.erase(i);
-		for (auto &collidable: collidables)
+		for (const auto &collidable: collidables)
 		{
 			if (auto it = collidable->collision_states.find(this); it != collidable->collision_states.end())
 				collidable->collision_states.erase(it);
@@ -73,7 +72,7 @@ Collidable::thread_array Collidable::threads = ([]() {
 			size_t ss	= collidables.size();
 			size_t cap	= threads.size() + 1;
 			size_t oddy = collidables.size() % cap;
-			size_t size = static_cast<size_t>(std::floorf((ss - oddy) / static_cast<float>(cap)));
+			size_t size = static_cast<size_t>(std::floorf((static_cast<float>(ss) - static_cast<float>(oddy)) / static_cast<float>(cap)));
 			for (size_t m = i * size; m < (i + 1) * size; m++)
 			{
 				mutex.lock();
@@ -86,12 +85,12 @@ Collidable::thread_array Collidable::threads = ([]() {
 			}
 		});
 	}
-	return std::move(arr);
+	return arr;
 })();
 
 void Collidable::updateCollisionState()
 {
-	if (collidables.size() == 0)
+	if (collidables.empty())
 		return;
 	for (auto &thread: threads)
 	{
@@ -99,7 +98,7 @@ void Collidable::updateCollisionState()
 	}
 	size_t ss	= collidables.size();
 	size_t cap	= threads.max_size() + 1;
-	size_t size = std::floorf(ss / static_cast<float>(cap)) + ss % cap;
+	size_t size = static_cast<size_t>(std::floorf(static_cast<float>(ss) / static_cast<float>(cap))) + ss % cap;
 	for (size_t i = 0; i < size; i++)
 	{
 		if (!collideChunk(i))
@@ -128,14 +127,14 @@ void Collidable::collideObjects(Collidable *collidable, Collidable *obstacle)
 	auto pl = dynamic_cast<const PolygonCollider *>(obstacle->getCollider());
 	if (obstacle == collidable || !collidable->resolve(obstacle) || !el && !pl)
 		return;
-	bool is_collide = false;
+	bool is_collide;
 	if (el)
 		is_collide = collidable->getCollider()->collide(*el);
 	else
 		is_collide = collidable->getCollider()->collide(*pl);
 	auto &obstates	 = obstacle->collision_states;
 	auto &collstates = collidable->collision_states;
-	if (!is_collide && obstates.find(collidable) == obstates.end() && collstates.find(obstacle) == collstates.end())
+	if (!is_collide && !obstates.contains(collidable) && !collstates.contains(obstacle))
 		return;
 
 	collidable->setCollisionState(obstacle, is_collide);
@@ -154,7 +153,7 @@ void Collidable::updateState(Collidable *obstacle)
 }
 void Collidable::setCollisionState(Collidable *obstacle, bool value)
 {
-	auto it = collision_states.find(obstacle);
+	const auto it = collision_states.find(obstacle);
 	if (it == collision_states.end())
 	{
 		// append collision enter state

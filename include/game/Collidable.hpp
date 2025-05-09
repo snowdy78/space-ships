@@ -44,7 +44,7 @@ private:
 
 public:
 	Collidable();
-	virtual ~Collidable()						= 0;
+	~Collidable() override = 0;
 	virtual const Collider *getCollider() const = 0;
 	static void updateCollisionState();
 	virtual void onCollisionEnter(Collidable *collidable) {}
@@ -53,6 +53,6 @@ public:
 	Collidable *getObstacle(size_t index);
 	const Collidable *getObstacle(size_t index) const;
 	size_t getCollisionCount() const;
-	CollisionState getCollisionState(Collidable *collidable) const;
+	CollisionState getCollisionState(Collidable *obstacle) const;
 	virtual bool resolve(const Collidable *collidable) const = 0;
 };
