@@ -5,7 +5,6 @@ TcpRouter::TcpRouter(sf::IpAddress remote_ip, uint16_t remote_port)
 	: TcpSocket(), m_host_ip(remote_ip), m_host_port(remote_port)
 {
 }
-
 void TcpRouter::setBlocking(bool blocking)
 {
 	m_listener.setBlocking(blocking);
@@ -42,7 +41,7 @@ sf::Socket::Status TcpRouter::sendJson(const rn::Json &send_data)
 	std::string json_string = encrypt(send_data.dump(-1, 0));
 	sf::Packet packet;
 	packet.append(json_string.c_str(), (json_string.size() + 1) * sizeof(char));
-	Status status = TcpRouter::send(packet);
+	Status status = sf::TcpSocket::send(packet);
 	std::cout << "sended packet: " << json_string << "\n";
 	return status;
 }

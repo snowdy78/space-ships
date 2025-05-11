@@ -9,43 +9,68 @@
 #include "game/SpaceField.hpp"
 #include "game/actions/AbstractAction.hpp"
 
+class TestAction : public TransferableAction
+{
+public:
+	TestAction(GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = nullptr)
+		: TransferableAction(author, contributor, props)
+	{
+	}
+	void play() override
+	{
+		std::cout << "action played!";
+	}
+	TransferJson toJson() const override
+	{
+		return { id };
+	}
+	AbstractAction *copy() const override
+	{
+		return new TestAction();
+	}
+private:
+	static const size_t id;
+};
+const size_t TestAction::id = identify<TestAction>();
+
 
 ConnectToGameBranch::~ConnectToGameBranch()
 {
 	window.setView(window.getDefaultView());
-	if (GameGlobals::exist())
-		GameGlobals::instance().clear();
+	GameGlobals::clear();
 }
 
 void ConnectToGameBranch::start()
 {
 	auto res = rn::Vec2f(rn::VideoSettings::getResolution());
-	rn::Table table{
-		5,
-		10,
-		{ res.x / 5, res.y / 10 }
-	};
-	auto cs = client.connect(host_ip, host_port);
-	if (cs == sf::Socket::Done)
-	{
-		std::cerr << "connected\n";
-		Request request;
-		request["type"] = "connect";
-		auto status		= client.send(&request);
-		if (status != sf::Socket::Done)
-			std::cerr << "Failed to send with code: " << status << "\n";
-		else
-			std::cout << "Successfully sent data: " << request.toJson().dump(2, ' ', '\n') << "\n";
-	}
-
-	send_status.setPosition(table.getCellGlobalPos(1, 2));
-	receive_status.setPosition(table.getCellGlobalPos(1, 3));
 	GameGlobals::create(window, [this] {
 		background.setPosition(space->camera.getPosition());
 	});
 	if (GameGlobals::exist())
 		space = &GameGlobals::instance();
-	client.setBlocking(false);
+	rn::Table table{
+		5,
+		10,
+		{ res.x / 5, res.y / 10 }
+	};
+	space->createOnline({host_ip, host_port});
+	online	= space->online.get();
+	auto cs = online->tcp->connect(host_ip, host_port);
+	if (cs == sf::Socket::Done)
+	{
+		std::cout << "connected\n";
+		Request request;
+		request["type"] = "connect";
+		auto status		= online->tcp->send(&request);
+		if (status != sf::Socket::Done)
+			std::cerr << "Failed to send with code: " << status << "\n";
+		else
+			std::cout << "Successfully sent data: " << request.toJson().dump(2, ' ', '\n') << "\n";
+	}
+	space->action_manager.setTransfering(TransferType::Tcp);
+	send_status.setPosition(table.getCellGlobalPos(1, 2));
+	receive_status.setPosition(table.getCellGlobalPos(1, 3));
+	online->tcp->setBlocking(false);
 	if (space)
 	{
 		space->player->setPosition(res / 2.f);
@@ -64,8 +89,7 @@ void ConnectToGameBranch::update()
 	background.update();
 	receivePackets();
 	window.clear();
-	sf::Transform bg_transform;
-	bg_transform = space->camera.getTransform();
+	sf::Transform bg_transform = space->camera.getTransform();
 	window.draw(background, bg_transform);
 	window.draw(space->field);
 	window.draw(send_status);
@@ -82,13 +106,22 @@ void ConnectToGameBranch::onEvent(sf::Event &event)
 		next_branch<MainMenu>(window);
 	space->field.onEvent(event);
 	space->action_manager.onEvent(event);
+	if (rn::isKeydown(sf::Keyboard::N))
+	{
+		std::cout << "sending an action...\n";
+		TestAction action(space->player, nullptr, {});
+		if (auto status = online->tcp->send(&action); status == sf::Socket::Status::Done)
+		{
+			std::cout << "action was successfully send\n";
+		}
+	}
 }
 
-void ConnectToGameBranch::receivePackets()
+void ConnectToGameBranch::receivePackets() const
 {
 	if (!space)
 		return;
-	auto response = client.receive();
+	auto response = online->tcp->receive();
 	if (response.success())
 	{
 		if (response.is_object())
@@ -116,9 +149,7 @@ void ConnectToGameBranch::receivePackets()
 		}
 		if (response.is_action())
 		{
-			std::unique_ptr<AbstractAction> action = std::move(response.action());
-			if (action)
-				space->action_manager.addToTop(std::move(action));
+			space->action_manager.receiveToTop(response.action());
 		}
 	}
 }

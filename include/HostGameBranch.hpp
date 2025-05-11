@@ -8,9 +8,7 @@
 class HostGameBranch : public rn::MenuBranch 
 {
     sf::IpAddress ip_address = sf::IpAddress::getLocalAddress();
-    size_t port = 12345;
-    TcpRouter client = TcpRouter(ip_address, port);
- 
+    uint16_t port = 12345;
     sf::Text send_status{"", *Font::Default};
     sf::Text receive_status{"", *Font::Default};
 	bool connected = false;
@@ -18,12 +16,14 @@ class HostGameBranch : public rn::MenuBranch
 
     Background background{};
     GameGlobals *space = nullptr;
+	GameGlobals::OnlineTraits *online = nullptr;
+
 public:
     using rn::MenuBranch::MenuBranch;
     ~HostGameBranch() override;
     void start() override;
     void update() override;
     void onEvent(sf::Event &event) override;
-    void receivePackets();
+    void receivePackets() const;
 };
 

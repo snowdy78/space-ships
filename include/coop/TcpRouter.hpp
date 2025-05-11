@@ -14,12 +14,12 @@ class TcpRouter : public sf::TcpSocket, public Router
 
 	using sf::TcpSocket::receive;
 	using sf::TcpSocket::send;
+	using sf::TcpSocket::setBlocking;
 public:
 	using Router::receive;
 	using Router::send;
 
 	TcpRouter(sf::IpAddress host_ip, uint16_t host_port = sf::Socket::AnyPort);
-
 	void setBlocking(bool blocking);
 
 	Status findConnection();

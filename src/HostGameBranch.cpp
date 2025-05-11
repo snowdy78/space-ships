@@ -7,6 +7,12 @@
 #include "game/GameObjectFabric.hpp"
 #include "game/SpaceField.hpp"
 
+HostGameBranch::~HostGameBranch()
+{
+	window.setView(window.getDefaultView());
+	GameGlobals::clear();
+}
+
 void HostGameBranch::start()
 {
 	auto res = rn::Vec2f(rn::VideoSettings::getResolution());
@@ -22,10 +28,13 @@ void HostGameBranch::start()
 	});
 	if (GameGlobals::exist())
 		space = &GameGlobals::instance();
-	auto ls = client.host();
+	space->createOnline({ ip_address, port });
+	space->action_manager.setTransfering(TransferType::Tcp);
+	online	= space->online.get();
+	auto ls = online->tcp->host();
 	if (ls == sf::Socket::Done)
-		std::cerr << "listening\n";
-	client.setBlocking(false);
+		std::cout << "listening\n";
+	online->tcp->setBlocking(false);
 	if (space)
 	{
 		space->player->setPosition(res / 2.f);
@@ -34,17 +43,11 @@ void HostGameBranch::start()
 		space->action_manager.start();
 	}
 }
-HostGameBranch::~HostGameBranch()
-{
-	window.setView(window.getDefaultView());
-	if (GameGlobals::exist())
-		GameGlobals::instance().clear();
-}
 void HostGameBranch::update()
 {
-	if (!space || !window.isOpen())
+	if (!space || !online || !window.isOpen())
 		return;
-	auto connection_status = client.findConnection();
+	auto connection_status = online->tcp->findConnection();
 	if (connection_status == sf::Socket::Disconnected)
 	{
 		std::cout << "disconnection\n";
@@ -56,8 +59,7 @@ void HostGameBranch::update()
 	background.update();
 	receivePackets();
 	window.clear();
-	sf::Transform bg_transform;
-	bg_transform = space->camera.getTransform();
+	sf::Transform bg_transform = space->camera.getTransform();
 	window.draw(background, bg_transform);
 	window.draw(space->field);
 	window.draw(send_status);
@@ -74,11 +76,13 @@ void HostGameBranch::onEvent(sf::Event &event)
 	space->action_manager.onEvent(event);
 }
 
-void HostGameBranch::receivePackets()
+void HostGameBranch::receivePackets() const
 {
-	auto response = client.receive();
+	auto response = online->tcp->receive();
 	if (response.success())
 	{
+		std::cout << "response is success and status " << response.status() << " and " << response.is_object()
+				  << " and " << response.is_action() << "\n";
 		if (response.is_object())
 		{
 			auto object = response.object();
@@ -87,11 +91,12 @@ void HostGameBranch::receivePackets()
 				auto &request = *request_ptr;
 				if (request.contains("type") && request["type"] == "connect")
 				{
+					std::cout << "sending game data...\n";
 					GameObjectFabricTranslator translator;
 					translator.assignUpdateData(
 						GameObjectFabric::instance().begin(), GameObjectFabric::instance().end()
 					);
-					auto status = client.send(&translator);
+					auto status = online->tcp->send(&translator);
 					if (status != sf::Socket::Done)
 						std::cerr << "Failed to send with code: " << status << "\n";
 					else
@@ -103,9 +108,7 @@ void HostGameBranch::receivePackets()
 		}
 		if (response.is_action())
 		{
-			std::unique_ptr<AbstractAction> action{ response.action().release() };
-			if (action)
-				space->action_manager.addToTop(std::move(action));
+			space->action_manager.receiveToTop(response.action());
 		}
 	}
 }

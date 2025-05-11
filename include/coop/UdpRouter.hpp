@@ -15,10 +15,13 @@ class UdpRouter : public sf::UdpSocket, public Router
 	using sf::UdpSocket::send;
 	
 public:
-	UdpRouter(sf::IpAddress remote_ip, uint16_t remote_port = sf::Socket::AnyPort);
+	UdpRouter();
+	void bindRemote(sf::IpAddress remote_ip, uint16_t remote_port = sf::Socket::AnyPort);
+	const sf::IpAddress &getRemoteIp() const;
+	const uint16_t &getRemotePort() const;
 	using Router::receive;
 	using Router::send;
 private:
-	sf::IpAddress ip;
-	uint16_t port;
+	sf::IpAddress m_ip;
+	uint16_t m_port;
 };
