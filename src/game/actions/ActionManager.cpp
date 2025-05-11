@@ -1,36 +1,68 @@
 #include "game/actions/ActionManager.hpp"
 
+#include "coop/TransferableAction.hpp"
+#include "game/GameGlobals.hpp"
+
 void ActionManager::realizeActions()
 {
+	if (isTransfering())
+		m_transfering->switch_off();
 	do
 	{
-		start_loop = true;
-		for (auto iaction = actions.begin(); iaction != actions.end(); iaction = actions.erase(iaction))
-		{
+		m_start_loop = true;
+		for (auto iaction = m_actions.begin(); iaction != m_actions.end(); iaction = m_actions.erase(iaction))
 			(*iaction)->play();
-		}
-		start_loop = false;
-		actions.swap(stack);
-		stack.clear();
+		m_start_loop = false;
+		m_actions.swap(m_stack);
+		m_stack.clear();
 	}
-	while (!actions.empty());
+	while (!m_actions.empty());
+	if (m_transfering && !m_transfering->swiched_on())
+		m_transfering->switch_on();
 }
 
-void ActionManager::addToTop(std::unique_ptr<AbstractAction> &&action) 
+void ActionManager::transferAction(AbstractAction *action) const
 {
-	if (!start_loop)
+	if (isTransfering())
 	{
-		actions.push_back(std::move(action));
-	}
-	else
-	{
-		stack.push_back(std::move(action));
+		if (!GameGlobals::exist() || !GameGlobals::instance().existOnline())
+			std::cerr << "ERROR: cannot use action transfer\n";
+		if (auto transfer_action = dynamic_cast<TransferableAction *>(action))
+		{
+			if (m_transfering->transfer_type() == TransferType::Tcp)
+				GameGlobals::instance().online->tcp->send(transfer_action);
+			else if (m_transfering->transfer_type() == TransferType::Udp)
+				GameGlobals::instance().online->udp->send(transfer_action);
+		}
 	}
 }
+
+void ActionManager::addToTop(std::unique_ptr<AbstractAction> &&action)
+{
+	transferAction(action.get());
+	appendInto(std::move(action));
+}
+
+void ActionManager::receiveToTop(std::unique_ptr<TransferableAction> &&action)
+{
+	std::unique_ptr<AbstractAction> a{std::move(action)};
+	appendInto(std::move(a));
+}
+
+void ActionManager::setTransfering(TransferType type)
+{
+	m_transfering = type;
+}
+
+bool ActionManager::isTransfering() const
+{
+	return m_transfering && m_transfering->swiched_on();
+}
+
 void ActionManager::clear()
 {
-	actions.clear();
-	stack.clear();
+	m_actions.clear();
+	m_stack.clear();
 }
 
 void ActionManager::start()
@@ -41,4 +73,34 @@ void ActionManager::start()
 void ActionManager::update()
 {
 	realizeActions();
+}
+
+ActionManager::Transfering::Transfering(TransferType type)
+	: m_transfer_type(type)
+{
+}
+
+void ActionManager::Transfering::switch_off()
+{
+	m_turn = false;
+}
+
+void ActionManager::Transfering::switch_on()
+{
+	m_turn = true;
+}
+
+void ActionManager::Transfering::transfer_type(TransferType type)
+{
+	m_transfer_type = type;
+}
+
+bool ActionManager::Transfering::swiched_on() const
+{
+	return m_turn;
+}
+
+TransferType ActionManager::Transfering::transfer_type() const
+{
+	return m_transfer_type;
 }

@@ -31,6 +31,7 @@ public:
     static void reset(sf::RenderTarget &new_target, func_update_on_move new_update_on_move);
     static void clear();
 	void createOnline(OnlineTraits &&traits);
+	bool existOnline() const;
 
 private:
     inline static std::unique_ptr<GameGlobals> instance_ptr = nullptr;

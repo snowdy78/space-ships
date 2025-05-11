@@ -65,7 +65,7 @@ bool BasicRouterResponse::is_object() const
 
 std::unique_ptr<TransferableAction> BasicRouterResponse::action() const
 {
-	if (!success())
+	if (!is_action())
 		throw std::bad_cast();
 	try
 	{
@@ -99,7 +99,7 @@ const rn::Json &BasicRouterResponse::json() const
 
 std::unique_ptr<TransferableObject> BasicRouterResponse::object() const
 {
-	if (!success())
+	if (!is_object())
 		throw std::bad_cast();
 	try
 	{
@@ -110,6 +110,6 @@ std::unique_ptr<TransferableObject> BasicRouterResponse::object() const
 	catch (std::out_of_range &err)
 	{
 		std::cerr << err.what() << "\n";
+		throw err;
 	}
-	return nullptr;
 }

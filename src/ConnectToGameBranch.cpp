@@ -67,7 +67,7 @@ void ConnectToGameBranch::start()
 		else
 			std::cout << "Successfully sent data: " << request.toJson().dump(2, ' ', '\n') << "\n";
 	}
-
+	space->action_manager.setTransfering(TransferType::Tcp);
 	send_status.setPosition(table.getCellGlobalPos(1, 2));
 	receive_status.setPosition(table.getCellGlobalPos(1, 3));
 	online->tcp->setBlocking(false);
@@ -109,7 +109,7 @@ void ConnectToGameBranch::onEvent(sf::Event &event)
 	if (rn::isKeydown(sf::Keyboard::N))
 	{
 		std::cout << "sending an action...\n";
-		TestAction action(nullptr, nullptr, {});
+		TestAction action(space->player, nullptr, {});
 		if (auto status = online->tcp->send(&action); status == sf::Socket::Status::Done)
 		{
 			std::cout << "action was successfully send\n";
@@ -149,8 +149,7 @@ void ConnectToGameBranch::receivePackets() const
 		}
 		if (response.is_action())
 		{
-			if (std::unique_ptr<AbstractAction> action{ response.action().release() })
-				space->action_manager.addToTop(std::move(action));
+			space->action_manager.receiveToTop(response.action());
 		}
 	}
 }

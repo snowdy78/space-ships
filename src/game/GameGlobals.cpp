@@ -46,3 +46,8 @@ void GameGlobals::createOnline(OnlineTraits &&traits)
 {
 	online.reset(new OnlineTraits(traits));
 }
+
+bool GameGlobals::existOnline() const
+{
+	return !!online;
+}

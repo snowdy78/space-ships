@@ -6,6 +6,11 @@
 #include "TransferableObject.hpp"
 #include "decl.hpp"
 
+enum class TransferType
+{
+	Tcp, Udp
+};
+
 class BasicRouterResponse
 {
 	std::optional<rn::Json> m_response_data = std::nullopt;
@@ -34,7 +39,6 @@ public:
 	std::unique_ptr<TransferableAction> action() const;
 	const rn::Json &json() const;
 };
-
 template<class RespT>
 class BasicRouter
 {

@@ -29,6 +29,7 @@ void HostGameBranch::start()
 	if (GameGlobals::exist())
 		space = &GameGlobals::instance();
 	space->createOnline({ ip_address, port });
+	space->action_manager.setTransfering(TransferType::Tcp);
 	online	= space->online.get();
 	auto ls = online->tcp->host();
 	if (ls == sf::Socket::Done)
@@ -90,6 +91,7 @@ void HostGameBranch::receivePackets() const
 				auto &request = *request_ptr;
 				if (request.contains("type") && request["type"] == "connect")
 				{
+					std::cout << "sending game data...\n";
 					GameObjectFabricTranslator translator;
 					translator.assignUpdateData(
 						GameObjectFabric::instance().begin(), GameObjectFabric::instance().end()
@@ -106,9 +108,7 @@ void HostGameBranch::receivePackets() const
 		}
 		if (response.is_action())
 		{
-			std::cout << "action received\n";
-			if (std::unique_ptr<AbstractAction> action{ response.action().release() })
-				space->action_manager.addToTop(std::move(action));
+			space->action_manager.receiveToTop(response.action());
 		}
 	}
 }
