@@ -3,11 +3,16 @@
 Transferable::~Transferable() = default;
 
 Transferable::TransferData::TransferData(size_t id, const rn::Json &data)
-    : rn::Json({ {"id", id}, {"data", data} })
+	: rn::Json(
+		  {
+			  { "id",	  id	 },
+			  { "data", data }
+}
+	  )
 {
-};
+}
 
-const size_t Transferable::TransferData::id() const
+size_t Transferable::TransferData::id() const
 {
 	return at("id");
 }

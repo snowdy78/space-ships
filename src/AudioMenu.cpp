@@ -3,7 +3,7 @@
 #include "RuneEngine/SettingsFile.hpp"
 #include "decl.hpp"
 #include "game/EnemyShip.hpp"
-
+#include "coop/TransferableAction.hpp"
 
 AudioMenu::AudioMenu(sf::RenderWindow &window)
 	: MenuBranch(window)
@@ -17,10 +17,7 @@ AudioMenu::AudioMenu(sf::RenderWindow &window)
 AudioMenu::~AudioMenu()
 {
 	window.setView(window.getDefaultView());
-	if (GameGlobals::exist())
-	{
-		GameGlobals::instance().clear();
-	}
+	GameGlobals::clear();
 }
 
 void AudioMenu::start()
@@ -69,8 +66,7 @@ void AudioMenu::update()
 	space->sound_manager.update();
 	space->effect_manager.update();
 	th->wait();
-	sf::Transform bg_transform;
-	bg_transform = space->camera.getTransform();
+	sf::Transform bg_transform = space->camera.getTransform();
 	window.clear();
 	window.draw(background, bg_transform);
 	window.draw(space->effect_manager);
@@ -93,7 +89,7 @@ void AudioMenu::onEvent(sf::Event &event)
 	}
 	if (event.type == sf::Event::Closed)
 	{
-		delete th.release();
+		th = nullptr;
 		window.close();
 	}
 	if (rn::isKeydown(sf::Keyboard::F3))

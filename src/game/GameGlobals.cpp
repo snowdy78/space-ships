@@ -1,8 +1,15 @@
 #include "game/GameGlobals.hpp"
 #include "game/PlayerShip.hpp"
 
-GameGlobals::GameGlobals(sf::RenderTarget &target, func_update_on_move update_on_move, const OnlineTraits &traits) 
-    : camera(target, update_on_move), field(&camera), traits(std::make_unique<OnlineTraits>(traits))
+GameGlobals::OnlineTraits::OnlineTraits(sf::IpAddress host_ip, uint16_t host_port)
+	: tcp(std::make_shared<TcpRouter>(host_ip, host_port)),
+	  udp(std::make_shared<UdpRouter>())
+{
+	udp->bind(host_port, host_ip);
+}
+
+GameGlobals::GameGlobals(sf::RenderTarget &target, func_update_on_move update_on_move) 
+    : camera(target, update_on_move), field(&camera)
 {
     field.appendShip<PlayerShip>(&camera);
     player = field[0];
@@ -15,7 +22,7 @@ void GameGlobals::create(sf::RenderTarget &target, func_update_on_move update_on
 
 GameGlobals &GameGlobals::instance() 
 {
-    return *instance_ptr.get();
+    return *instance_ptr;
 }
 
 bool GameGlobals::exist() 
@@ -32,7 +39,10 @@ void GameGlobals::reset(sf::RenderTarget &new_target, func_update_on_move new_up
 
 void GameGlobals::clear()
 {
-    if (!instance_ptr)
-        return;
     instance_ptr = nullptr;
+}
+
+void GameGlobals::createOnline(OnlineTraits &&traits)
+{
+	online.reset(new OnlineTraits(traits));
 }
