@@ -98,7 +98,7 @@ void Bullet::move(const rn::Vec2f &p)
 void Bullet::destroyFromField()
 {
 	if (GameGlobals::exist())
-		GameGlobals::instance().action_manager.emplaceToTop<DestroyBulletAction>(this);
+		GameGlobals::instance().action_manager.emplaceToTop<DestroyBulletAction>(TA_Props{this});
 }
 
 void Bullet::updateCollider()
@@ -131,7 +131,7 @@ void Bullet::onCollisionEnter(Collidable *obstacle)
 {
 	if (auto hittable = dynamic_cast<Hittable *>(obstacle); GameGlobals::exist())
 	{
-		GameGlobals::instance().action_manager.emplaceToTop<DealDamageAction>(this, hittable);
+		GameGlobals::instance().action_manager.emplaceToTop<DealDamageAction>(TA_Props{this, hittable});
 		destroyFromField();
 	}
 }

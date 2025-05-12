@@ -2,12 +2,10 @@
 #include <stdexcept>
 #include "game/AbstractShip.hpp"
 
-const size_t MoveShipAction::id = identify<MoveShipAction>();
-
-MoveShipAction::MoveShipAction(GameObject *author, GameObject *contributor, const rn::Json &props)
-	: TransferableAction(author, contributor, props)
+MoveShipAction::MoveShipAction(const TransferableActionProps &props)
+	: BaseTransferableAction(props)
 {
-	if (auto ship = dynamic_cast<AbstractShip *>(author))
+	if (auto ship = dynamic_cast<AbstractShip *>(props.author))
 		m_ship = ship;
 }
 
@@ -20,10 +18,10 @@ void MoveShipAction::play()
 
 Transferable::TransferJson MoveShipAction::toJson() const
 {
-	return { id, { { md, to_json(m_ship ? m_ship->getDirection() : rn::Vec2f{}) } } };
+	return { id(), { { md, to_json(m_ship ? m_ship->getDirection() : rn::Vec2f{}) } } };
 }
 
 AbstractAction *MoveShipAction::copy() const
 {
-	return new MoveShipAction(m_ship, nullptr);
+	return new MoveShipAction({ m_ship, nullptr });
 }

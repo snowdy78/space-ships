@@ -4,12 +4,12 @@
 TransferableActionProps::TransferableActionProps(GameObject *author, GameObject *contributor, const rn::Json &props)
 	: author(author),
 	  contributor(contributor),
-	  props(props)
+	  data(props)
 {
 }
 
-TransferableAction::TransferableAction(GameObject *author, GameObject *contributor, const rn::Json &props)
-	: author(author ? std::optional<size_t>{ author->getGameObjectId() } : std::nullopt),
-	  contributor(contributor ? std::optional<size_t>{ contributor->getGameObjectId() } : std::nullopt)
+TransferableAction::TransferableAction(const TransferableActionProps &props)
+	: author(props.author ? std::optional{ props.author->getGameObjectId() } : std::nullopt),
+	  contributor(props.contributor ? std::optional{ props.contributor->getGameObjectId() } : std::nullopt)
 {
 }

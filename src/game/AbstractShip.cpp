@@ -90,7 +90,7 @@ void AbstractShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 void AbstractShip::destroyFromField()
 {
 	if (GameGlobals::exist())
-		GameGlobals::instance().action_manager.emplaceToTop<DestroyShipAction>(this);
+		GameGlobals::instance().action_manager.emplaceToTop<DestroyShipAction>(TA_Props{this});
 }
 void AbstractShip::onMove()
 {
@@ -145,7 +145,7 @@ bool AbstractShip::resolve(const Collidable *collidable) const
 void AbstractShip::onCollisionEnter(Collidable *collidable)
 {
 	if (auto dd = dynamic_cast<DamageDealer *>(collidable); GameGlobals::exist())
-		GameGlobals::instance().action_manager.emplaceToTop<TakeDamageAction>(this, dd);
+		GameGlobals::instance().action_manager.emplaceToTop<TakeDamageAction>(TA_Props{this, dd});
 }
 void AbstractShip::onHit()
 {

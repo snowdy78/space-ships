@@ -1,6 +1,6 @@
 #pragma once
 #include "ControlsSchemeDecl.hpp"
-
+#include "game/GameGlobals.hpp"
 /**
  * @brief scheme_binding
  * In ControlsScheme<BindingSepE, KeyIdT, AcceptedKeyTypes, PropsTypes...>
@@ -25,7 +25,7 @@ public:
 		  m_key_type_info(typeid(KeyT)),
 		  m_action_type_info(typeid(Action)),
 		  m_create_action([](const action_props &props) {
-			  return new Action(props.author, props.contributor, props.props);
+			  return new Action(props);
 		  })
 	{
 	}

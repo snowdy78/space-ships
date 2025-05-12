@@ -4,16 +4,15 @@
 #include "game/GameObject.hpp"
 #include "game/actions/AbstractAction.hpp"
 
-class DestroyShipAction : public TransferableAction
+class DestroyShipAction : public BaseTransferableAction<DestroyShipAction>
 {
 public:
-    DestroyShipAction(GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = {});
+	DestroyShipAction(const TransferableActionProps &props = {});
 
     void play() override;
     TransferJson toJson() const override;
     AbstractAction *copy() const override;
 private:
-    static const size_t id;
-    AbstractShip *m_ship;
+    AbstractShip *m_ship{nullptr};
     DamageDealer *m_destroyer{nullptr};
 };

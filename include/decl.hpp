@@ -30,7 +30,7 @@ class Transferable;
 template<class Base, class T>
 struct is_fabric_type
 {
-	constexpr static const bool value = std::is_base_of_v<Base, T> && !std::is_same_v<Base, T>;
+	constexpr static const bool value = std::is_base_of_v<Base, T> && !std::is_same_v<Base, T> && !std::is_abstract_v<T>;
 };
 
 template<class Base, class T>

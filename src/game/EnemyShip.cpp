@@ -71,12 +71,12 @@ void EnemyShip::movement()
 	if (static_cast<int>(clock.getElapsedTime().asSeconds()) % 3 == 1)
 	{
 		setMoveDirection(getDirection());
-		GameGlobals::instance().action_manager.emplaceToTop<MoveShipAction>(this, nullptr);
+		GameGlobals::instance().action_manager.emplaceToTop<MoveShipAction>(TA_Props{this, nullptr});
 	}
 	if (clock.getElapsedTime().asMilliseconds() % 1000 > 500)
 	{
 		setMoveDirection(Direction{ rn::math::nor(getDirection()) });
-		GameGlobals::instance().action_manager.emplaceToTop<MoveShipAction>(this, nullptr);
+		GameGlobals::instance().action_manager.emplaceToTop<MoveShipAction>(TA_Props{this, nullptr});
 	}
 }
 

@@ -6,37 +6,66 @@
 
 
 template<class T>
-concept TransferActionConcept
-	= is_fabric_type_v<TransferableAction, T>
-	  && requires(T *ptr, T value, GameObject *author, GameObject *contributor, const rn::Json &props) {
-			 ptr = new T(author, contributor, props);
-		 };
+class BaseTransferableAction;
 
 class TransferableActionProps
 {
 public:
 	GameObject *author;
 	GameObject *contributor;
-	rn::Json props;
-	TransferableActionProps(GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = {});
+	rn::Json data;
+	TransferableActionProps(
+		GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = {}
+	);
 };
+
+using TA_Props = TransferableActionProps;
+
+template<class T>
+concept TransferActionConcept
+	= is_fabric_type_v<BaseTransferableAction<T>, T>
+	  && requires(T *ptr, T value, GameObject *author, GameObject *contributor, const rn::Json &props) {
+			 ptr = new T(TransferableActionProps{author, contributor, props});
+		 };
 
 class TransferableAction : public AbstractAction, public Transferable
 {
 	template<class T>
 	friend class BasicRouter;
-protected:
-	template<TransferActionConcept T>
-	static size_t identify();
+	template<class T>
+	friend class BaseTransferableAction;
+	template<class>
+	constexpr static void identify()
+	{
+	}
 
-public:
-	TransferableAction(GameObject *author, GameObject *contributor, const rn::Json &props);
+	TransferableAction(const TransferableActionProps &props = {});
+
+protected:
+	using IdentifierT = void (*)();
 
 private:
 	std::optional<size_t> author{std::nullopt};
 	std::optional<size_t> contributor{std::nullopt};
 };
 
+template<class T>
+class BaseTransferableAction : public TransferableAction
+{
+	static bool emplaceToFabric();
+	constexpr static IdentifierT cs_id	  = &identify<T>;
+	inline static bool emplaced_to_fabric = emplaceToFabric();
+
+public:
+	BaseTransferableAction(const TransferableActionProps &props = {})
+		: TransferableAction(props)
+	{
+	}
+	static size_t id()
+	{
+		return reinterpret_cast<size_t>(cs_id);
+	}
+};
 
 class TransferableActionFabric
 {
@@ -44,7 +73,6 @@ class TransferableActionFabric
 		std::unique_ptr<TransferableAction>(GameObject *author, GameObject *contributor, const rn::Json &props)>;
 
 	std::unordered_map<size_t, create_action_func> transfer_actions{};
-	size_t id_encounter		   = 0;
 	TransferableActionFabric() = default;
 
 public:
@@ -52,25 +80,25 @@ public:
 
 	const create_action_func &get(size_t id);
 	template<TransferActionConcept T>
-	size_t push();
+	void push();
 	void erase(size_t id);
 	void clear();
 };
 
-template<TransferActionConcept T>
-size_t TransferableActionFabric::push()
+template<class T>
+bool BaseTransferableAction<T>::emplaceToFabric()
 {
-	transfer_actions.emplace(
-		id_encounter,
-		[](GameObject *author, GameObject *contributor, const rn::Json &props) -> std::unique_ptr<TransferableAction> {
-			return std::unique_ptr<TransferableAction>{ new T(author, contributor, props) };
-		}
-	);
-	return id_encounter++;
+	TransferableActionFabric::instance().push<T>();
+	return true;
 }
 
 template<TransferActionConcept T>
-size_t TransferableAction::identify()
+void TransferableActionFabric::push()
 {
-	return TransferableActionFabric::instance().push<T>();
+	transfer_actions.emplace(
+		T::id(),
+		[](GameObject *author, GameObject *contributor, const rn::Json &props) -> std::unique_ptr<TransferableAction> {
+			return std::unique_ptr<TransferableAction>{ new T(TransferableActionProps{author, contributor, props}) };
+		}
+	);
 }

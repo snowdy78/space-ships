@@ -2,18 +2,14 @@
 
 #include <initializer_list>
 #include <map>
-#include <memory>
 #include <type_traits>
 #include <variant>
-#include "game/GameGlobals.hpp"
 #include "coop/TransferableAction.hpp"
 #include "decl.hpp"
-#include "game/GameObject.hpp"
-#include "game/actions/AbstractAction.hpp"
+
 
 template<class Action>
-concept ControlsSchemeActionConcept = std::is_base_of_v<TransferableAction, Action>
-									  && !std::is_same_v<Action, TransferableAction> && !std::is_abstract_v<Action>;
+concept ControlsSchemeActionConcept = TransferActionConcept<Action>;
 template<class K, class AcceptedKeyTypes, class P, class... PropsTypes>
 concept SchemeBindingPropsKeysConcept = is_any_of<P, type_list<PropsTypes...>> && is_any_of<K, AcceptedKeyTypes>;
 
@@ -65,6 +61,8 @@ private:
 ///
 // Implementation of ControlsScheme<BindingSepE, KeyIdT, AcceptedKeyTypes, PropsTypes...> //
 ///
+
+#include "binding.hpp"
 
 template<BindingSeparatorConcept B, class K, class A, class... PTs>
 template<class ActionT, class PropsT, class KeyT>

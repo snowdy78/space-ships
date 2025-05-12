@@ -9,11 +9,11 @@
 #include "game/SpaceField.hpp"
 #include "game/actions/AbstractAction.hpp"
 
-class TestAction : public TransferableAction
+class TestAction : public BaseTransferableAction<TestAction>
 {
 public:
-	TestAction(GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = nullptr)
-		: TransferableAction(author, contributor, props)
+	TestAction(const TransferableActionProps &props = {})
+		: BaseTransferableAction(props)
 	{
 	}
 	void play() override
@@ -22,16 +22,13 @@ public:
 	}
 	TransferJson toJson() const override
 	{
-		return { id };
+		return { id() };
 	}
 	AbstractAction *copy() const override
 	{
 		return new TestAction();
 	}
-private:
-	static const size_t id;
 };
-const size_t TestAction::id = identify<TestAction>();
 
 
 ConnectToGameBranch::~ConnectToGameBranch()
@@ -109,7 +106,7 @@ void ConnectToGameBranch::onEvent(sf::Event &event)
 	if (rn::isKeydown(sf::Keyboard::N))
 	{
 		std::cout << "sending an action...\n";
-		TestAction action(space->player, nullptr, {});
+		TestAction action({space->player, nullptr, {}});
 		if (auto status = online->tcp->send(&action); status == sf::Socket::Status::Done)
 		{
 			std::cout << "action was successfully send\n";

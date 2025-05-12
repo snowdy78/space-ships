@@ -23,13 +23,9 @@ void Gun::shoot()
 {
 	if (GameGlobals::exist() && !has_rollback)
 	{
-		auto direction{getTrajectory()};
-		GameGlobals::instance().action_manager.emplaceToTop<ShootAction>(
-			this, nullptr,
-			rn::Json{
-				{ "direction", { { "x", direction.x }, { "y", direction.y } } }
-			}
-		);
+		auto direction{ getTrajectory() };
+		GameGlobals::instance().action_manager.emplaceToTop<ShootAction>(TA_Props{
+			this, nullptr, rn::Json{ { "direction", { { "x", direction.x }, { "y", direction.y } } } } });
 	}
 }
 
