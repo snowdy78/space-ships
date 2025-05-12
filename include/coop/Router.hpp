@@ -8,13 +8,14 @@
 
 enum class TransferType
 {
-	Tcp, Udp
+	Tcp,
+	Udp
 };
 
 class BasicRouterResponse
 {
 	std::optional<rn::Json> m_response_data = std::nullopt;
-	sf::Socket::Status m_status								  = sf::Socket::Done;
+	sf::Socket::Status m_status				= sf::Socket::Done;
 	BasicRouterResponse(const rn::Json &data_json = {});
 	BasicRouterResponse(const sf::Socket::Status &status);
 	template<class RespT>
@@ -26,8 +27,8 @@ public:
 	static constexpr const char *author_id_key		= "author_id";
 	static constexpr const char *contributor_id_key = "contributor_id";
 	static constexpr const char *type_key			= "type";
-	static constexpr const char *object_key = "object";
-	static constexpr const char *action_key = "action";
+	static constexpr const char *object_key			= "object";
+	static constexpr const char *action_key			= "action";
 	std::optional<size_t> id() const;
 	std::optional<rn::Json> data() const;
 	bool success() const;
@@ -60,7 +61,7 @@ protected:
 template<class RespT>
 sf::Socket::Status BasicRouter<RespT>::send(const TransferableObject *data)
 {
-	auto send_data	  = data->toJson();
+	auto send_data							 = data->toJson();
 	send_data[BasicRouterResponse::type_key] = BasicRouterResponse::object_key;
 	return sendJson(send_data);
 }
@@ -71,8 +72,8 @@ sf::Socket::Status BasicRouter<RespT>::send(TransferableAction *action)
 	using namespace std::string_literals;
 	if (!action)
 		return sf::Socket::Status::Error;
-	Transferable::TransferJson send_data = action->toJson();
-	send_data[BasicRouterResponse::type_key]  = BasicRouterResponse::action_key;
+	Transferable::TransferJson send_data	 = action->toJson();
+	send_data[BasicRouterResponse::type_key] = BasicRouterResponse::action_key;
 	if (action->author)
 		send_data[BasicRouterResponse::author_id_key] = *action->author;
 	else

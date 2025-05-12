@@ -9,43 +9,79 @@ concept TransferObjectConcept = is_fabric_type_v<TransferableObject, T> && requi
 	ptr = new T();
 }; 
 
+template<class T>
+class BaseTransferableObject;
+
 class TransferableObject : public Transferable
 {
+    template<class T>
+	friend class BaseTransferableObject;
+
+	template<TransferObjectConcept T>
+	constexpr static void identify()
+	{
+	}
+	TransferableObject() = default;
+
 protected:
-    template<TransferObjectConcept T>
-	static size_t identify();
+    using IdentifierT = void(*)();
 
 public:
-    virtual ~TransferableObject() = 0;
+    ~TransferableObject() override = 0;
 
 	virtual void receiveJson(const rn::Json &json) {}
 };
+
+template<class T>
+class BaseTransferableObject : public TransferableObject
+{
+	static bool emplaceToFabric();
+	constexpr static IdentifierT cs_id = &identify<T>;
+	inline static bool emplaced_to_fabric = emplaceToFabric();
+
+public:
+	static size_t id();
+};
+
 class TransferableObjectFabric 
 {
     using create_func = std::function<std::unique_ptr<TransferableObject>()>;
     std::unordered_map<size_t, create_func> transfer_objects{};
-    size_t id_encounter = 0;
     TransferableObjectFabric() = default;
+protected:
+	void erase(size_t id);
+    void clear();
+    template<class T>
+		requires(std::is_base_of_v<BaseTransferableObject<T>, T>)
+	void push() noexcept;
+	template<class T>
+	friend class BaseTransferableObject;
+
 public:
     static TransferableObjectFabric &instance();
 
     const create_func &get(size_t id);
-    template<class T>
-    size_t push();
-    void erase(size_t id);
-    void clear();
 };
 
 template<class T>
-size_t TransferableObjectFabric::push() 
+bool BaseTransferableObject<T>::emplaceToFabric()
 {
-    transfer_objects.emplace(id_encounter, []() { return std::unique_ptr<TransferableObject>{new T()}; });
-    return id_encounter++;
+	TransferableObjectFabric::instance().push<T>();
+	return true;
 }
 
-
-template<TransferObjectConcept T>
-size_t TransferableObject::identify()
+template<class T>
+size_t BaseTransferableObject<T>::id()
 {
-	return TransferableObjectFabric::instance().push<T>();
+	return reinterpret_cast<size_t>(cs_id);
 }
+
+template<class T>
+	requires(std::is_base_of_v<BaseTransferableObject<T>, T>)
+void TransferableObjectFabric::push() noexcept 
+{
+	transfer_objects.emplace(T::id(), []() {
+		return std::unique_ptr<TransferableObject>{ new T() };
+	});
+}
+

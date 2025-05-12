@@ -5,7 +5,7 @@
 #include "decl.hpp"
 
 template<class T>
-concept GameObjectConcept = std::is_base_of<GameObject, T>::value && !std::is_same_v<GameObject, T>;
+concept GameObjectConcept = std::is_base_of_v<GameObject, T> && !std::is_same_v<GameObject, T>;
 
 class GameObjectFabric
 {
@@ -40,7 +40,7 @@ public:
 	size_t size() const;
 };
 
-class GameObjectFabricTranslator : public TransferableObject
+class GameObjectFabricTranslator : public BaseTransferableObject<GameObjectFabricTranslator>
 {
 	std::unordered_map<size_t, size_t> data_to_update{};
 	static constexpr size_t npos = -1;
@@ -69,9 +69,7 @@ public:
 
 	void receiveJson(const rn::Json &json) override;
 	TransferableObject::TransferJson toJson() const override;
-	void updateFabric();
 
 private:
 	TranslateType translate_type = TranslateType::Append;
-	static size_t id;
 };

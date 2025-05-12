@@ -68,6 +68,8 @@ class ControlsScheme;
 using Controls = ControlsScheme<DefaultBindingSeparators, DefaultBindingProps, size_t, type_list<sf::Keyboard::Key, sf::Mouse::Button>>;
 
 class TransferableObject;
+template<class T>
+class BaseTransferableObject;
 class TransferableObjectFabric;
 class TransferableAction;
 class TransferableActionFabric;

@@ -3,8 +3,6 @@
 #include "coop/TransferableObject.hpp"
 #include "game/GameObject.hpp"
 
-size_t GameObjectFabricTranslator::id = identify<GameObjectFabricTranslator>();
-
 void GameObjectFabric::emplace(size_t id, GameObject *object)
 {
 	objects.emplace(id, object);
@@ -52,7 +50,7 @@ GameObjectFabric::ConstIterator GameObjectFabric::end() const
 std::vector<std::unique_ptr<TransferableObject>> GameObjectFabric::assign(const GameObjectFabricTranslator &translator)
 {
 	clear();
-	return std::move(update(translator));
+	return update(translator);
 }
 
 std::vector<std::unique_ptr<TransferableObject>> GameObjectFabric::update(const GameObjectFabricTranslator &translator)
@@ -71,7 +69,7 @@ std::vector<std::unique_ptr<TransferableObject>> GameObjectFabric::update(const 
 			result.emplace_back(std::move(object));
 		}
 	}
-	return std::move(result);
+	return result;
 }
 
 void GameObjectFabric::remove(const GameObjectFabricTranslator &translator, std::function<void(GameObject *)> on_remove)
@@ -165,7 +163,7 @@ GameObjectFabricTranslator::TransferJson GameObjectFabricTranslator::toJson() co
 		arr.push_back(rn::Json::array({ it.first, it.second }));
 	}
 	return {
-		id,
+		id(),
 		{ { "type", static_cast<size_t>(translate_type) }, { "ids", arr } }
 	};
 }
