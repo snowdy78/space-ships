@@ -17,17 +17,18 @@ class Bullet : public rn::MonoBehaviour, public Collidable, public DamageDealer,
 	float acceleration = 0.1f / 250.f;
 	rn::Vec2f direction{};
 	EllipseCollider collider;
-	const Gun *author = nullptr;
 	std::optional<rn::Vec2f> size; // defined when texture is setted
 
 	void setTexture(const sf::Texture &texture);
+
 protected:
 	void updateCollider();
 	virtual const sf::Texture &initTexture() const = 0;
+
 public:
 	const sf::Texture &getTexture() const;
-	Gun const *const &gun = author;
-	Bullet(const Gun *gun);
+	const Gun *author = nullptr;
+	Bullet();
 	~Bullet() override = 0;
 	void setDirection(const rn::Vec2f &direction);
 	void setMass(float mass);
@@ -63,6 +64,4 @@ public:
 	void start() override;
 	void update() override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
-	void summonCopy(SpaceField *field) const override;
-	virtual Bullet *copy() const = 0;
 };

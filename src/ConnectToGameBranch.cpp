@@ -107,7 +107,7 @@ void ConnectToGameBranch::receivePackets() const
 						if (auto space_object = dynamic_cast<SpaceFieldObject *>(unique_object.get()))
 						{
 							std::cout << "summoning...\n";
-							space_object->summonCopy(&space->field);
+							space_object->summonCopy(space->field);
 							std::cout << "summoned!\n";
 						}
 					}
@@ -123,7 +123,7 @@ void ConnectToGameBranch::receivePackets() const
 			if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))
 			{
 				std::cout << "received space field object\n";
-				space_object->summonCopy(&space->field);
+				space_object->summonCopy(space->field);
 				std::cout << "summoned object\n";
 			}
 		}

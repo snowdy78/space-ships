@@ -8,20 +8,15 @@
 
 
 /**
- * \brief Default constructor for Bullet
+ * @brief Default constructor for Bullet
  *
  * Construct a Bullet object with the image set to the contents of Bullet::texture
  */
-Bullet::Bullet(const Gun *gun)
-	: author(gun)
-{
-}
+Bullet::Bullet() = default;
 
-Bullet::~Bullet()
-{
-}
+Bullet::~Bullet() = default;
 
-void Bullet::start() 
+void Bullet::start()
 {
 	setTexture(initTexture());
 	updateCollider();
@@ -121,7 +116,7 @@ const Collider *Bullet::getCollider() const
 bool Bullet::resolve(const Collidable *collidable) const
 {
 	return dynamic_cast<const Hittable *>(collidable)
-		   && (!gun || dynamic_cast<const AbstractShip *>(collidable) != gun->user);
+		   && (!author || dynamic_cast<const AbstractShip *>(collidable) != author->user);
 }
 const sf::Sprite &Bullet::getSprite() const
 {
@@ -138,7 +133,7 @@ void Bullet::onCollisionEnter(Collidable *obstacle)
 void Bullet::setTexture(const sf::Texture &texture)
 {
 	sprite.setTexture(texture);
-	size = rn::Vec2f{texture.getSize()};
+	size = rn::Vec2f{ texture.getSize() };
 }
 const sf::Texture &Bullet::getTexture() const
 {
@@ -149,10 +144,6 @@ void Bullet::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
 	states.transform = getTransform();
 	target.draw(sprite, states);
-}
-void Bullet::summonCopy(SpaceField *field) const
-{
-	field->summonBullet(copy(), getDirection());
 }
 void Bullet::onMove()
 {

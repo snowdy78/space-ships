@@ -5,19 +5,14 @@
 #include "game/actions/ShootAction.hpp"
 
 
-Gun::~Gun()
-{
-}
+Gun::~Gun() = default;
 
 void Gun::startRollback()
 {
 	has_rollback = true;
 	clock.start();
 }
-Gun::Gun(const AbstractShip *user)
-	: ship(user)
-{
-}
+Gun::Gun() = default;
 
 void Gun::shoot()
 {
@@ -37,7 +32,7 @@ void Gun::fire()
 {
 	if (GameManager::exist())
 	{
-		GameManager::instance().field.summonBullet(createBullet(), getTrajectory());
+		summonBullet();
 		onShoot();
 		startRollback();
 	}

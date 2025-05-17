@@ -106,7 +106,7 @@ void PlayerShip::onHit()
 {
 	AbstractShip::onHit();
 }
-void PlayerShip::summonCopy(SpaceField *field) const
+void PlayerShip::summonCopy(SpaceField &field) const
 {
-	field->appendShip<PlayerShip>();
+	field.appendShip<PlayerShip>();
 }

@@ -19,7 +19,7 @@ protected:
 public:
 	SpaceFieldObject();
 
-    virtual void summonCopy(SpaceField *field) const = 0;
+    virtual void summonCopy(SpaceField& field) const = 0;
     /**
      * @brief destroying from the field 
      * 

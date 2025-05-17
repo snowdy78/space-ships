@@ -72,7 +72,7 @@ public:
 	void onEvent(sf::Event &event) override;
 	void onRotation() override;
 	void onHit() override;
-	void summonCopy(SpaceField *field) const override;
+	void summonCopy(SpaceField &field) const override;
 	rn::Vec2f countMove() const override;
 	TransferJson toJson() const override;
 };

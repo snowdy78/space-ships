@@ -98,18 +98,17 @@ size_t BulletMother::bulletCount() const
 	return bullets.size();
 }
 
-void BulletMother::summon(Bullet *bullet, const rn::Vec2f &direction)
+void BulletMother::summon(Bullet *bullet)
 {
 	if (!bullet)
 		return;
 
-	bullet->setDirection(direction);
 	bullets.emplace_back(this, bullet);
 }
 void BulletMother::update()
 {
 	std::vector<const_iterator> remove_bullet_stack{};
-	for (auto child_bullet = bullets.begin(); child_bullet != bullets.end(); child_bullet++)
+	for (auto child_bullet = bullets.begin(); child_bullet != bullets.end(); ++child_bullet)
 	{
 		child_bullet->update();
 		if (child_bullet->need_to_remove)

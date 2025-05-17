@@ -10,15 +10,14 @@ class Gun : public sf::Transformable, public rn::LogicalObject, public GameObjec
 	bool has_rollback = false;
 
 protected:
-	const AbstractShip *ship;
 
 	friend class Bullet;
 	void startRollback();
 
 public:
-	const AbstractShip *const &user = ship;
-	Gun(const AbstractShip *user);
-	virtual ~Gun() = 0;
+	const AbstractShip *user = nullptr;
+	Gun();
+	~Gun() override = 0;
 	virtual void shoot();
 	void fire();
 	virtual Gun *copy() const				= 0;
@@ -26,7 +25,10 @@ public:
 	bool hasRollback() const;
 	void update() override;
 	virtual float getMillisDelay() const;
+
 protected:
-	virtual Bullet *createBullet() const	= 0;
-	virtual void onShoot() {}
+	virtual void summonBullet() const = 0;
+	virtual void onShoot()
+	{
+	}
 };

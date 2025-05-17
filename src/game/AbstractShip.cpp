@@ -11,9 +11,9 @@
 
 
 AbstractShip::AbstractShip(const sf::Texture &texture)
-	: sprite(texture),
-	  gun(new Pistol(this))
+	: sprite(texture)
 {
+	setGun<Pistol>();
 }
 bool AbstractShip::isFriend(const AbstractShip *other_ship) const
 {
@@ -139,7 +139,7 @@ bool AbstractShip::resolve(const Collidable *collidable) const
 {
 	auto bullet = dynamic_cast<const Bullet *>(collidable);
 	bool state	= bullet;
-	state		= state && bullet->gun->user != this;
+	state		= state && bullet->author->user != this;
 	return state;
 }
 void AbstractShip::onCollisionEnter(Collidable *collidable)

@@ -51,7 +51,7 @@ public:
 	size_t bulletCount() const;
 	sf::View getViewArea() const;
 	void destroy(const Bullet *bullet);
-	void summon(Bullet *bullet, const rn::Vec2f &direction);
+	void summon(Bullet *bullet);
 	void start() override;
 	void update() override;
 	void onEvent(sf::Event &event) override;

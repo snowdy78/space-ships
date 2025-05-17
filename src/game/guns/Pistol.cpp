@@ -4,14 +4,18 @@
 #include "game/GameManager.hpp"
 #include "game/bullets/BaseBullet.hpp"
 
-Pistol::Pistol(const AbstractShip *ship)
-	: Gun(ship)
+Pistol::Pistol(const AbstractShip *_ship)
+	: Gun(_ship)
 {}
-Bullet *Pistol::createBullet() const
+void Pistol::summonBullet() const
 {
-	auto bullet = new BaseBullet(this);
-	bullet->setPosition(getPosition());
-	return bullet;
+	if (GameManager::exist())
+	{
+		GameManager::instance().field.summonBullet<BaseBullet>([this](BaseBullet &bullet) {
+			bullet.setPosition(getPosition());
+			bullet.setDirection(getTrajectory());
+		}, this);
+	}
 }
 Gun *Pistol::copy() const
 {

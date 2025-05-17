@@ -72,6 +72,7 @@ protected:
 	};
 	sf::Sprite sprite;
 	std::unique_ptr<Gun> gun;
+private:
 	EllipseCollider collider;
 
 	SoundDisperseTraits hit_sound_traits{ 100, 300 };
@@ -81,8 +82,10 @@ protected:
 	rn::Vec2f m_move_dir{};
 };
 
-template<GunConcept T>
+template<GunConcept GunT>
 void AbstractShip::setGun()
 {
-	gun.reset(new T(this));
+	Gun *gun_ = new GunT;
+	gun_->user = this;
+	gun.reset(gun_);
 }

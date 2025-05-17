@@ -31,9 +31,9 @@ rn::Vec2f ConnectedPlayerShip::countMove() const
 	return getAcceleration() * getVelocity() * getMoveDirection();
 }
 
-void ConnectedPlayerShip::summonCopy(SpaceField *field) const
+void ConnectedPlayerShip::summonCopy(SpaceField& field) const
 {
-	field->appendShip<ConnectedPlayerShip>();
+	field.appendShip<ConnectedPlayerShip>();
 }
 
 Transferable::TransferJson ConnectedPlayerShip::toJson() const

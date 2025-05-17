@@ -13,7 +13,7 @@ class Pistol : public Gun
 
 public:
 	Pistol(const AbstractShip *ship);
-	Bullet *createBullet() const override;
+	void summonBullet() const override;
 	rn::Vec2f getTrajectory() const override;
 	Gun *copy() const override;
 	void onShoot() override;

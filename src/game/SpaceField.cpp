@@ -90,21 +90,12 @@ void SpaceField::clear()
 		delete ship;
 	ships.clear();
 }
-
-void SpaceField::summonBullet(Bullet *const &bullet, const rn::Vec2f &direction)
-{
-	if (bullet)
-	{
-		mother.summon(bullet, direction);
-		bullet->start();
-		bullet->onSummon();
-	}
-}
-
 void SpaceField::destroyBullet(const Bullet *const &bullet)
 {
 	mother.destroy(bullet);
 }
+
+
 void SpaceField::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
 	for (auto &iterator: mother)

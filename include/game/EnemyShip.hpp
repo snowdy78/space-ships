@@ -24,6 +24,6 @@ public:
 	void rotation() override;
 	void onMove() override;
 	void onHit() override;
-	void summonCopy(SpaceField *field) const override;
+	void summonCopy(SpaceField &field) const override;
 	rn::Vec2f countMove() const override;
 };

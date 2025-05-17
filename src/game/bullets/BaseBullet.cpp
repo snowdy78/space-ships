@@ -1,16 +1,13 @@
 #include "game/bullets/BaseBullet.hpp"
+#include "game/SpaceField.hpp"
 
-BaseBullet::BaseBullet(const Gun *_gun)
-	: Bullet(_gun)
-{
-	setDamage(initial_damage);
-}
 const sf::Texture &BaseBullet::initTexture() const
 {
 	return *texture;
 }
 void BaseBullet::start()
 {
+	setDamage(initial_damage);
 	Bullet::start();
 	fly_sound.start();
 }
@@ -26,9 +23,11 @@ void BaseBullet::onMove()
 	fly_sound.setPosition({getPosition().x, getPosition().y, 0.f});
 }
 
-Bullet *BaseBullet::copy() const
+void BaseBullet::summonCopy(SpaceField &field) const
 {
-	return new BaseBullet(gun);
+	field.summonBullet<BaseBullet>([this](BaseBullet &bullet) {
+		bullet.setDirection(getDirection());
+	}, gun);
 }
 
 void bullet_sound::start()

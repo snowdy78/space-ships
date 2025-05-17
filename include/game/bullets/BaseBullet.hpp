@@ -18,10 +18,10 @@ class BaseBullet : public Bullet
 	inline static loading<sf::SoundBuffer> fly_buf = FileLoader::Instance().addSoundToUpload("./assets/bullet_fly.wav").get();
 	bullet_sound fly_sound{300, 150, fly_buf};
 public:
-	BaseBullet(const Gun *_gun);
+	using Bullet::Bullet;
     const sf::Texture &initTexture() const override;
 	void start() override;
 	void update() override;
 	void onMove() override;
-	Bullet *copy() const override;
+	void summonCopy(SpaceField &field) const override;
 };

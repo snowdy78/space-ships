@@ -106,7 +106,7 @@ void HostGameBranch::receivePackets() const
 				}
 			}
 			if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))
-				space_object->summonCopy(&space->field);
+				space_object->summonCopy(space->field);
 		}
 		if (response.is_action())
 		{
