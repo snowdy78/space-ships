@@ -1,7 +1,7 @@
 #include "game/actions/ActionManager.hpp"
 
 #include "coop/TransferableAction.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 
 void ActionManager::realizeActions()
 {
@@ -25,14 +25,14 @@ void ActionManager::transferAction(AbstractAction *action) const
 {
 	if (isTransfering())
 	{
-		if (!GameGlobals::exist() || !GameGlobals::instance().existOnline())
+		if (!GameManager::exist() || !GameManager::instance().existOnline())
 			std::cerr << "ERROR: cannot use action transfer\n";
 		if (auto transfer_action = dynamic_cast<TransferableAction *>(action))
 		{
 			if (m_transfering->transfer_type() == TransferType::Tcp)
-				GameGlobals::instance().online->tcp->send(transfer_action);
+				GameManager::instance().online->tcp->send(transfer_action);
 			else if (m_transfering->transfer_type() == TransferType::Udp)
-				GameGlobals::instance().online->udp->send(transfer_action);
+				GameManager::instance().online->udp->send(transfer_action);
 		}
 	}
 }

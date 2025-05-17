@@ -2,7 +2,7 @@
 #include "SoundDisperseEntity.hpp"
 #include "components/AnimatedSprite.hpp"
 #include "components/EffectManager.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 #include "game/Gun.hpp"
 #include "game/RigitBody2d.hpp"
 #include "game/actions/DestroyShipAction.hpp"
@@ -89,8 +89,8 @@ void AbstractShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 }
 void AbstractShip::destroyFromField()
 {
-	if (GameGlobals::exist())
-		GameGlobals::instance().action_manager.emplaceToTop<DestroyShipAction>(this);
+	if (GameManager::exist())
+		GameManager::instance().action_manager.emplaceToTop<DestroyShipAction>(this);
 }
 void AbstractShip::onMove()
 {
@@ -144,16 +144,16 @@ bool AbstractShip::resolve(const Collidable *collidable) const
 }
 void AbstractShip::onCollisionEnter(Collidable *collidable)
 {
-	if (auto dd = dynamic_cast<DamageDealer *>(collidable); GameGlobals::exist())
-		GameGlobals::instance().action_manager.emplaceToTop<TakeDamageAction>(this, dd);
+	if (auto dd = dynamic_cast<DamageDealer *>(collidable); GameManager::exist())
+		GameManager::instance().action_manager.emplaceToTop<TakeDamageAction>(this, dd);
 }
 void AbstractShip::onHit()
 {
 	Hittable::onHit();
 
-	if (!GameGlobals::exist())
+	if (!GameManager::exist())
 		return;
-	GameGlobals::instance().sound_manager.emplace_back<SoundDisperseEntity>(
+	GameManager::instance().sound_manager.emplace_back<SoundDisperseEntity>(
 		[this](SoundDisperseEntity &sound) {
 			sound.setPosition(rn::Vec3f(getPosition().x, getPosition().y, 0.f));
 		},
@@ -162,9 +162,9 @@ void AbstractShip::onHit()
 }
 void AbstractShip::onDestroy()
 {
-	if (GameGlobals::exist())
+	if (GameManager::exist())
 	{
-		GameGlobals::instance().effect_manager.emplace_back<AnimatedSprite>(
+		GameManager::instance().effect_manager.emplace_back<AnimatedSprite>(
 			[this](AnimatedSprite &effect) {
 				effect.setOrigin(getSize() / 2.f);
 				effect.setPosition(getPosition());
@@ -172,7 +172,7 @@ void AbstractShip::onDestroy()
 			},
 			*destroy_animation
 		);
-		GameGlobals::instance().sound_manager.emplace_back<SoundDisperseEntity>(
+		GameManager::instance().sound_manager.emplace_back<SoundDisperseEntity>(
 			[this](SoundDisperseEntity &sound) {
 				sound.setPosition(rn::Vec3f(getPosition().x, getPosition().y, 0.f));
 			},

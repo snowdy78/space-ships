@@ -1,10 +1,9 @@
 #include "game/PlayerShip.hpp"
 #include "RuneEngine/EngineDecl.hpp"
 #include "RuneEngine/variables.hpp"
-#include "SFML/Window/Keyboard.hpp"
 #include "game/AbstractShip.hpp"
 #include "game/Camera2d.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 #include "game/SpaceField.hpp"
 #include "game/actions/AccelerateShipAction.hpp"
 #include "game/actions/MoveShipAction.hpp"
@@ -43,7 +42,7 @@ void PlayerShip::rotation()
 
 void PlayerShip::movement()
 {
-	if (!GameGlobals::exist())
+	if (!GameManager::exist())
 		return;
 	auto classification = basic_controls.find(PlayerControlsTypeSep::Movement);
 	rn::Vec2f md;
@@ -92,6 +91,11 @@ rn::Vec2f PlayerShip::countMove() const
 	return getAcceleration() * getVelocity() * getMoveDirection();
 }
 
+Transferable::TransferJson PlayerShip::toJson() const
+{
+	return { identifier };
+}
+
 void PlayerShip::onRotation()
 {
 	sf::Listener::setDirection({ getDirection().x, getDirection().y, 0.f });
@@ -105,8 +109,4 @@ void PlayerShip::onHit()
 void PlayerShip::summonCopy(SpaceField *field) const
 {
 	field->appendShip<PlayerShip>();
-}
-AbstractShip *PlayerShip::copy() const
-{
-	return new PlayerShip(camera);
 }

@@ -1,7 +1,7 @@
 #include "game/guns/Pistol.hpp"
 #include "SoundDisperseEntity.hpp"
 #include "game/AbstractShip.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 #include "game/bullets/BaseBullet.hpp"
 
 Pistol::Pistol(const AbstractShip *ship)
@@ -19,10 +19,10 @@ Gun *Pistol::copy() const
 }
 void Pistol::onShoot()
 {
-	if (GameGlobals::exist())
+	if (GameManager::exist())
 	{
 		SoundDisperseEntity sound{ shoot_sound_traits, sound_buffer };
-		GameGlobals::instance().sound_manager.emplace_back<SoundDisperseEntity>(
+		GameManager::instance().sound_manager.emplace_back<SoundDisperseEntity>(
 			[this](SoundDisperseEntity &sound) {
 				sound.setPosition({ getPosition().x, getPosition().y, 0 });
 			},

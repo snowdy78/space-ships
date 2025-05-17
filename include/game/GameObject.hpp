@@ -2,7 +2,7 @@
 
 #include "decl.hpp"
 
-struct GameObject
+class GameObject
 {
 	size_t id;
 public:

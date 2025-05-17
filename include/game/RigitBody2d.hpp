@@ -75,8 +75,6 @@ public:
 	virtual void onPush() {}
 	void setPulling(const rn::Vec2f &point, float force);
 
-	const sf::Sprite &getSprite() const;
-
 	void start() override;
 	void update() override;
 	void onEvent(sf::Event &event) override;

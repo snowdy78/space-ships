@@ -27,9 +27,9 @@ public:
 	using const_iterator = std::vector<AbstractShip *>::const_iterator;
 
 	SpaceField(Camera2d *camera = nullptr);
-	SpaceField(const SpaceField &field);
+	SpaceField(const SpaceField &field) = delete;
 	SpaceField(SpaceField &&) noexcept = default;
-	~SpaceField();
+	~SpaceField() override;
 
 	void setCamera(Camera2d *camera2d);
 	const Camera2d *getCamera() const;
@@ -39,22 +39,23 @@ public:
 	void onEvent(sf::Event &event) override;
 
 	AbstractShip *get(size_t index);
+	const AbstractShip *get(size_t index) const;
 	AbstractShip *operator[](size_t index);
+	const AbstractShip *operator[](size_t index) const;
 	const ships_container &getShips() const;
 
-	size_t size();
+	size_t size() const;
 	void clear();
 
 	template<ShipT T, class... Args>
 	void appendShip(const Args &...args);
-	void summonShip(AbstractShip *const &object);
 	void summonBullet(Bullet *const &bullet, const rn::Vec2f &direction);
 	void destroyBullet(const Bullet *const &bullet);
 
 	void remove(const AbstractShip *ship);
 
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
-	SpaceField &operator=(const SpaceField &other);
+	SpaceField &operator=(const SpaceField &other) = delete;
 	SpaceField &operator=(SpaceField &&other) noexcept;
 };
 

@@ -4,7 +4,7 @@
 #include "RuneEngine/MenuBranch.hpp"
 #include "components/Background.hpp"
 #include "coop/TcpRouter.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 
 class ConnectToGameBranch : public rn::MenuBranch
 {
@@ -16,8 +16,8 @@ class ConnectToGameBranch : public rn::MenuBranch
     bool window_focused = true;
 
     Background background{};
-    GameGlobals *space = nullptr;
-	GameGlobals::OnlineTraits *online = nullptr;
+    GameManager *space = nullptr;
+	GameManager::OnlineTraits *online = nullptr;
 
 public:
 	using rn::MenuBranch::MenuBranch;

@@ -42,7 +42,7 @@ sf::Socket::Status TcpRouter::sendJson(const rn::Json &send_data)
 	sf::Packet packet;
 	packet.append(json_string.c_str(), (json_string.size() + 1) * sizeof(char));
 	Status status = sf::TcpSocket::send(packet);
-	std::cout << "sended packet: " << json_string << "\n";
+	std::cout << "sent packet: " << json_string << "\n";
 	return status;
 }
 

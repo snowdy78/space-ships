@@ -6,12 +6,7 @@ TransferableObjectFabric &TransferableObjectFabric::instance()
 	return instance;
 }
 
-const TransferableObjectFabric::create_func &TransferableObjectFabric::get(size_t id) 
+const TransferableObjectFabric::create_func &TransferableObjectFabric::get(size_t id) const
 {
     return transfer_objects.at(id);
 }
-
-
-void TransferableObjectFabric::erase(size_t id) {}
-
-void TransferableObjectFabric::clear() {}

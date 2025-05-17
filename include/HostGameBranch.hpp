@@ -2,7 +2,7 @@
 
 #include "decl.hpp"
 #include "components/Background.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 #include "coop/TcpRouter.hpp"
 
 class HostGameBranch : public rn::MenuBranch 
@@ -15,8 +15,8 @@ class HostGameBranch : public rn::MenuBranch
     bool window_focused = true;
 
     Background background{};
-    GameGlobals *space = nullptr;
-	GameGlobals::OnlineTraits *online = nullptr;
+    GameManager *space = nullptr;
+	GameManager::OnlineTraits *online = nullptr;
 
 public:
     using rn::MenuBranch::MenuBranch;

@@ -6,13 +6,6 @@ SpaceField::SpaceField(Camera2d *camera)
 {
 }
 
-SpaceField::SpaceField(const SpaceField &field)
-	: camera(field.camera)
-{
-	ships.resize(field.ships.size());
-	for (size_t i = 0; i < field.ships.size(); ++i)
-		ships[i] = field.ships[i]->copy();
-}
 SpaceField::~SpaceField()
 {
 	for (auto &ship: ships)
@@ -48,10 +41,22 @@ AbstractShip *SpaceField::get(size_t index)
 {
 	return ships.at(index);
 }
+
+const AbstractShip * SpaceField::get(size_t index) const
+{
+	return ships.at(index);
+}
+
 AbstractShip *SpaceField::operator[](size_t index)
 {
 	return ships[index];
 }
+
+const AbstractShip * SpaceField::operator[](size_t index) const
+{
+	return ships[index];
+}
+
 const SpaceField::ships_container &SpaceField::getShips() const
 {
 	return ships;
@@ -74,7 +79,7 @@ void SpaceField::onEvent(sf::Event &event)
 		ship->onEvent(event);
 	mother.onEvent(event);
 }
-size_t SpaceField::size()
+size_t SpaceField::size() const
 {
 	return ships.size();
 }
@@ -109,23 +114,11 @@ void SpaceField::draw(sf::RenderTarget &target, sf::RenderStates states) const
 		target.draw(*ship, states);
 }
 
-
-SpaceField &SpaceField::operator=(const SpaceField &other)
-{
-	if (&other != this)
-	{
-		camera = other.camera;
-		for (auto &ship: ships)
-			delete ship;
-		ships = other.ships;
-	}
-	return *this;
-}
 SpaceField &SpaceField::operator=(SpaceField &&other) noexcept
 {
 	if (&other != this)
 	{
-		camera = std::move(other.camera);
+		camera = other.camera;
 		mother = std::move(other.mother);
 		for (auto &ship: ships)
 			delete ship;

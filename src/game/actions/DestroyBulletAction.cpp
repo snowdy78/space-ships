@@ -1,5 +1,5 @@
 #include "game/actions/DestroyBulletAction.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 #include "game/Hittable.hpp"
 
 const size_t DestroyBulletAction::id = identify<DestroyBulletAction>();
@@ -17,9 +17,9 @@ void DestroyBulletAction::play()
 {
 	if (!m_bullet)
 		return;
-	if (GameGlobals::exist())
+	if (GameManager::exist())
 	{
-		GameGlobals::instance().field.destroyBullet(m_bullet);
+		GameManager::instance().field.destroyBullet(m_bullet);
 	}
 }
 

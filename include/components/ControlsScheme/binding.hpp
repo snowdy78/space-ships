@@ -18,7 +18,7 @@ public:
 	template<ControlsSchemeActionConcept Action, class KeyT, class PropsT>
 		requires SchemeBindingPropsKeysConcept<KeyT, AcceptedKeyTypes, PropsT, PropsTypes...>
 	binding(const action_type<Action> &type, const KeyT key, const string_t &name, const PropsT &props)
-		requires(is_any_of<KeyT, AcceptedKeyTypes>)
+		requires(is_any_same_of_v<KeyT, AcceptedKeyTypes>)
 		: m_key(key),
 		  m_name(name),
 		  m_props(props),
@@ -42,14 +42,14 @@ public:
 	}
 
 	template<class KeyT>
-		requires(is_any_of<KeyT, AcceptedKeyTypes>)
+		requires(is_any_same_of_v<KeyT, AcceptedKeyTypes>)
 	bool keyIs() const
-		requires(is_any_of<KeyT, AcceptedKeyTypes>)
+		requires(is_any_same_of_v<KeyT, AcceptedKeyTypes>)
 	{
 		return getKeyTypeInfo() == typeid(KeyT);
 	}
 	template<class PropsT>
-		requires(is_any_of<PropsT, type_list<PropsTypes...>>)
+		requires(is_any_same_of_v<PropsT, type_list<PropsTypes...>>)
 	bool propsIs() const
 	{
 		return std::holds_alternative<PropsT>(m_props);
@@ -61,8 +61,8 @@ public:
 	}
 	void pushAction(const action_props &props) const
 	{
-		if (GameGlobals::exist())
-			GameGlobals::instance().action_manager.addToTop(std::unique_ptr<AbstractAction>(createAction(props)));
+		if (GameManager::exist())
+			GameManager::instance().action_manager.addToTop(std::unique_ptr<AbstractAction>(createAction(props)));
 	}
 	template<class P, class K>
 		requires SchemeBindingPropsKeysConcept<K, AcceptedKeyTypes, P, PropsTypes...>
@@ -93,14 +93,14 @@ public:
 		return m_key_type_info;
 	}
 	template<class KeyT>
-		requires(is_any_of<KeyT, AcceptedKeyTypes>)
+		requires(is_any_same_of_v<KeyT, AcceptedKeyTypes>)
 	KeyT keyAs() const
-		requires(is_any_of<KeyT, AcceptedKeyTypes>)
+		requires(is_any_same_of_v<KeyT, AcceptedKeyTypes>)
 	{
 		return static_cast<KeyT>(m_key);
 	}
 	template<class PropsT>
-		requires(is_any_of<PropsT, type_list<PropsTypes...>>)
+		requires(is_any_same_of_v<PropsT, type_list<PropsTypes...>>)
 	const PropsT &propsAs() const
 	{
 		return std::get<PropsT>(m_props);

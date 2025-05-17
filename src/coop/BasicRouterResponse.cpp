@@ -1,6 +1,6 @@
-#include "coop/Router.hpp"
 #include "coop/TransferableAction.hpp"
 #include "game/GameObjectFabric.hpp"
+#include "coop/BasicRouterResponse.hpp"
 
 BasicRouterResponse::BasicRouterResponse(const rn::Json &data_json)
 {
@@ -16,7 +16,8 @@ BasicRouterResponse::BasicRouterResponse(const rn::Json &data_json)
 }
 
 BasicRouterResponse::BasicRouterResponse(const sf::Socket::Status &status)
-	: m_response_data(std::nullopt), m_status(status)
+	: m_response_data(std::nullopt),
+	  m_status(status)
 {
 }
 
@@ -69,7 +70,7 @@ std::unique_ptr<TransferableAction> BasicRouterResponse::action() const
 		throw std::bad_cast();
 	try
 	{
-		const auto author_id		= m_response_data->at(author_id_key);
+		const auto author_id	  = m_response_data->at(author_id_key);
 		const auto contributor_id = m_response_data->at(contributor_id_key);
 		GameObject *author, *contributor;
 		if (!author_id.is_null())
@@ -84,8 +85,7 @@ std::unique_ptr<TransferableAction> BasicRouterResponse::action() const
 	}
 	catch (rn::Json::out_of_range &err)
 	{
-		std::cerr << err.what()
-				  << " (probably author or contributor of action not found in game objects fabric) \n";
+		std::cerr << err.what() << " (probably author or contributor of action not found in game objects fabric) \n";
 		throw err;
 	}
 }
@@ -103,9 +103,9 @@ std::unique_ptr<TransferableObject> BasicRouterResponse::object() const
 		throw std::bad_cast();
 	try
 	{
-		auto transferable = TransferableObjectFabric::instance().get(*id())();
-		transferable->receiveJson(*data());
-		return transferable;
+		auto object = TransferableObjectFabric::instance().get(*id())();
+		object->receiveJson(*data());
+		return object;
 	}
 	catch (std::out_of_range &err)
 	{

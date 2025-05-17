@@ -1,7 +1,7 @@
 #include "game/Gun.hpp"
 #include "Helpers.hpp"
 #include "game/AbstractShip.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 #include "game/actions/ShootAction.hpp"
 
 
@@ -21,10 +21,10 @@ Gun::Gun(const AbstractShip *user)
 
 void Gun::shoot()
 {
-	if (GameGlobals::exist() && !has_rollback)
+	if (GameManager::exist() && !has_rollback)
 	{
 		auto direction{getTrajectory()};
-		GameGlobals::instance().action_manager.emplaceToTop<ShootAction>(
+		GameManager::instance().action_manager.emplaceToTop<ShootAction>(
 			this, nullptr,
 			rn::Json{
 				{ "direction", { { "x", direction.x }, { "y", direction.y } } }
@@ -35,9 +35,9 @@ void Gun::shoot()
 
 void Gun::fire()
 {
-	if (GameGlobals::exist())
+	if (GameManager::exist())
 	{
-		GameGlobals::instance().field.summonBullet(createBullet(), getTrajectory());
+		GameManager::instance().field.summonBullet(createBullet(), getTrajectory());
 		onShoot();
 		startRollback();
 	}

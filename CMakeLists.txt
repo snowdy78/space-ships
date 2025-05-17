@@ -20,6 +20,7 @@ function(target_link_sfml TARGET)
     target_link_libraries(${PROJECT_NAME} PUBLIC sfml-main)
 endfunction()
 
+
 FetchContent_Declare(RuneEngine
     GIT_REPOSITORY https://github.com/snowdy78/cmake-rune-engine.git
     GIT_TAG 0.3.0)

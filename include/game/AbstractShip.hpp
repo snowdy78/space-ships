@@ -61,7 +61,6 @@ public:
 	bool resolve(const Collidable *collidable) const override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 	void destroyFromField() override;
-	virtual AbstractShip *copy() const = 0;
 
 protected:
 

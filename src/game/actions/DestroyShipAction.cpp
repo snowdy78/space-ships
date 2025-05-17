@@ -1,7 +1,7 @@
 #include "game/actions/DestroyShipAction.hpp"
 #include "game/AbstractShip.hpp"
 #include "game/DamageDealer.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 
 const size_t DestroyShipAction::id = identify<DestroyShipAction>();
 
@@ -24,9 +24,9 @@ void DestroyShipAction::play()
 {
 	if (!m_ship)
         return;
-	if (GameGlobals::exist())
+	if (GameManager::exist())
 	{
-		GameGlobals::instance().field.remove(m_ship);
+		GameManager::instance().field.remove(m_ship);
 	}
 }
 

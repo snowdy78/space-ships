@@ -1,6 +1,6 @@
 #include "game/EnemyShip.hpp"
 #include "game/AbstractShip.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 #include "game/SpaceField.hpp"
 #include "game/actions/MoveShipAction.hpp"
 
@@ -36,10 +36,6 @@ void EnemyShip::summonCopy(SpaceField *field) const
 	field->appendShip<EnemyShip>();
 }
 
-AbstractShip *EnemyShip::copy() const
-{
-	return new EnemyShip();
-}
 rn::Vec2f EnemyShip::countMove() const
 {
 	if (!target)
@@ -64,19 +60,19 @@ void EnemyShip::rotation()
 void EnemyShip::movement()
 {
 	AbstractShip::movement();
-	if (!target || !GameGlobals::exist())
+	if (!target || !GameManager::exist())
 		return;
 	if (static_cast<int>(clock.getElapsedTime().asSeconds()) % 2 == 0)
 		randomly_move = std::nullopt;
 	if (static_cast<int>(clock.getElapsedTime().asSeconds()) % 3 == 1)
 	{
 		setMoveDirection(getDirection());
-		GameGlobals::instance().action_manager.emplaceToTop<MoveShipAction>(this, nullptr);
+		GameManager::instance().action_manager.emplaceToTop<MoveShipAction>(this, nullptr);
 	}
 	if (clock.getElapsedTime().asMilliseconds() % 1000 > 500)
 	{
 		setMoveDirection(Direction{ rn::math::nor(getDirection()) });
-		GameGlobals::instance().action_manager.emplaceToTop<MoveShipAction>(this, nullptr);
+		GameManager::instance().action_manager.emplaceToTop<MoveShipAction>(this, nullptr);
 	}
 }
 

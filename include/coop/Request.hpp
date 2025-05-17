@@ -4,10 +4,8 @@
 #include "decl.hpp"
 
 
-struct Request : public TransferableObject, public rn::Json
+struct Request : TransferObjectBase<Request>, rn::Json
 {
-	static const size_t id;
-public:
     using rn::Json::Json;
     Request() = default;
     void receiveJson(const rn::Json &json) override;

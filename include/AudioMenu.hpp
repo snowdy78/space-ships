@@ -2,7 +2,7 @@
 
 #include "components/GameInfo.hpp"
 #include "game/Camera2d.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 #include "components/Background.hpp"
 
 // audio distance playing
@@ -21,7 +21,7 @@ class AudioMenu : public rn::MenuBranch
 	Background background{};
 	GameInfo info;
 	std::unique_ptr<sf::Thread> th;
-	GameGlobals *space = nullptr;
+	GameManager *space = nullptr;
 	rn::Stopwatch fps_clock;
 	bool dev_mode = true;
 

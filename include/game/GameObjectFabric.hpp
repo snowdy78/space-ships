@@ -5,7 +5,7 @@
 #include "decl.hpp"
 
 template<class T>
-concept GameObjectConcept = std::is_base_of<GameObject, T>::value && !std::is_same_v<GameObject, T>;
+concept GameObjectConcept = std::is_base_of_v<GameObject, T> && !std::is_same_v<GameObject, T>;
 
 class GameObjectFabric
 {
@@ -31,18 +31,19 @@ public:
 
 	std::vector<std::unique_ptr<TransferableObject>> assign(const GameObjectFabricTranslator &translator);
 	std::vector<std::unique_ptr<TransferableObject>> update(const GameObjectFabricTranslator &translator);
-    void remove(const GameObjectFabricTranslator &translator, std::function<void(GameObject *)> on_remove = [](GameObject *) {});
+    void remove(const GameObjectFabricTranslator &translator, const std::function<void(GameObject *)> &on_remove = [](GameObject *) {});
 	GameObject *const &get(size_t id);
+	const GameObject *const &get(size_t id) const;
 	size_t push(GameObject *);
-	size_t find(GameObject *object);
+	size_t find(const GameObject *object) const;
 	void erase(size_t id);
 	void clear();
 	size_t size() const;
 };
 
-class GameObjectFabricTranslator : public TransferableObject
+class GameObjectFabricTranslator : public TransferObjectBase<GameObjectFabricTranslator>
 {
-	std::unordered_map<size_t, size_t> data_to_update{};
+	std::unordered_map<size_t, TransferJson> data_to_update{};
 	static constexpr size_t npos = -1;
     friend class GameObjectFabric;
 public:
@@ -69,9 +70,7 @@ public:
 
 	void receiveJson(const rn::Json &json) override;
 	TransferableObject::TransferJson toJson() const override;
-	void updateFabric();
 
 private:
 	TranslateType translate_type = TranslateType::Append;
-	static size_t id;
 };

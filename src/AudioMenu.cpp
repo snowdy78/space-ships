@@ -17,19 +17,19 @@ AudioMenu::AudioMenu(sf::RenderWindow &window)
 AudioMenu::~AudioMenu()
 {
 	window.setView(window.getDefaultView());
-	GameGlobals::clear();
+	GameManager::clear();
 }
 
 void AudioMenu::start()
 {
-	GameGlobals::create(window, [&]() {
+	GameManager::create(window, [&]() {
 		background.setPosition(space->camera.getPosition());
 		info.updateData("camera_pos");
 		info.updateData("view_area");
 		info.updateData("fps");
 	});
-	if (GameGlobals::exist())
-		space = &GameGlobals::instance();
+	if (GameManager::exist())
+		space = &GameManager::instance();
 	info.addData("camera_pos", [&]() -> sf::String {
 		rn::Vec2i p{ space->camera.getPosition() };
 		return "{ " + std::to_string(p.x) + ", " + std::to_string(p.y) + " }";

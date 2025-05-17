@@ -27,24 +27,48 @@ class AbstractAction;
 
 class Transferable;
 
+template<typename... Types>
+struct type_list {};
+
 template<class Base, class T>
 struct is_fabric_type
 {
-	constexpr static const bool value = std::is_base_of_v<Base, T> && !std::is_same_v<Base, T>;
+	constexpr static bool value = std::is_base_of_v<Base, T> && !std::is_same_v<Base, T>;
 };
 
 template<class Base, class T>
-constexpr const bool is_fabric_type_v = is_fabric_type<Base, T>::value;
+constexpr bool is_fabric_type_v = is_fabric_type<Base, T>::value;
 
-template<typename... Types>
-struct type_list
+template<class List, template<class T, class... Args> class Pred, class... Args>
+struct is_any_of
 {
+	constexpr static bool value = []<typename... Types>(type_list<Types...>) {
+		return (Pred<Types, Args...>::value || ...);
+	}(List());
+};
+template<class List, template<class... Args> class Pred, class... Args>
+struct is_all_of
+{
+	constexpr static bool value = []<typename... Types>(type_list<Types...>) {
+		return (Pred<Types, Args...>::value && ...);
+	}(List());
 };
 
+template<class List, template<class T, class... Args> class Pred, class... Args>
+constexpr bool is_any_of_v = is_any_of<List, Pred, Args...>::value;
+
+template<class List, template<class T, class... Args> class Pred, class... Args>
+constexpr bool is_all_of_v = is_all_of<List, Pred, Args...>::value;
+
+
 template<typename T, typename List>
-concept is_any_of = []<typename... Types>(type_list<Types...>) {
-	return (std::is_same_v<Types, T> || ...);
-}(List());
+struct is_any_same_of
+{
+	constexpr static bool value = is_any_of_v<List, std::is_same, T>;
+};
+template<class T, class List>
+constexpr bool is_any_same_of_v = is_any_same_of<T, List>::value;
+
 
 template<class T>
 concept BindingSeparatorConcept = std::is_enum_v<T>;
@@ -52,6 +76,11 @@ enum class DefaultBindingSeparators
 {
 	Controls
 };
+
+class TransferDataConverter;
+struct ConvertFunction;
+template<class FromType, class ToType, class ConvertFunc = ConvertFunction>
+class Converted;
 
 template<class PropsT>
 concept BindingPropsConcept = requires {
@@ -68,6 +97,8 @@ class ControlsScheme;
 using Controls = ControlsScheme<DefaultBindingSeparators, DefaultBindingProps, size_t, type_list<sf::Keyboard::Key, sf::Mouse::Button>>;
 
 class TransferableObject;
+template<class T>
+class TransferObjectBase;
 class TransferableObjectFabric;
 class TransferableAction;
 class TransferableActionFabric;
@@ -85,7 +116,7 @@ template<template<class T> class Container, class Ty>
 class AbstractManager;
 class ActionManager;
 class FileLoader;
-class GameGlobals;
+class GameManager;
 
 class GameObject;
 class GameObjectFabric;
@@ -108,3 +139,5 @@ class Hittable;
 class AbstractAction;
 
 class ShootAction;
+
+#include "decl.inl"

@@ -4,56 +4,34 @@
 #include "RuneEngine/EngineDecl.hpp"
 #include "coop/Request.hpp"
 #include "coop/UdpRouter.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 #include "game/GameObjectFabric.hpp"
 #include "game/SpaceField.hpp"
 #include "game/actions/AbstractAction.hpp"
 
-class TestAction : public TransferableAction
-{
-public:
-	TestAction(GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = nullptr)
-		: TransferableAction(author, contributor, props)
-	{
-	}
-	void play() override
-	{
-		std::cout << "action played!";
-	}
-	TransferJson toJson() const override
-	{
-		return { id };
-	}
-	AbstractAction *copy() const override
-	{
-		return new TestAction();
-	}
-private:
-	static const size_t id;
-};
-const size_t TestAction::id = identify<TestAction>();
-
-
 ConnectToGameBranch::~ConnectToGameBranch()
 {
 	window.setView(window.getDefaultView());
-	GameGlobals::clear();
+	GameManager::clear();
 }
 
 void ConnectToGameBranch::start()
 {
 	auto res = rn::Vec2f(rn::VideoSettings::getResolution());
-	GameGlobals::create(window, [this] {
-		background.setPosition(space->camera.getPosition());
-	});
-	if (GameGlobals::exist())
-		space = &GameGlobals::instance();
+	GameManager::host(
+		window,
+		[this] {
+			background.setPosition(space->camera.getPosition());
+		},
+		{ host_ip, host_port }
+	);
+	if (GameManager::exist())
+		space = &GameManager::instance();
 	rn::Table table{
 		5,
 		10,
 		{ res.x / 5, res.y / 10 }
 	};
-	space->createOnline({host_ip, host_port});
 	online	= space->online.get();
 	auto cs = online->tcp->connect(host_ip, host_port);
 	if (cs == sf::Socket::Done)
@@ -106,15 +84,6 @@ void ConnectToGameBranch::onEvent(sf::Event &event)
 		next_branch<MainMenu>(window);
 	space->field.onEvent(event);
 	space->action_manager.onEvent(event);
-	if (rn::isKeydown(sf::Keyboard::N))
-	{
-		std::cout << "sending an action...\n";
-		TestAction action(space->player, nullptr, {});
-		if (auto status = online->tcp->send(&action); status == sf::Socket::Status::Done)
-		{
-			std::cout << "action was successfully send\n";
-		}
-	}
 }
 
 void ConnectToGameBranch::receivePackets() const
@@ -133,8 +102,15 @@ void ConnectToGameBranch::receivePackets() const
 				{
 					auto objects = GameObjectFabric::instance().update(*translator);
 					for (auto &unique_object: objects)
+					{
+						std::cout << "appending a new object on space field...\n";
 						if (auto space_object = dynamic_cast<SpaceFieldObject *>(unique_object.get()))
+						{
+							std::cout << "summoning...\n";
 							space_object->summonCopy(&space->field);
+							std::cout << "summoned!\n";
+						}
+					}
 				}
 				else if (translator->getTranslateType() == GameObjectFabricTranslator::TranslateType::Clear)
 				{
@@ -145,11 +121,13 @@ void ConnectToGameBranch::receivePackets() const
 				}
 			}
 			if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))
+			{
+				std::cout << "received space field object\n";
 				space_object->summonCopy(&space->field);
+				std::cout << "summoned object\n";
+			}
 		}
 		if (response.is_action())
-		{
 			space->action_manager.receiveToTop(response.action());
-		}
 	}
 }

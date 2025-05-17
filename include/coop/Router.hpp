@@ -4,6 +4,8 @@
 #include <variant>
 #include "TransferableAction.hpp"
 #include "TransferableObject.hpp"
+#include "BasicRouterResponse.hpp"
+#include "TransferDataConverter.hpp"
 #include "decl.hpp"
 
 enum class TransferType
@@ -11,45 +13,19 @@ enum class TransferType
 	Tcp, Udp
 };
 
-class BasicRouterResponse
-{
-	std::optional<rn::Json> m_response_data = std::nullopt;
-	sf::Socket::Status m_status								  = sf::Socket::Done;
-	BasicRouterResponse(const rn::Json &data_json = {});
-	BasicRouterResponse(const sf::Socket::Status &status);
-	template<class RespT>
-	friend class BasicRouter;
-
-public:
-	static constexpr const char *id_key				= "id";
-	static constexpr const char *data_key			= "data";
-	static constexpr const char *author_id_key		= "author_id";
-	static constexpr const char *contributor_id_key = "contributor_id";
-	static constexpr const char *type_key			= "type";
-	static constexpr const char *object_key = "object";
-	static constexpr const char *action_key = "action";
-	std::optional<size_t> id() const;
-	std::optional<rn::Json> data() const;
-	bool success() const;
-	sf::Socket::Status status() const;
-	bool is_unknown() const;
-	bool is_action() const;
-	bool is_object() const;
-	std::unique_ptr<TransferableObject> object() const;
-	std::unique_ptr<TransferableAction> action() const;
-	const rn::Json &json() const;
-};
 template<class RespT>
 class BasicRouter
 {
+
 public:
 	using Response	   = RespT;
 	using StatusOrJson = std::variant<sf::Socket::Status, rn::Json>;
 
 	BasicRouter()		   = default;
 	virtual ~BasicRouter() = default;
+	static Transferable::TransferJson prepareObject(const Transferable::TransferJson &);
 	sf::Socket::Status send(const TransferableObject *data);
-	sf::Socket::Status send(TransferableAction *action);
+	sf::Socket::Status send(const TransferableAction *action);
 	Response receive();
 
 protected:
@@ -58,15 +34,27 @@ protected:
 };
 
 template<class RespT>
+Transferable::TransferJson BasicRouter<RespT>::prepareObject(const Transferable::TransferJson &transfer_data)
+{
+	if (auto conversion = TransferDataConverter::instance().find(transfer_data.id()); conversion.has_value())
+	{
+		std::cout << "converting object...\n"; 
+		auto object = TransferableObjectFabric::instance().get(conversion->identifier)();
+		return { conversion->identifier, conversion->convert(transfer_data.data()) };
+	}
+	return transfer_data;
+}
+
+template<class RespT>
 sf::Socket::Status BasicRouter<RespT>::send(const TransferableObject *data)
 {
 	auto send_data	  = data->toJson();
 	send_data[BasicRouterResponse::type_key] = BasicRouterResponse::object_key;
-	return sendJson(send_data);
+	return sendJson(prepareObject(send_data));
 }
 
 template<class RespT>
-sf::Socket::Status BasicRouter<RespT>::send(TransferableAction *action)
+sf::Socket::Status BasicRouter<RespT>::send(const TransferableAction *action)
 {
 	using namespace std::string_literals;
 	if (!action)

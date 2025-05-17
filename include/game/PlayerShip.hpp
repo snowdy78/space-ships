@@ -1,15 +1,13 @@
 #pragma once
 
-#include <variant>
 #include "AbstractShip.hpp"
 #include "Camera2d.hpp"
-#include "actions/MoveShipAction.hpp"
+#include "ConnectedPlayerShip.hpp"
 #include "components/ControlsScheme/ControlsScheme.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
 #include "game/actions/ShootAction.hpp"
-
-
+#include "coop/TransferDataConverter.hpp"
 enum class PlayerControlsTypeSep
 {
 	Movement,
@@ -52,11 +50,10 @@ using PlayerControls = ControlsScheme<
 	ShootProps
 	>;
 
-
-class PlayerShip : public AbstractShip
+class PlayerShip : public AbstractShip, public Converted<PlayerShip, ConnectedPlayerShip>
 {
 	inline static loading<sf::Texture> texture		= FileLoader::Instance().addTextureToUpload("img/ship.png").get();
-	constexpr static const float shift_acceleration = 1.5f;
+	constexpr static float shift_acceleration = 1.5f;
 	static const PlayerControls basic_controls;
 	Camera2d *camera = nullptr;
 
@@ -76,6 +73,6 @@ public:
 	void onRotation() override;
 	void onHit() override;
 	void summonCopy(SpaceField *field) const override;
-	AbstractShip *copy() const override;
 	rn::Vec2f countMove() const override;
+	TransferJson toJson() const override;
 };

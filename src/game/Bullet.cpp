@@ -1,6 +1,6 @@
 #include "game/Bullet.hpp"
 #include "game/AbstractShip.hpp"
-#include "game/GameGlobals.hpp"
+#include "game/GameManager.hpp"
 #include "game/Gun.hpp"
 #include "game/SpaceField.hpp"
 #include "game/actions/DealDamageAction.hpp"
@@ -97,8 +97,8 @@ void Bullet::move(const rn::Vec2f &p)
 
 void Bullet::destroyFromField()
 {
-	if (GameGlobals::exist())
-		GameGlobals::instance().action_manager.emplaceToTop<DestroyBulletAction>(this);
+	if (GameManager::exist())
+		GameManager::instance().action_manager.emplaceToTop<DestroyBulletAction>(this);
 }
 
 void Bullet::updateCollider()
@@ -129,9 +129,9 @@ const sf::Sprite &Bullet::getSprite() const
 }
 void Bullet::onCollisionEnter(Collidable *obstacle)
 {
-	if (auto hittable = dynamic_cast<Hittable *>(obstacle); GameGlobals::exist())
+	if (auto hittable = dynamic_cast<Hittable *>(obstacle); GameManager::exist())
 	{
-		GameGlobals::instance().action_manager.emplaceToTop<DealDamageAction>(this, hittable);
+		GameManager::instance().action_manager.emplaceToTop<DealDamageAction>(this, hittable);
 		destroyFromField();
 	}
 }
