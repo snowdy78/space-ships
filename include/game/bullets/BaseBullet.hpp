@@ -3,6 +3,7 @@
 #include "components/effects/GlowingEffect.hpp"
 #include "decl.hpp"
 #include "game/Bullet.hpp"
+#include "game/GameObjectBase.hpp"
 
 struct bullet_sound : SoundDisperseEntity
 {
@@ -10,7 +11,7 @@ struct bullet_sound : SoundDisperseEntity
     void start() override;
 };
 
-class BaseBullet : public Bullet
+class BaseBullet : public Bullet, public GameObjectBase<BaseBullet>
 {
 	static constexpr float initial_damage = 25.f;
 	inline static loading<sf::Texture> texture

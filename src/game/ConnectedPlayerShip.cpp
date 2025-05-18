@@ -33,10 +33,5 @@ rn::Vec2f ConnectedPlayerShip::countMove() const
 
 void ConnectedPlayerShip::summonCopy(SpaceField& field) const
 {
-	field.appendShip<ConnectedPlayerShip>();
-}
-
-Transferable::TransferJson ConnectedPlayerShip::toJson() const
-{
-	return { identifier };
+	field.summonShip<ConnectedPlayerShip>();
 }

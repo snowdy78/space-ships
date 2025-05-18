@@ -3,9 +3,10 @@
 #include "AbstractShip.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
+#include "GameObjectBase.hpp"
 
 
-class EnemyShip : public AbstractShip
+class EnemyShip : public AbstractShip, public GameObjectBase<EnemyShip>
 {
 	inline static loading<sf::Texture> texture = FileLoader::Instance().addTextureToUpload("img/enemy_ship.png").get();
 	static constexpr float min_distance_to_target = 100.f;

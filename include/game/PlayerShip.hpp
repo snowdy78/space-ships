@@ -6,8 +6,8 @@
 #include "components/ControlsScheme/ControlsScheme.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
-#include "game/actions/ShootAction.hpp"
 #include "coop/TransferDataConverter.hpp"
+
 enum class PlayerControlsTypeSep
 {
 	Movement,
@@ -74,5 +74,4 @@ public:
 	void onHit() override;
 	void summonCopy(SpaceField &field) const override;
 	rn::Vec2f countMove() const override;
-	TransferJson toJson() const override;
 };

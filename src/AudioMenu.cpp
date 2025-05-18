@@ -119,7 +119,7 @@ void AudioMenu::summonShip()
 	if (!space)
 		return;
 	auto res = rn::Vec2f(rn::VideoSettings::getResolution());
-	space->field.appendShip<EnemyShip>();
+	space->field.summonShip<EnemyShip>();
 	auto ship = dynamic_cast<EnemyShip *>(space->field[space->field.size() - 1]);
 	if (ship)
 	{
@@ -132,12 +132,6 @@ void AudioMenu::summonShip()
 }
 
 AudioMenu::ShipCamera::ShipCamera(sf::RenderTarget &target, std::function<void()> update_on_move)
-	: target(target),
-	  update_on_move(update_on_move)
+	: TargetCamera(target, std::move(update_on_move))
 {}
 
-void AudioMenu::ShipCamera::onCameraMove()
-{
-	target.setView(getView());
-	update_on_move();
-}

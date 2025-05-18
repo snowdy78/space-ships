@@ -1,10 +1,12 @@
 #pragma once
 
+#include "SoundDisperseEntity.hpp"
 #include "components/FileLoader.hpp"
+#include "game/GameObject.hpp"
 #include "game/Gun.hpp"
+#include "game/GameObjectBase.hpp"
 
-
-class Pistol : public Gun
+class Pistol : public Gun, public GameObjectBase<Pistol>
 {
 	inline static loading<sf::SoundBuffer> sound_buffer = FileLoader::Instance().addSoundToUpload("shoot.ogg").get();
 
@@ -12,7 +14,7 @@ class Pistol : public Gun
 	SoundDisperseTraits shoot_sound_traits{ 150.f, 500.f };
 
 public:
-	Pistol(const AbstractShip *ship);
+	using Gun::Gun;
 	void summonBullet() const override;
 	rn::Vec2f getTrajectory() const override;
 	Gun *copy() const override;

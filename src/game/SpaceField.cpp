@@ -1,6 +1,6 @@
 #include "game/SpaceField.hpp"
 
-SpaceField::SpaceField(Camera2d *camera)
+SpaceField::SpaceField(const Camera2d *camera)
 	: camera(camera),
 	  mother(camera)
 {
@@ -12,7 +12,7 @@ SpaceField::~SpaceField()
 		delete ship;
 }
 
-void SpaceField::setCamera(Camera2d *camera2d)
+void SpaceField::setCamera(const Camera2d *camera2d)
 {
 	camera = camera2d;
 	mother.setCamera(camera2d);

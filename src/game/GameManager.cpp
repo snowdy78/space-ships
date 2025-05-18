@@ -16,8 +16,7 @@ GameManager::GameManager(sf::RenderTarget &target, func_update_on_move update_on
 
 void GameManager::createPlayer()
 {
-	field.appendShip<PlayerShip>(&camera);
-	player = field[0];
+	player = field.summonShip<PlayerShip>(&camera);
 }
 
 void GameManager::createHost(OnlineTraits &&traits)

@@ -6,9 +6,7 @@ void Request::receiveJson(const rn::Json &json)
     rn::Json::operator=(json);
 }
 
-Request::TransferJson Request::toJson() const 
+rn::Json Request::getData() const 
 {
-    return {
-        identifier, *this
-    };
+	return static_cast<const rn::Json &>(*this);
 }

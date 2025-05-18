@@ -44,7 +44,7 @@ private:
 
 public:
 	Collidable();
-	~Collidable() override = 0;
+	virtual ~Collidable() = 0;
 	virtual const Collider *getCollider() const = 0;
 	static void updateCollisionState();
 	virtual void onCollisionEnter(Collidable *collidable) {}

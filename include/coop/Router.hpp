@@ -39,7 +39,6 @@ Transferable::TransferJson BasicRouter<RespT>::prepareObject(const Transferable:
 	if (auto conversion = TransferDataConverter::instance().find(transfer_data.id()); conversion.has_value())
 	{
 		std::cout << "converting object...\n"; 
-		auto object = TransferableObjectFabric::instance().get(conversion->identifier)();
 		return { conversion->identifier, conversion->convert(transfer_data.data()) };
 	}
 	return transfer_data;

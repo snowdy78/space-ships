@@ -4,9 +4,6 @@
 #include "game/GameManager.hpp"
 #include "game/bullets/BaseBullet.hpp"
 
-Pistol::Pistol(const AbstractShip *_ship)
-	: Gun(_ship)
-{}
 void Pistol::summonBullet() const
 {
 	if (GameManager::exist())
@@ -19,7 +16,7 @@ void Pistol::summonBullet() const
 }
 Gun *Pistol::copy() const
 {
-	return new Pistol(user);
+	return new Pistol;
 }
 void Pistol::onShoot()
 {
@@ -41,6 +38,6 @@ float Pistol::getMillisDelay() const
 rn::Vec2f Pistol::getTrajectory() const
 {
 	auto angle
-		= rn::math::rot(ship->getDirection()) + rn::math::degrees(rn::random::real(-1.f, 1.f) * disperse_angle / 2.f);
+		= rn::math::rot(user->getDirection()) + rn::math::degrees(rn::random::real(-1.f, 1.f) * disperse_angle / 2.f);
 	return rn::math::direction(angle);
 }

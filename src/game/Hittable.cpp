@@ -24,6 +24,11 @@ void Hittable::HealthBar::updateHealthBar()
 	back_bar.setSize({ bar_size.x - health_bar_width, bar_size.y });
 	back_bar.setPosition(fill_bar.getPosition().x + fill_bar.getSize().x, 1);
 }
+
+Hittable::~Hittable()
+{
+}
+
 float Hittable::getMaxHealth() const
 {
 	return max_health;

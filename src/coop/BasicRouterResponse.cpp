@@ -1,6 +1,7 @@
 #include "coop/TransferableAction.hpp"
-#include "game/GameObjectFabric.hpp"
+#include "game/GameObjectFactory.hpp"
 #include "coop/BasicRouterResponse.hpp"
+#include "coop/TransferableObject.hpp"
 
 BasicRouterResponse::BasicRouterResponse(const rn::Json &data_json)
 {
@@ -74,11 +75,11 @@ std::unique_ptr<TransferableAction> BasicRouterResponse::action() const
 		const auto contributor_id = m_response_data->at(contributor_id_key);
 		GameObject *author, *contributor;
 		if (!author_id.is_null())
-			author = GameObjectFabric::instance().get(author_id);
+			author = GameObjectFactory::instance().get(author_id);
 		else
 			author = nullptr;
 		if (!contributor_id.is_null())
-			contributor = GameObjectFabric::instance().get(contributor_id);
+			contributor = GameObjectFactory::instance().get(contributor_id);
 		else
 			contributor = nullptr;
 		return TransferableActionFabric::instance().get(*id())(author, contributor, *data());
@@ -103,9 +104,14 @@ std::unique_ptr<TransferableObject> BasicRouterResponse::object() const
 		throw std::bad_cast();
 	try
 	{
-		auto object = TransferableObjectFabric::instance().get(*id())();
-		object->receiveJson(*data());
-		return object;
+		auto object = GameObjectFactory::create(*id());
+		auto transferable = dynamic_cast<TransferableObject *>(object.get());
+		if (!transferable)
+			throw std::bad_cast();
+
+		transferable->receiveJson(*data());
+		auto o = object.release(); // object now is transferable object, so, release pointer
+		return std::unique_ptr<TransferableObject>(transferable);
 	}
 	catch (std::out_of_range &err)
 	{

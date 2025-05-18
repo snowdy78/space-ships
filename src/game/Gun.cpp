@@ -4,7 +4,6 @@
 #include "game/GameManager.hpp"
 #include "game/actions/ShootAction.hpp"
 
-
 Gun::~Gun() = default;
 
 void Gun::startRollback()

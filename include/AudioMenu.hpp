@@ -9,14 +9,10 @@
 
 class AudioMenu : public rn::MenuBranch
 {
-	class ShipCamera : public Camera2d
+	class ShipCamera : public TargetCamera
 	{
-		sf::RenderTarget &target;
-		std::function<void()> update_on_move;
-
 	public:
 		ShipCamera(sf::RenderTarget &target, std::function<void()> update_on_move);
-		virtual void onCameraMove() override;
 	};
 	Background background{};
 	GameInfo info;

@@ -1,8 +1,8 @@
 #include "game/BulletMother.hpp"
 
 BulletMother::ChildBullet::ChildBullet(BulletMother *mother, Bullet *bullet)
-	: mother(mother),
-	  bullet(bullet)
+	: bullet(bullet),
+	  mother(mother)
 
 {}
 
@@ -15,7 +15,7 @@ void BulletMother::ChildBullet::update()
 		{
 			clock.start();
 		}
-		else if (!clock.is_stopped() && clock.time<std::chrono::milliseconds>().count() > life_time_ms)
+		else if (!clock.is_stopped() && static_cast<float>(clock.time<std::chrono::milliseconds>().count()) > life_time_ms)
 		{
 			clock.stop();
 			if (isOutsideViewArea())
@@ -45,11 +45,11 @@ bool BulletMother::ChildBullet::isOutsideViewArea() const
 {
 	if (!mother)
 		return false;
-	sf::View view = std::move(mother->getViewArea());
+	sf::View view = mother->getViewArea();
 	sf::FloatRect view_area(view.getCenter() - view.getSize() / 2.f, view.getSize());
 	return !view_area.contains(bullet->getPosition());
 }
-BulletMother::BulletMother(Camera2d *camera)
+BulletMother::BulletMother(const Camera2d *camera)
 	: camera(camera)
 {}
 
@@ -63,7 +63,7 @@ BulletMother::iterator BulletMother::end()
 	return bullets.end();
 }
 
-void BulletMother::setCamera(Camera2d *camera2d)
+void BulletMother::setCamera(const Camera2d *camera2d)
 {
 	camera = camera2d;
 }

@@ -29,6 +29,7 @@ protected:
 	HealthBar health_bar{ *this };
 
 public:
+	~Hittable() override;
 	float getMaxHealth() const;
 	void takeDamage(float damage);
 	float getHealth() const;

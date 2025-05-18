@@ -3,6 +3,10 @@
 
 SpaceFieldObject::SpaceFieldObject() = default;
 
+SpaceFieldObject::~SpaceFieldObject()
+{
+}
+
 void SpaceFieldObject::destroy()
 {
     onDestroy();

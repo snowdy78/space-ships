@@ -5,12 +5,14 @@
 
 class DamageDealer : public virtual GameObject
 {
-    float damage;
+	float damage;
+
 protected:
 	void setDamage(float damage);
-	virtual void onDealDamage(Hittable *, float damage) {}
+	virtual void onDealDamage(Hittable *, float damage);
 public:
 	DamageDealer(float damage = 0.f);
+	~DamageDealer() override;
 	void dealDamage(Hittable *hittable);
 	float getDamage() const;
 };

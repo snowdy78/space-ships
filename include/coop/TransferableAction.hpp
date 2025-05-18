@@ -18,7 +18,7 @@ public:
 	GameObject *author;
 	GameObject *contributor;
 	rn::Json props;
-	TransferableActionProps(GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = {});
+	TransferableActionProps(GameObject *author = nullptr, GameObject *contributor = nullptr, rn::Json props = {});
 };
 
 class TransferableAction : public AbstractAction, public Transferable

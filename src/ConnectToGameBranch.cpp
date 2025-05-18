@@ -3,11 +3,9 @@
 #include "MainMenu.hpp"
 #include "RuneEngine/EngineDecl.hpp"
 #include "coop/Request.hpp"
-#include "coop/UdpRouter.hpp"
 #include "game/GameManager.hpp"
-#include "game/GameObjectFabric.hpp"
+#include "game/GameObjectTranslator.hpp"
 #include "game/SpaceField.hpp"
-#include "game/actions/AbstractAction.hpp"
 
 ConnectToGameBranch::~ConnectToGameBranch()
 {
@@ -96,25 +94,23 @@ void ConnectToGameBranch::receivePackets() const
 		if (response.is_object())
 		{
 			auto object = response.object();
-			if (auto translator = dynamic_cast<GameObjectFabricTranslator *>(object.get()))
+			if (auto translator = dynamic_cast<GameObjectTranslator *>(object.get()))
 			{
-				if (translator->getTranslateType() == GameObjectFabricTranslator::TranslateType::Append)
+				if (translator->getTranslateType() == GameObjectTranslator::TranslateType::Append)
 				{
-					auto objects = GameObjectFabric::instance().update(*translator);
-					for (auto &unique_object: objects)
-					{
+					GameObjectFactory::instance().update(*translator, [this](const std::unique_ptr<GameObject> &object) {
 						std::cout << "appending a new object on space field...\n";
-						if (auto space_object = dynamic_cast<SpaceFieldObject *>(unique_object.get()))
+						if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))
 						{
 							std::cout << "summoning...\n";
 							space_object->summonCopy(space->field);
 							std::cout << "summoned!\n";
 						}
-					}
+					});
 				}
-				else if (translator->getTranslateType() == GameObjectFabricTranslator::TranslateType::Clear)
+				else if (translator->getTranslateType() == GameObjectTranslator::TranslateType::Clear)
 				{
-					GameObjectFabric::instance().remove(*translator, [&](GameObject *game_object) {
+					GameObjectFactory::instance().remove(*translator, [&](GameObject *game_object) {
 						if (auto space_object = dynamic_cast<SpaceFieldObject *>(game_object))
 							space_object->destroy();
 					});

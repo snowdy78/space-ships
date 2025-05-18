@@ -4,7 +4,7 @@
 #include "decl.hpp"
 #include "game/GameObject.hpp"
 
-class Gun : public sf::Transformable, public rn::LogicalObject, public GameObject
+class Gun : public sf::Transformable, public rn::LogicalObject, public virtual GameObject
 {
 	rn::Stopwatch clock;
 	bool has_rollback = false;

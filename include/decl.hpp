@@ -99,7 +99,6 @@ using Controls = ControlsScheme<DefaultBindingSeparators, DefaultBindingProps, s
 class TransferableObject;
 template<class T>
 class TransferObjectBase;
-class TransferableObjectFabric;
 class TransferableAction;
 class TransferableActionFabric;
 class BasicRouterResponse;
@@ -119,8 +118,8 @@ class FileLoader;
 class GameManager;
 
 class GameObject;
-class GameObjectFabric;
-class GameObjectFabricTranslator;
+class GameObjectFactory;
+class GameObjectTranslator;
 
 class RigitBody2d;
 class Bullet;

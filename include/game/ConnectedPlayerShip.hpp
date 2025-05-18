@@ -16,5 +16,4 @@ public:
 	rn::Vec2f countMove() const override;
 	void summonCopy(SpaceField &field) const override;
 	void receiveJson(const rn::Json &json) override;
-	TransferJson toJson() const override;
 };

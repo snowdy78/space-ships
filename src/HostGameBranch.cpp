@@ -4,8 +4,9 @@
 #include "coop/Request.hpp"
 #include "coop/UdpRouter.hpp"
 #include "game/GameManager.hpp"
-#include "game/GameObjectFabric.hpp"
+#include "game/GameObjectFactory.hpp"
 #include "game/SpaceField.hpp"
+#include "game/GameObjectTranslator.hpp"
 
 HostGameBranch::~HostGameBranch()
 {
@@ -94,9 +95,9 @@ void HostGameBranch::receivePackets() const
 				if (request.contains("type") && request["type"] == "connect")
 				{
 					std::cout << "sending game data...\n";
-					GameObjectFabricTranslator translator;
+					GameObjectTranslator translator;
 					translator.assignUpdateData(
-						GameObjectFabric::instance().begin(), GameObjectFabric::instance().end()
+						GameObjectFactory::instance().begin(), GameObjectFactory::instance().end()
 					);
 					auto status = online->tcp->send(&translator);
 					if (status != sf::Socket::Done)

@@ -90,12 +90,6 @@ rn::Vec2f PlayerShip::countMove() const
 {
 	return getAcceleration() * getVelocity() * getMoveDirection();
 }
-
-Transferable::TransferJson PlayerShip::toJson() const
-{
-	return { identifier };
-}
-
 void PlayerShip::onRotation()
 {
 	sf::Listener::setDirection({ getDirection().x, getDirection().y, 0.f });
@@ -108,5 +102,5 @@ void PlayerShip::onHit()
 }
 void PlayerShip::summonCopy(SpaceField &field) const
 {
-	field.appendShip<PlayerShip>();
+	field.summonShip<PlayerShip>();
 }

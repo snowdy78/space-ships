@@ -1,12 +1,12 @@
 #include "game/GameObject.hpp"
-#include "game/GameObjectFabric.hpp"
+#include "game/GameObjectFactory.hpp"
 
 GameObject::GameObject()
-    : id(GameObjectFabric::instance().push(this)) 
+    : id(GameObjectFactory::instance().push(this)) 
 {   
 }
 
-size_t GameObject::getGameObjectId() const
+size_t GameObject::hash() const
 {
 	return id;
 }

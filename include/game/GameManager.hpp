@@ -8,6 +8,7 @@
 #include "components/TargetCamera.hpp"
 #include "coop/TcpRouter.hpp"
 #include "coop/UdpRouter.hpp"
+#include "GameSession.hpp"
 
 class GameManager 
 {
@@ -45,9 +46,9 @@ private:
     inline static std::unique_ptr<GameManager> instance_ptr = nullptr;
 public:
     TargetCamera camera;
-    ActionManager action_manager;
     SpaceField field;
     AbstractShip *player = nullptr;
+    ActionManager action_manager;
     EffectManager effect_manager;
     SoundManager sound_manager;
     std::unique_ptr<OnlineTraits> online{nullptr};

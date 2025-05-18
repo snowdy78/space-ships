@@ -33,16 +33,19 @@ public:
 
 private:
 	std::vector<ChildBullet> bullets{};
-	Camera2d *camera = nullptr;
+	/**
+	 * @brief нужно для определения области существования пуль (чтобы они уничтожались, выходя за пределы видимости)
+	 */
+	const Camera2d *camera = nullptr;
 
 public:
-	BulletMother(Camera2d *camera = nullptr);
+	BulletMother(const Camera2d *camera = nullptr);
 	using iterator		 = std::vector<ChildBullet>::iterator;
 	using const_iterator = std::vector<ChildBullet>::const_iterator;
 
 	iterator begin();
 	iterator end();
-	void setCamera(Camera2d *camera2d);
+	void setCamera(const Camera2d *camera2d);
 	const Camera2d *getCamera() const;
 	const_iterator cbegin() const;
 	const_iterator cend() const;

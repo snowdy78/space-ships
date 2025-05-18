@@ -6,8 +6,8 @@
 #include "game/BulletMother.hpp"
 
 
-template<class T>
-concept ShipConcept = std::is_base_of_v<AbstractShip, T> && !std::is_abstract_v<T>;
+template<class T, class... Args>
+concept ShipConcept = std::is_base_of_v<AbstractShip, T> && !std::is_abstract_v<T> && requires(Args const &...args) { T(args...); };
 template<class T>
 concept BulletConcept = std::is_base_of_v<Bullet, T> && !std::is_abstract_v<T>;
 
@@ -22,19 +22,19 @@ public:
 private:
 	ships_container ships{};
 
-	Camera2d *camera;
+	const Camera2d *camera;
 	BulletMother mother{camera};
 
 public:
 	using iterator		 = std::vector<AbstractShip *>::iterator;
 	using const_iterator = std::vector<AbstractShip *>::const_iterator;
 
-	SpaceField(Camera2d *camera = nullptr);
+	SpaceField(const Camera2d *camera = nullptr);
 	SpaceField(const SpaceField &field) = delete;
 	SpaceField(SpaceField &&) noexcept = default;
 	~SpaceField() override;
 
-	void setCamera(Camera2d *camera2d);
+	void setCamera(const Camera2d *camera2d);
 	const Camera2d *getCamera() const;
 	const BulletMother &getBulletMother() const;
 	void start() override;
@@ -50,10 +50,11 @@ public:
 	size_t size() const;
 	void clear();
 
-	template<ShipConcept T, class... Args>
-	void appendShip(const Args &...args) noexcept;
+	template<class T, class... Args>
+		requires (ShipConcept<T, Args...>)
+	AbstractShip *summonShip(const Args &...args) noexcept;
 	template<BulletConcept BulletT>
-	void summonBullet(const std::function<void(BulletT &)> &init, const Gun *gun) noexcept;
+	Bullet *summonBullet(const std::function<void(BulletT &)> &init, const Gun *gun) noexcept;
 	void destroyBullet(const Bullet *const &bullet);
 	virtual void onObjectAppend(GameObject *object) const
 	{
@@ -66,22 +67,25 @@ public:
 };
 
 
-template<ShipConcept T, class... Args>
-void SpaceField::appendShip(const Args &...args) noexcept
+template<class T, class... Args>
+	requires(ShipConcept<T, Args...>)
+AbstractShip *SpaceField::summonShip(const Args &...args) noexcept
 {
-	auto ship = new T(args...);
+	T *ship = new T(args...);
 	ships.push_back(ship);
 	this->onObjectAppend(ship);
+	return ship;
 }
 
 template<BulletConcept BulletT>
-void SpaceField::summonBullet(const std::function<void(BulletT &)> &init, const Gun *gun) noexcept
+Bullet *SpaceField::summonBullet(const std::function<void(BulletT &)> &init, const Gun *gun) noexcept
 {
-	Bullet *bullet = new BulletT;
+	BulletT *bullet = new BulletT;
 	init(*bullet);
 	bullet->author = gun;
 	mother.summon(bullet);
 	bullet->start();
 	bullet->onSummon();
 	this->onObjectAppend(bullet);
+	return bullet;
 }

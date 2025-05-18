@@ -33,7 +33,7 @@ void EnemyShip::onHit()
 
 void EnemyShip::summonCopy(SpaceField& field) const
 {
-	field.appendShip<EnemyShip>();
+	field.summonShip<EnemyShip>();
 }
 
 rn::Vec2f EnemyShip::countMove() const
