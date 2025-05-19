@@ -57,8 +57,9 @@ public:
 template<GameObjectConcept T>
 size_t GameObjectFactory::push() noexcept
 {
-	m_factory.emplace(unique_object_counter++, []() -> GameObject * {
+	m_factory.emplace(++unique_object_counter, []() -> GameObject * {
 		return new T;
 	});
+	std::cout << "object registered [" << typeid(T).name() << "] with identifier: " << unique_object_counter << "\n";
 	return unique_object_counter;
 }

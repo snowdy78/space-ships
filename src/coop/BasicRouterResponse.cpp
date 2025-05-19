@@ -1,6 +1,8 @@
 #include "coop/TransferableAction.hpp"
 #include "game/GameObjectFactory.hpp"
 #include "coop/BasicRouterResponse.hpp"
+
+#include "Helpers.hpp"
 #include "coop/TransferableObject.hpp"
 
 BasicRouterResponse::BasicRouterResponse(const rn::Json &data_json)
@@ -105,13 +107,12 @@ std::unique_ptr<TransferableObject> BasicRouterResponse::object() const
 	try
 	{
 		auto object = GameObjectFactory::create(*id());
-		auto transferable = dynamic_cast<TransferableObject *>(object.get());
+		auto transferable = dynamic_unique_cast<TransferableObject>(std::move(object));
 		if (!transferable)
 			throw std::bad_cast();
 
 		transferable->receiveJson(*data());
-		auto o = object.release(); // object now is transferable object, so, release pointer
-		return std::unique_ptr<TransferableObject>(transferable);
+		return transferable;
 	}
 	catch (std::out_of_range &err)
 	{

@@ -23,6 +23,16 @@ GameObjectFactory &GameObjectFactory::instance()
 
 std::unique_ptr<GameObject> GameObjectFactory::create(size_t id)
 {
+	if (!instance().m_factory.contains(id))
+	{
+		std::cerr << "GameObjectFactory does not register this identifier, registered identifiers: { ";
+		for (auto &item : instance().m_factory)
+		{
+			std::cerr << item.first << ", ";
+		}
+		std::cerr << "}\n";
+		throw std::out_of_range("std::out_of_range");
+	}
 	return std::unique_ptr<GameObject>{ instance().m_factory.at(id)() };
 }
 

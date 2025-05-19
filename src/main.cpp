@@ -22,7 +22,16 @@ int main()
 	loadGame(window);
 
 	// TODO: ServerTestBranch is temporary
-	rn::MenuBranch::start_branch<MainMenu>(window);
+	try
+	{
+		rn::MenuBranch::start_branch<MainMenu>(window);
+	}
+	catch (std::exception &err)
+	{
+		std::cout << "dropped with an exception at: ";
+		std::cout << err.what() << "\n";
+		std::cin.get();
+	}
 	return 0;
 }
 void loadGame(sf::RenderWindow &window)
@@ -55,12 +64,12 @@ void loadGame(sf::RenderWindow &window)
 	progress_bar.setPosition((screen_size.x - progress_bar.getSize().x) / 2.f, screen_size.y / 2.f);
 
 	load_content_path.setFont(*Font::Default);
-	load_content_path.setCharacterSize(screen_size.y / 54);
+	load_content_path.setCharacterSize(static_cast<unsigned>(screen_size.y) / 54u);
 	load_content_path.setFillColor(text_color);
 	load_content_path.setString(count == 0 ? "No files to load" : "preparing...");
 	load_content_path.setPosition(
-		static_cast<int>((screen_size.x - load_content_path.getGlobalBounds().width) / 2.f),
-		static_cast<int>(progress_bar.getPosition().y - load_content_path.getCharacterSize() - 10)
+		floor((screen_size.x - load_content_path.getGlobalBounds().width) / 2.f),
+		floor(progress_bar.getPosition().y - static_cast<float>(load_content_path.getCharacterSize()) - 10)
 	);
 
 	progress.setFillColor(progress_bar_progress_color);
