@@ -43,13 +43,4 @@ target_link_sfml(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PRIVATE ${MY_PROJECT_SOURCE_DIR}/include)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
-function(target_link_sfml_libraries TARGET)
-    target_link_libraries(${TARGET} PUBLIC sfml-graphics)
-    target_link_libraries(${TARGET} PUBLIC sfml-network)
-    target_link_libraries(${TARGET} PUBLIC sfml-window)
-    target_link_libraries(${TARGET} PUBLIC sfml-system)
-    target_link_libraries(${TARGET} PUBLIC sfml-audio)
-    target_link_libraries(${TARGET} PUBLIC sfml-main)
-endfunction()
-
 add_subdirectory(test)
