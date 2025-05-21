@@ -2,7 +2,7 @@
 #include "game/PlayerShip.hpp"
 
 
-GameSession::GameSession(Camera2d &&camera)
+GameSession::GameSession(TargetCamera &&camera)
 	: LocalDriveSession(s_file_path),
 	  camera(std::move(camera)),
 	  field(this, &this->camera)

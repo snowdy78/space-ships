@@ -76,7 +76,6 @@ enum class DefaultBindingSeparators
 {
 	Controls
 };
-
 class TransferDataConverter;
 struct ConvertFunction;
 template<class FromType, class ToType, class ConvertFunc = ConvertFunction>

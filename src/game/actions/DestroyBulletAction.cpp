@@ -19,7 +19,7 @@ void DestroyBulletAction::play()
 		return;
 	if (GameManager::exist())
 	{
-		GameManager::instance().field.destroyBullet(m_bullet);
+		GameManager::session()->field.destroyBullet(m_bullet);
 	}
 }
 

@@ -29,7 +29,7 @@ void AudioMenu::start()
 		info.updateData("fps");
 	});
 	if (GameManager::exist())
-		space = &GameManager::instance();
+		space = GameManager::session();
 	info.addData("camera_pos", [&]() -> sf::String {
 		rn::Vec2i p{ space->camera.getPosition() };
 		return "{ " + std::to_string(p.x) + ", " + std::to_string(p.y) + " }";
@@ -49,9 +49,9 @@ void AudioMenu::start()
 	{
 		space->player->setPosition(res / 2.f);
 		space->field.start();
-		space->effect_manager.start();
-		space->sound_manager.start();
-		space->action_manager.start();
+		GameManager::instance().effect_manager.start();
+		GameManager::instance().sound_manager.start();
+		GameManager::instance().action_manager.start();
 	}
 	background.start();
 	fps_clock.start();
@@ -63,13 +63,13 @@ void AudioMenu::update()
 		return;
 	th->launch();
 	background.update();
-	space->sound_manager.update();
-	space->effect_manager.update();
+	GameManager::instance().sound_manager.update();
+	GameManager::instance().effect_manager.update();
 	th->wait();
 	sf::Transform bg_transform = space->camera.getTransform();
 	window.clear();
 	window.draw(background, bg_transform);
-	window.draw(space->effect_manager);
+	window.draw(GameManager::instance().effect_manager);
 	window.draw(space->field);
 
 	window.draw(info, bg_transform);
@@ -81,7 +81,7 @@ void AudioMenu::onEvent(sf::Event &event)
 	background.onEvent(event);
 	if (space)
 	{
-		space->action_manager.onEvent(event);
+		GameManager::instance().action_manager.onEvent(event);
 		if (window.hasFocus())
 		{
 			space->field.onEvent(event);
@@ -110,7 +110,7 @@ void AudioMenu::updateObjectsState()
 	if (!window.hasFocus() || !space)
 		return;
 	space->field.update();
-	space->action_manager.update();
+	GameManager::instance().action_manager.update();
 	Collidable::updateCollisionState();
 }
 
@@ -130,8 +130,3 @@ void AudioMenu::summonShip()
 		ship->setPosition(space->camera.getPosition() + randomPosition);
 	}
 }
-
-AudioMenu::ShipCamera::ShipCamera(sf::RenderTarget &target, std::function<void()> update_on_move)
-	: TargetCamera(target, std::move(update_on_move))
-{}
-

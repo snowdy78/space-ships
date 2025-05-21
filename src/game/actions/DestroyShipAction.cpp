@@ -17,6 +17,7 @@ DestroyShipAction::DestroyShipAction(GameObject *author, GameObject *contributor
 	}
 	catch (std::bad_cast &err)
 	{
+		std::cerr << err.what() << "\n";
 	}
 }
 
@@ -26,7 +27,7 @@ void DestroyShipAction::play()
         return;
 	if (GameManager::exist())
 	{
-		GameManager::instance().field.remove(m_ship);
+		GameManager::session()->field.remove(m_ship);
 	}
 }
 

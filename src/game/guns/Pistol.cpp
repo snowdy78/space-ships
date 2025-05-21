@@ -8,7 +8,7 @@ void Pistol::summonBullet() const
 {
 	if (GameManager::exist())
 	{
-		GameManager::instance().field.summonBullet<BaseBullet>([this](BaseBullet &bullet) {
+		GameManager::session()->field.summonBullet<BaseBullet>([this](BaseBullet &bullet) {
 			bullet.setPosition(getPosition());
 			bullet.setDirection(getTrajectory());
 		}, this);

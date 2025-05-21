@@ -27,12 +27,12 @@ private:
     using func_update_on_move = const std::function<void()> &;
     
     GameManager(sf::RenderTarget &target, func_update_on_move update_on_move);
-	void createPlayer();
 	void createHost(OnlineTraits &&traits);
 	void createClient(OnlineTraits &&traits);
 
 public:
     static void create(sf::RenderTarget &target, func_update_on_move update_on_move);
+	static GameSession *session();
 	static void host(sf::RenderTarget &target, func_update_on_move update_on_move, OnlineTraits &&traits);
 	static void client(sf::RenderTarget &target, func_update_on_move update_on_move, OnlineTraits &&traits);
     static GameManager &instance();
@@ -44,10 +44,8 @@ public:
 
 private:
     inline static std::unique_ptr<GameManager> instance_ptr = nullptr;
+	GameSession m_session;
 public:
-    TargetCamera camera;
-    SpaceField field;
-    AbstractShip *player = nullptr;
     ActionManager action_manager;
     EffectManager effect_manager;
     SoundManager sound_manager;

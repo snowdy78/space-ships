@@ -19,18 +19,18 @@ void ConnectToGameBranch::start()
 	GameManager::host(
 		window,
 		[this] {
-			background.setPosition(space->camera.getPosition());
+			background.setPosition(session->camera.getPosition());
 		},
 		{ host_ip, host_port }
 	);
 	if (GameManager::exist())
-		space = &GameManager::instance();
+		session = GameManager::session();
 	rn::Table table{
 		5,
 		10,
 		{ res.x / 5, res.y / 10 }
 	};
-	online	= space->online.get();
+	online	= GameManager::instance().online.get();
 	auto cs = online->tcp->connect(host_ip, host_port);
 	if (cs == sf::Socket::Done)
 	{
@@ -43,31 +43,31 @@ void ConnectToGameBranch::start()
 		else
 			std::cout << "Successfully sent data: " << request.toJson().dump(2, ' ', '\n') << "\n";
 	}
-	space->action_manager.setTransfering(TransferType::Tcp);
+	GameManager::instance().action_manager.setTransfering(TransferType::Tcp);
 	send_status.setPosition(table.getCellGlobalPos(1, 2));
 	receive_status.setPosition(table.getCellGlobalPos(1, 3));
 	online->tcp->setBlocking(false);
-	if (space)
+	if (session)
 	{
-		space->player->setPosition(res / 2.f);
+		session->player->setPosition(res / 2.f);
 		background.start();
-		space->field.start();
-		space->action_manager.start();
+		session->field.start();
+		GameManager::instance().action_manager.start();
 	}
 }
 void ConnectToGameBranch::update()
 {
-	if (!space || !window.isOpen())
+	if (!session || !window.isOpen())
 		return;
 
-	space->field.update();
-	space->action_manager.update();
+	session->field.update();
+	GameManager::instance().action_manager.update();
 	background.update();
 	receivePackets();
 	window.clear();
-	sf::Transform bg_transform = space->camera.getTransform();
+	sf::Transform bg_transform = session->camera.getTransform();
 	window.draw(background, bg_transform);
-	window.draw(space->field);
+	window.draw(session->field);
 	window.draw(send_status);
 	window.draw(receive_status);
 	window.display();
@@ -80,13 +80,13 @@ void ConnectToGameBranch::onEvent(sf::Event &event)
 		window.close();
 	if (rn::isKeydown(sf::Keyboard::Escape))
 		next_branch<MainMenu>(window);
-	space->field.onEvent(event);
-	space->action_manager.onEvent(event);
+	session->field.onEvent(event);
+	GameManager::instance().action_manager.onEvent(event);
 }
 
 void ConnectToGameBranch::receivePackets() const
 {
-	if (!space)
+	if (!session)
 		return;
 	auto response = online->tcp->receive();
 	if (response.success())
@@ -103,7 +103,7 @@ void ConnectToGameBranch::receivePackets() const
 						if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))
 						{
 							std::cout << "summoning...\n";
-							space_object->summonCopy(space->field);
+							space_object->summonCopy(session->field);
 							std::cout << "summoned!\n";
 						}
 					});
@@ -119,11 +119,11 @@ void ConnectToGameBranch::receivePackets() const
 			if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))
 			{
 				std::cout << "received space field object\n";
-				space_object->summonCopy(space->field);
+				space_object->summonCopy(session->field);
 				std::cout << "summoned object\n";
 			}
 		}
 		if (response.is_action())
-			space->action_manager.receiveToTop(response.action());
+			GameManager::instance().action_manager.receiveToTop(response.action());
 	}
 }

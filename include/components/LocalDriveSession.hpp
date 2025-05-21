@@ -5,20 +5,19 @@
 
 class LocalDriveSession : public Session
 {
-	rn::Json m_data;
-	std::filesystem::path m_file_path;
-
-public:
-	LocalDriveSession(std::filesystem::path file_path);
-	~LocalDriveSession() override;
-	bool saveToFile();
-	bool loadFromFile();
+protected:
 	virtual void beforeSave()
 	{
 	}
 	virtual void afterLoad()
 	{
 	}
+public:
+	LocalDriveSession(std::filesystem::path file_path);
+	~LocalDriveSession() override;
+	bool saveToFile();
+	bool loadFromFile();
+	
 	template<class KeyT, class ValT>
 	rn::Json &at(const KeyT &key) noexcept;
 	template<class KeyT>
@@ -32,6 +31,9 @@ public:
 
 	template<class KeyT>
 	const rn::Json &operator[](const KeyT &key) const noexcept;
+private:
+	rn::Json m_data;
+	std::filesystem::path m_file_path;
 };
 
 template<class KeyT, class ValT>

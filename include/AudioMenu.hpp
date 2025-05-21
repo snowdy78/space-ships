@@ -9,15 +9,10 @@
 
 class AudioMenu : public rn::MenuBranch
 {
-	class ShipCamera : public TargetCamera
-	{
-	public:
-		ShipCamera(sf::RenderTarget &target, std::function<void()> update_on_move);
-	};
 	Background background{};
 	GameInfo info;
 	std::unique_ptr<sf::Thread> th;
-	GameManager *space = nullptr;
+	GameSession *space = nullptr;
 	rn::Stopwatch fps_clock;
 	bool dev_mode = true;
 

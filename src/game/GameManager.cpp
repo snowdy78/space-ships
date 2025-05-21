@@ -8,15 +8,9 @@ GameManager::OnlineTraits::OnlineTraits(sf::IpAddress host_ip, uint16_t host_por
 	udp->bind(host_port, host_ip);
 }
 
-GameManager::GameManager(sf::RenderTarget &target, func_update_on_move update_on_move) 
-    : camera(target, update_on_move), field(&camera)
+GameManager::GameManager(sf::RenderTarget &target, func_update_on_move update_on_move)
+	: m_session(TargetCamera(target, update_on_move))
 {
-	createPlayer();
-}
-
-void GameManager::createPlayer()
-{
-	player = field.summonShip<PlayerShip>(&camera);
 }
 
 void GameManager::createHost(OnlineTraits &&traits)
@@ -33,7 +27,15 @@ void GameManager::createClient(OnlineTraits &&traits)
 
 void GameManager::create(sf::RenderTarget &target, func_update_on_move update_on_move)
 {
-    instance_ptr.reset(new GameManager(target, update_on_move));
+	instance_ptr.reset(new GameManager(target, update_on_move));
+}
+
+GameSession *GameManager::session()
+{
+	if (exist())
+		return &instance().m_session;
+	std::cout << "session does not exist.\n";
+	return nullptr;
 }
 
 void GameManager::host(sf::RenderTarget &target, func_update_on_move update_on_move, OnlineTraits &&traits)
@@ -48,26 +50,26 @@ void GameManager::client(sf::RenderTarget &target, func_update_on_move update_on
 	instance_ptr->createClient(std::move(traits));
 }
 
-GameManager &GameManager::instance() 
+GameManager &GameManager::instance()
 {
-    return *instance_ptr;
+	return *instance_ptr;
 }
 
-bool GameManager::exist() 
+bool GameManager::exist()
 {
-    return instance_ptr.get();
+	return instance_ptr.get();
 }
 
 void GameManager::reset(sf::RenderTarget &new_target, func_update_on_move new_update_on_move)
 {
-    if (!instance_ptr)
-        return;
-    instance_ptr.reset(new GameManager(new_target, new_update_on_move)); 
+	if (!instance_ptr)
+		return;
+	instance_ptr.reset(new GameManager(new_target, new_update_on_move));
 }
 
 void GameManager::clear()
 {
-    instance_ptr = nullptr;
+	instance_ptr = nullptr;
 }
 
 void GameManager::createOnline(OnlineTraits &&traits)

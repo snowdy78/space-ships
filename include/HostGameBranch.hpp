@@ -15,7 +15,7 @@ class HostGameBranch : public rn::MenuBranch
     bool window_focused = true;
 
     Background background{};
-    GameManager *space = nullptr;
+    GameSession *session = nullptr;
 	GameManager::OnlineTraits *online = nullptr;
 
 public:
