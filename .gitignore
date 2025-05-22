@@ -6,4 +6,6 @@
 /bin/src/
 bin/Testing
 bin/test
+/bin/Catch2.dll
+/bin/Catch2Main.dll
 /.vs
