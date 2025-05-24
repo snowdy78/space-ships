@@ -72,6 +72,7 @@ template<class T, class... Args>
 AbstractShip *SpaceField::summonShip(const Args &...args) noexcept
 {
 	T *ship = new T(args...);
+	ship->start();
 	ships.push_back(ship);
 	this->onObjectAppend(ship);
 	return ship;

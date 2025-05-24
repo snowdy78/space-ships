@@ -42,7 +42,7 @@ AbstractShip *SpaceField::get(size_t index)
 	return ships.at(index);
 }
 
-const AbstractShip * SpaceField::get(size_t index) const
+const AbstractShip *SpaceField::get(size_t index) const
 {
 	return ships.at(index);
 }
@@ -52,7 +52,7 @@ AbstractShip *SpaceField::operator[](size_t index)
 	return ships[index];
 }
 
-const AbstractShip * SpaceField::operator[](size_t index) const
+const AbstractShip *SpaceField::operator[](size_t index) const
 {
 	return ships[index];
 }

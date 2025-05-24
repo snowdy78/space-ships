@@ -44,11 +44,10 @@ void AudioMenu::start()
 		return std::to_string(rn::FPS);
 	});
 	rn::Vec2f res{ rn::VideoSettings::getResolution() };
-	summonShip();
 	if (space)
 	{
-		space->player->setPosition(res / 2.f);
-		space->field.start();
+		space->start();
+		summonShip();
 		GameManager::instance().effect_manager.start();
 		GameManager::instance().sound_manager.start();
 		GameManager::instance().action_manager.start();
@@ -84,7 +83,7 @@ void AudioMenu::onEvent(sf::Event &event)
 		GameManager::instance().action_manager.onEvent(event);
 		if (window.hasFocus())
 		{
-			space->field.onEvent(event);
+			space->onEvent(event);
 		}
 	}
 	if (event.type == sf::Event::Closed)
@@ -109,7 +108,7 @@ void AudioMenu::updateObjectsState()
 {
 	if (!window.hasFocus() || !space)
 		return;
-	space->field.update();
+	space->update();
 	GameManager::instance().action_manager.update();
 	Collidable::updateCollisionState();
 }
@@ -124,6 +123,8 @@ void AudioMenu::summonShip()
 	if (ship)
 	{
 		ship->start();
+		if (!space->player)
+			std::cerr << "cannot set nullptr as ship target\n";
 		ship->setTarget(space->player);
 		rn::Vec2f randomPosition{ rn::random::real(0.f, 1.f) * space->camera.getViewSize().x,
 								  rn::random::real(0.f, 1.f) * space->camera.getViewSize().x };

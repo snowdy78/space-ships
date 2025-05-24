@@ -7,7 +7,24 @@ GameSession::GameSession(TargetCamera &&camera)
 	  camera(std::move(camera)),
 	  field(this, &this->camera)
 {
+}
+
+void GameSession::start()
+{
+	rn::Vec2f res{ rn::VideoSettings::getResolution() };
 	createPlayer();
+	player->setPosition(res / 2.f);
+	field.start();
+}
+
+void GameSession::update()
+{
+	field.update();
+}
+
+void GameSession::onEvent(sf::Event &event)
+{
+	field.onEvent(event);
 }
 
 void GameSession::createPlayer()

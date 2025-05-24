@@ -49,9 +49,8 @@ void ConnectToGameBranch::start()
 	online->tcp->setBlocking(false);
 	if (session)
 	{
-		session->player->setPosition(res / 2.f);
+		session->start();
 		background.start();
-		session->field.start();
 		GameManager::instance().action_manager.start();
 	}
 }
@@ -60,7 +59,7 @@ void ConnectToGameBranch::update()
 	if (!session || !window.isOpen())
 		return;
 
-	session->field.update();
+	session->update();
 	GameManager::instance().action_manager.update();
 	background.update();
 	receivePackets();
@@ -80,7 +79,7 @@ void ConnectToGameBranch::onEvent(sf::Event &event)
 		window.close();
 	if (rn::isKeydown(sf::Keyboard::Escape))
 		next_branch<MainMenu>(window);
-	session->field.onEvent(event);
+	session->onEvent(event);
 	GameManager::instance().action_manager.onEvent(event);
 }
 

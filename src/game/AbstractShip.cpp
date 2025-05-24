@@ -5,7 +5,6 @@
 #include "game/GameManager.hpp"
 #include "game/Gun.hpp"
 #include "game/RigitBody2d.hpp"
-#include "game/actions/DestroyShipAction.hpp"
 #include "game/actions/TakeDamageAction.hpp"
 #include "game/guns/Pistol.hpp"
 
@@ -90,7 +89,9 @@ void AbstractShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 void AbstractShip::doDestroy()
 {
 	if (GameManager::exist())
-		GameManager::instance().action_manager.emplaceToTop<DestroyShipAction>(this);
+	{
+		GameManager::session()->field.remove(this);
+	}
 }
 void AbstractShip::onMove()
 {

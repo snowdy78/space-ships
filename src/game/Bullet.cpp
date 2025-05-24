@@ -4,7 +4,7 @@
 #include "game/Gun.hpp"
 #include "game/SpaceField.hpp"
 #include "game/actions/DealDamageAction.hpp"
-#include "game/actions/DestroyBulletAction.hpp"
+#include "game/actions/DestroySpaceFieldObjectAction.hpp"
 
 
 /**
@@ -93,7 +93,7 @@ void Bullet::move(const rn::Vec2f &p)
 void Bullet::doDestroy()
 {
 	if (GameManager::exist())
-		GameManager::instance().action_manager.emplaceToTop<DestroyBulletAction>(TransferableActionProps{this});
+		GameManager::session()->field.destroyBullet(this);
 }
 
 void Bullet::updateCollider()
@@ -126,8 +126,8 @@ void Bullet::onCollisionEnter(Collidable *obstacle)
 {
 	if (auto hittable = dynamic_cast<Hittable *>(obstacle); GameManager::exist())
 	{
+		GameManager::instance().action_manager.emplaceToTop<DestroySpaceFieldObjectAction>(TransferableActionProps{this});
 		GameManager::instance().action_manager.emplaceToTop<DealDamageAction>(TransferableActionProps{this, hittable});
-		doDestroy();
 	}
 }
 void Bullet::setTexture(const sf::Texture &texture)

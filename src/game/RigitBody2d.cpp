@@ -20,6 +20,16 @@ void RigitBody2d::move(float x, float y)
 	onMove();
 }
 
+float RigitBody2d::getMass() const
+{
+	return mass;
+}
+
+void RigitBody2d::setMass(float mass)
+{
+	this->mass = mass;
+}
+
 void RigitBody2d::move(const rn::Vec2f &p)
 {
 	sf::Transformable::move(p);

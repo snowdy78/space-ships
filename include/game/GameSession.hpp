@@ -4,7 +4,7 @@
 #include "SpaceField.hpp"
 #include "components/TargetCamera.hpp"
 
-class GameSession : protected LocalDriveSession
+class GameSession : protected LocalDriveSession, public rn::LogicalObject
 {
 	constexpr static const char *s_file_path = "src/game_session_data.json";
 
@@ -15,6 +15,9 @@ protected:
 	void afterLoad() override;
 public:
 	GameSession(TargetCamera &&camera);
+	void start() override;
+	void update() override;
+	void onEvent(sf::Event &event) override;
 	AbstractShip *player = nullptr;
 	TargetCamera camera;
 	struct GameSessionSpaceField : SpaceField
