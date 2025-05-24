@@ -4,12 +4,16 @@
 #include "BulletMother.hpp"
 #include "decl.hpp"
 #include "game/BulletMother.hpp"
+#include "game/AbstractAsteroid.hpp"
 
-
-template<class T, class... Args>
-concept ShipConcept = std::is_base_of_v<AbstractShip, T> && !std::is_abstract_v<T> && requires(Args const &...args) { T(args...); };
 template<class T>
-concept BulletConcept = std::is_base_of_v<Bullet, T> && !std::is_abstract_v<T>;
+concept SpaceFieldObjectConcept = std::is_base_of_v<GameObject, T> && !std::is_abstract_v<T>;
+template<class T, class... Args>
+concept ShipConcept = std::is_base_of_v<AbstractShip, T> && SpaceFieldObjectConcept<T> && requires(Args const &...args) { T(args...); };
+template<class T>
+concept BulletConcept = std::is_base_of_v<Bullet, T> && SpaceFieldObjectConcept<T>;
+template<class T>
+concept AsteroidConcept = std::is_base_of_v<AbstractAsteroid, T> && SpaceFieldObjectConcept<T>;
 
 class SpaceField : public sf::Drawable, public rn::LogicalObject
 {
@@ -17,10 +21,13 @@ public:
 	template<class T>
 	using container = std::vector<T>;
 	using ship_ptr_t = AbstractShip *;
+	using asteroid_ptr_t = std::unique_ptr<AbstractAsteroid>;
 	using bullet_ptr_t = Bullet *;
 	using ships_container = container<ship_ptr_t>;
+	using asteroids_container = container<asteroid_ptr_t>;
 private:
 	ships_container ships{};
+	asteroids_container asteroids{};
 
 	const Camera2d *camera;
 	BulletMother mother{camera};
@@ -55,6 +62,9 @@ public:
 	AbstractShip *summonShip(const Args &...args) noexcept;
 	template<BulletConcept BulletT>
 	Bullet *summonBullet(const std::function<void(BulletT &)> &init, const Gun *gun) noexcept;
+	template<AsteroidConcept AsteroidT>
+	AbstractAsteroid *summonAsteroid(const rn::Vec2f &summon_position, const rn::Vec2f &velocity);
+	void destroyAsteroid(const AbstractAsteroid *asteroid);
 	void destroyBullet(const Bullet *const &bullet);
 	virtual void onObjectAppend(GameObject *object) const
 	{
@@ -89,4 +99,17 @@ Bullet *SpaceField::summonBullet(const std::function<void(BulletT &)> &init, con
 	bullet->onSummon();
 	this->onObjectAppend(bullet);
 	return bullet;
+}
+
+template<AsteroidConcept AsteroidT>
+AbstractAsteroid *SpaceField::summonAsteroid(const rn::Vec2f &summon_position, const rn::Vec2f &velocity)
+{
+	AsteroidT *asteroid = new AsteroidT;
+	asteroid->setPosition(summon_position);
+	asteroid->setVelocity(rn::math::length(velocity));
+	asteroid->setDirection(rn::math::norm(velocity));
+	asteroid->start();
+	asteroids.emplace_back(asteroid);
+	this->onObjectAppend(asteroid);
+	return asteroid;
 }

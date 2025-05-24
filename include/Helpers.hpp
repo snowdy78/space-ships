@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/GameManager.hpp"
 #include "decl.hpp"
 
 sf::SoundBuffer loadSound(const sf::String &file_name);
@@ -34,3 +35,32 @@ std::unique_ptr<To> dynamic_unique_cast(std::unique_ptr<From> &&p)
 	}
 	return std::unique_ptr<To>(nullptr); // or throw std::bad_cast() if you prefer
 }
+
+
+template<class T>
+void randomlySummonAsteroidOutsideArea(const sf::FloatRect &view_area, float velocity)
+{
+	using rn::math::coordinates2d;
+	using rn::math::degrees;
+	using rn::math::sgn;
+	constexpr float indent_length  = 100;
+	constexpr float angle_disperse = 30;
+	int random_side				   = rn::random::integer(0, 3);
+	float teta					   = rn::random::real(0.f, 1.f);
+	float random_angle			   = rn::random::real(-0.5f, 0.5f);
+	rn::math::rectangle rect(view_area);
+	auto side = rect.side(random_side);
+	auto rc	  = rect.center();
+	auto n	  = nearest(rc, side.p1, side.p2);
+	auto d	  = norm(n);
+	rn::Vec2f pos
+		= rc + n
+		  + d * indent_length
+				* (rn::math::approx<4>()((rc - n).y) == 0 ? rn::math::vec2{ teta, 1.f } : rn::math::vec2(1.f, teta));
+	auto angle = rot(norm(rc - pos));
+	angle += degrees(angle_disperse * random_angle);
+	rn::Vec2f vel = velocity * direction(angle);
+	if (GameManager::exist())
+		GameManager::session()->field.summonAsteroid<T>(pos, vel);
+}
+

@@ -1,9 +1,12 @@
 #include "AudioMenu.hpp"
+
+#include "Helpers.hpp"
 #include "RuneEngine/EngineDecl.hpp"
 #include "RuneEngine/SettingsFile.hpp"
+#include "coop/TransferableAction.hpp"
 #include "decl.hpp"
 #include "game/EnemyShip.hpp"
-#include "coop/TransferableAction.hpp"
+#include "game/asteroids/SimpleAsteroid.hpp"
 
 AudioMenu::AudioMenu(sf::RenderWindow &window)
 	: MenuBranch(window)
@@ -82,9 +85,7 @@ void AudioMenu::onEvent(sf::Event &event)
 	{
 		GameManager::instance().action_manager.onEvent(event);
 		if (window.hasFocus())
-		{
 			space->onEvent(event);
-		}
 	}
 	if (event.type == sf::Event::Closed)
 	{
@@ -99,8 +100,12 @@ void AudioMenu::onEvent(sf::Event &event)
 	if (dev_mode)
 	{
 		if (rn::isKeydown(sf::Keyboard::P))
-		{
 			summonShip();
+		if (rn::isKeydown(sf::Keyboard::O))
+		{
+			randomlySummonAsteroidOutsideArea<SimpleAsteroid>(
+				space->camera.getTransform().transformRect({ {}, space->camera.getViewSize() }), 10.f
+			);
 		}
 	}
 }

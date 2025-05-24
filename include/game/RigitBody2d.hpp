@@ -62,6 +62,8 @@ public:
 	
 	Direction getDirection() const;
 	void move(float x, float y);
+	float getMass() const;
+	void setMass(float mass);
 	void move(const rn::Vec2f &p);
 	void setRotation(float angle);
 	void rotate(float angle);
@@ -70,7 +72,6 @@ public:
 	virtual void onMove() {}
 	virtual void onRotation() {}
 	float getVelocity() const;
-	static rn::Vec2f getDirection2d();
 	void push(const rn::Vec2f &force);
 	virtual void onPush() {}
 	void setPulling(const rn::Vec2f &point, float force);

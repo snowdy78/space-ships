@@ -1,4 +1,5 @@
 #include "game/SpaceField.hpp"
+#include <algorithm>
 
 SpaceField::SpaceField(const Camera2d *camera)
 	: camera(camera),
@@ -30,7 +31,7 @@ const BulletMother &SpaceField::getBulletMother() const
 
 void SpaceField::remove(const AbstractShip *ship)
 {
-	auto it = std::find(ships.begin(), ships.end(), ship);
+	auto it = std::ranges::find(ships, ship);
 	if (it != ships.end())
 	{
 		delete *it;
@@ -65,18 +66,24 @@ void SpaceField::start()
 {
 	for (auto &ship: ships)
 		ship->start();
+	for (auto &asteroid: asteroids)
+		asteroid->start();
 	mother.start();
 }
 void SpaceField::update()
 {
 	for (auto &ship: ships)
 		ship->update();
+	for (auto &asteroid: asteroids)
+		asteroid->update();
 	mother.update();
 }
 void SpaceField::onEvent(sf::Event &event)
 {
 	for (auto &ship: ships)
 		ship->onEvent(event);
+	for (auto &asteroid: asteroids)
+		asteroid->onEvent(event);
 	mother.onEvent(event);
 }
 size_t SpaceField::size() const
@@ -89,7 +96,20 @@ void SpaceField::clear()
 	for (auto &ship: ships)
 		delete ship;
 	ships.clear();
+	asteroids.clear();
 }
+
+void SpaceField::destroyAsteroid(const AbstractAsteroid *asteroid)
+{
+	auto it = std::ranges::find_if(asteroids, [asteroid](const asteroid_ptr_t &obj) {
+		return obj.get() == asteroid;
+	});
+	if (it != asteroids.end())
+	{
+		asteroids.erase(it);
+	}
+}
+
 void SpaceField::destroyBullet(const Bullet *const &bullet)
 {
 	mother.destroy(bullet);
@@ -103,6 +123,8 @@ void SpaceField::draw(sf::RenderTarget &target, sf::RenderStates states) const
 			target.draw(*bullet, states);
 	for (auto &ship: ships)
 		target.draw(*ship, states);
+	for (auto &asteroid: asteroids)
+		target.draw(*asteroid, states);
 }
 
 SpaceField &SpaceField::operator=(SpaceField &&other) noexcept

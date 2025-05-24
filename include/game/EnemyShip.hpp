@@ -23,8 +23,6 @@ public:
 	void update() override;
 	void movement() override;
 	void rotation() override;
-	void onMove() override;
-	void onHit() override;
 	void summonCopy(SpaceField &field) const override;
 	rn::Vec2f countMove() const override;
 };

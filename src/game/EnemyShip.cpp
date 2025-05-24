@@ -20,18 +20,7 @@ const AbstractShip *EnemyShip::getTarget() const
 	return target;
 }
 
-
-void EnemyShip::onMove()
-{
-	AbstractShip::onMove();
-	updateCollider();
-}
-void EnemyShip::onHit()
-{
-	AbstractShip::onHit();
-}
-
-void EnemyShip::summonCopy(SpaceField& field) const
+void EnemyShip::summonCopy(SpaceField &field) const
 {
 	field.summonShip<EnemyShip>();
 }
@@ -67,12 +56,12 @@ void EnemyShip::movement()
 	if (static_cast<int>(clock.getElapsedTime().asSeconds()) % 3 == 1)
 	{
 		setMoveDirection(getDirection());
-		GameManager::instance().action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{this, nullptr});
+		GameManager::instance().action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ this });
 	}
 	if (clock.getElapsedTime().asMilliseconds() % 1000 > 500)
 	{
 		setMoveDirection(Direction{ rn::math::nor(getDirection()) });
-		GameManager::instance().action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{this, nullptr});
+		GameManager::instance().action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ this });
 	}
 }
 
