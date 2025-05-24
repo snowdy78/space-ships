@@ -4,9 +4,8 @@
 #include "game/GameObject.hpp"
 #include "game/Bullet.hpp"
 
-class DestroyBulletAction : public TransferableAction
+class DestroyBulletAction : public TransferActionBase<DestroyBulletAction>
 {
-    const static size_t id;
     Bullet *m_bullet{nullptr};
     Hittable *m_contributor{nullptr};
 public:
@@ -17,9 +16,8 @@ public:
      * @param contributor is a hittable object
      * @param props
      */
-    DestroyBulletAction(GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = {});
+	DestroyBulletAction(const TransferableActionProps &props);
     void play() override;
-    virtual TransferJson toJson() const override;
-    virtual AbstractAction *copy() const override;
+	rn::Json toJson() const override;
 };
 

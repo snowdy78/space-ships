@@ -17,13 +17,9 @@ void Gun::shoot()
 {
 	if (GameManager::exist() && !has_rollback)
 	{
-		auto direction{getTrajectory()};
-		GameManager::instance().action_manager.emplaceToTop<ShootAction>(
-			this, nullptr,
-			rn::Json{
-				{ "direction", { { "x", direction.x }, { "y", direction.y } } }
-			}
-		);
+		auto direction{ getTrajectory() };
+		GameManager::instance().action_manager.emplaceToTop<ShootAction>(TransferableActionProps{
+			this, nullptr, rn::Json{ { "direction", { { "x", direction.x }, { "y", direction.y } } } } });
 	}
 }
 

@@ -84,7 +84,7 @@ std::unique_ptr<TransferableAction> BasicRouterResponse::action() const
 			contributor = GameObjectFactory::instance().get(contributor_id);
 		else
 			contributor = nullptr;
-		return TransferableActionFabric::instance().get(*id())(author, contributor, *data());
+		return TransferableActionFabric::instance().get(*id())(TransferableActionProps{ author, contributor, *data() });
 	}
 	catch (rn::Json::out_of_range &err)
 	{

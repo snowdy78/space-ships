@@ -8,8 +8,20 @@ TransferableActionProps::TransferableActionProps(GameObject *author, GameObject 
 {
 }
 
-TransferableAction::TransferableAction(GameObject *author, GameObject *contributor, const rn::Json &props)
-	: author(author ? std::optional<size_t>{ author->hash() } : std::nullopt),
-	  contributor(contributor ? std::optional<size_t>{ contributor->hash() } : std::nullopt)
+TransferableAction::TransferableAction(const TransferableActionProps &props)
+	: m_author_ptr(props.author),
+	  m_contributor_ptr(props.contributor),
+	  m_author_id(props.author ? std::optional{ props.author->id() } : std::nullopt),
+	  m_contributor_id(props.contributor ? std::optional{ props.contributor->id() } : std::nullopt)
 {
+}
+
+GameObject *TransferableAction::getAuthor() const
+{
+	return m_author_ptr;
+}
+
+GameObject *TransferableAction::getContributor() const
+{
+	return m_contributor_ptr;
 }

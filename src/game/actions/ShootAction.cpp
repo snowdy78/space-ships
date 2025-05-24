@@ -1,24 +1,22 @@
 #include "game/actions/ShootAction.hpp"
 #include "game/Gun.hpp"
 
-const size_t ShootAction::id = identify<ShootAction>();
-
-ShootAction::ShootAction(GameObject *author, GameObject *contributor, const rn::Json &props)
-	: TransferableAction(author, contributor, props)
+ShootAction::ShootAction(const TransferableActionProps &props)
+	: TransferActionBase(props)
 {
-	auto gun = dynamic_cast<Gun *>(author);
+	auto gun	  = dynamic_cast<Gun *>(getAuthor());
 	const char *x = "x", *y = "y";
 	auto &d = direction;
 	if (!gun
 		|| !(
-			props.contains(d) && props[d].is_object() && props[d].contains(x) && props[d].contains(y)
-			&& props[d][x].is_number() && props[d][y].is_number()
+			props.props.contains(d) && props.props[d].is_object() && props.props[d].contains(x)
+			&& props.props[d].contains(y) && props.props[d][x].is_number() && props.props[d][y].is_number()
 		))
 	{
-		throw std::runtime_error("ShootAction failed to initialize with instance: " + props.dump());
+		throw std::runtime_error("ShootAction failed to initialize with instance: " + props.props.dump());
 	}
 	m_gun = gun;
-	rn::Vec2f direction{ props[d][x].get<float>(), props[d][y].get<float>() };
+	rn::Vec2f direction{ props.props[d][x].get<float>(), props.props[d][y].get<float>() };
 	m_direction = rn::math::norm(direction);
 }
 
@@ -29,12 +27,9 @@ void ShootAction::play()
 	m_gun->fire();
 }
 
-TransferableAction::TransferJson ShootAction::toJson() const
+rn::Json ShootAction::toJson() const
 {
-	return { id, { { "direction", { { "x", m_direction.x }, { "y", m_direction.y } } } } };
-}
-
-AbstractAction *ShootAction::copy() const
-{
-	return new ShootAction();
+	return {
+		{ "direction", { { "x", m_direction.x }, { "y", m_direction.y } } }
+	};
 }

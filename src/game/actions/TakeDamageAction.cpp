@@ -2,14 +2,12 @@
 #include "game/DamageDealer.hpp"
 #include "game/SpaceFieldObject.hpp"
 
-const size_t TakeDamageAction::id = identify<TakeDamageAction>();
-
-TakeDamageAction::TakeDamageAction(GameObject *author, GameObject *contributor, const rn::Json &props)
-	: TransferableAction(author, contributor, props)
+TakeDamageAction::TakeDamageAction(const TransferableActionProps &props)
+	: TransferActionBase(props)
 {
-	if (auto hittable = dynamic_cast<Hittable *>(author))
+	if (auto hittable = dynamic_cast<Hittable *>(getAuthor()))
 		m_hittable = hittable;
-	if (auto dealer = dynamic_cast<DamageDealer *>(contributor))
+	if (auto dealer = dynamic_cast<DamageDealer *>(getContributor()))
 		m_dealer = dealer;
 }
 
@@ -27,12 +25,7 @@ void TakeDamageAction::play()
 	}
 }
 
-Transferable::TransferJson TakeDamageAction::toJson() const
+rn::Json TakeDamageAction::toJson() const
 {
-	return { id };
-}
-
-AbstractAction *TakeDamageAction::copy() const
-{
-    return new TakeDamageAction(m_hittable, m_dealer);
+	return { };
 }

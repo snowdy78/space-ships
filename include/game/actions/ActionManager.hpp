@@ -26,12 +26,12 @@ class ActionManager : public rn::LogicalObject
 	void realizeActions();
 	void transferAction(AbstractAction *action) const;
 	template<class T>
-	void appendInto(T &&v);
+	void appendInto(T &&v) noexcept;
 
 public:
 	ActionManager() = default;
 	template<class ActionT, class... Args>
-	void emplaceToTop(const Args &...args);
+	void emplaceToTop(const Args &...args) noexcept;
 	void addToTop(std::unique_ptr<AbstractAction> &&action);
 	void receiveToTop(std::unique_ptr<TransferableAction> &&action);
 	void setTransfering(TransferType type);
@@ -49,7 +49,7 @@ private:
 };
 
 template<class T>
-void ActionManager::appendInto(T &&v)
+void ActionManager::appendInto(T &&v) noexcept
 {
 	T &&a = std::forward<T>(v);
 	if (!m_start_loop)
@@ -59,7 +59,7 @@ void ActionManager::appendInto(T &&v)
 }
 
 template<class ActionT, class... Args>
-void ActionManager::emplaceToTop(const Args &...args)
+void ActionManager::emplaceToTop(const Args &...args) noexcept
 {
 	auto action = std::make_unique<ActionT>(args...);
 	this->addToTop(std::move(action));

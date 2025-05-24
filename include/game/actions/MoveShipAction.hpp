@@ -3,16 +3,14 @@
 #include "coop/TransferableAction.hpp"
 #include "game/GameObject.hpp"
 
-class MoveShipAction : public TransferableAction
+class MoveShipAction : public TransferActionBase<MoveShipAction>
 {
 public:
     constexpr static const char *md = "movement_direction";
-    explicit MoveShipAction(GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = {});
+    explicit MoveShipAction(const TransferableActionProps &props = {});
 
     void play() override;
-    TransferJson toJson() const override;
-    AbstractAction *copy() const override;
+    rn::Json toJson() const override;
 private:
-    static const size_t id;
     AbstractShip *m_ship{nullptr}; // author
 };

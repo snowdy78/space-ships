@@ -1,13 +1,11 @@
 #include "game/actions/DealDamageAction.hpp"
 
-const size_t DealDamageAction::id = identify<DealDamageAction>();
-
-DealDamageAction::DealDamageAction(GameObject *author, GameObject *contributor, const rn::Json &props)
-	: TransferableAction(author, contributor, props)
+DealDamageAction::DealDamageAction(const TransferableActionProps &props)
+	: TransferActionBase(props)
 {
-	if (auto dealer = dynamic_cast<DamageDealer *>(author))
+	if (auto dealer = dynamic_cast<DamageDealer *>(props.author))
 		m_dealer = dealer;
-	if (auto hittable = dynamic_cast<Hittable *>(contributor))
+	if (auto hittable = dynamic_cast<Hittable *>(props.contributor))
 		m_hittable = hittable;
 }
 
@@ -18,12 +16,7 @@ void DealDamageAction::play()
 	m_dealer->dealDamage(m_hittable);
 }
 
-Transferable::TransferJson DealDamageAction::toJson() const
+rn::Json DealDamageAction::toJson() const
 {
-	return { id };
-}
-
-AbstractAction *DealDamageAction::copy() const
-{
-    return new DealDamageAction(m_dealer, m_hittable);
+	return { };
 }

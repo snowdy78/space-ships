@@ -3,18 +3,15 @@
 #include "coop/TransferableAction.hpp"
 #include "game/DamageDealer.hpp"
 #include "game/Hittable.hpp"
-#include "game/GameObject.hpp"
 
-class DealDamageAction : public TransferableAction
+class DealDamageAction : public TransferActionBase<DealDamageAction>
 {
 public:
-    explicit DealDamageAction(GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = {});
+    explicit DealDamageAction(const TransferableActionProps &props = {});
 
     void play() override;
-    TransferJson toJson() const override;
-    AbstractAction *copy() const override;
+    rn::Json toJson() const override;
 private:
-    static const size_t id;
     DamageDealer *m_dealer{nullptr}; // author
     Hittable *m_hittable{nullptr}; // contributor
 };

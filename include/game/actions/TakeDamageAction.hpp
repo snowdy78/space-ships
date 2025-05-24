@@ -5,16 +5,14 @@
 #include "game/Hittable.hpp"
 #include "game/GameObject.hpp"
 
-class TakeDamageAction : public TransferableAction
+class TakeDamageAction : public TransferActionBase<TakeDamageAction>
 {
 public:
-    explicit TakeDamageAction(GameObject *author = nullptr, GameObject *contributor = nullptr, const rn::Json &props = {});
+	explicit TakeDamageAction(const TransferableActionProps &props = {});
 
     void play() override;
-    TransferJson toJson() const override;
-    AbstractAction *copy() const override;
+    rn::Json toJson() const override;
 private:
-    static const size_t id;
     Hittable *m_hittable{nullptr}; // author
     DamageDealer *m_dealer{nullptr}; // contributor
 };

@@ -3,16 +3,14 @@
 #include "game/DamageDealer.hpp"
 #include "game/GameManager.hpp"
 
-const size_t DestroyShipAction::id = identify<DestroyShipAction>();
-
-DestroyShipAction::DestroyShipAction(GameObject *author, GameObject *contributor, const rn::Json &props)
-	: TransferableAction(author, contributor, props)
+DestroyShipAction::DestroyShipAction(const TransferableActionProps &props)
+	: TransferActionBase(props)
 {
-	if (auto ship = dynamic_cast<AbstractShip *>(author))
+	if (auto ship = dynamic_cast<AbstractShip *>(props.author))
 		m_ship = ship;
 	try
 	{
-		if (auto destroyer = dynamic_cast<DamageDealer *>(contributor))
+		if (auto destroyer = dynamic_cast<DamageDealer *>(props.contributor))
 			m_destroyer = destroyer;
 	}
 	catch (std::bad_cast &err)
@@ -31,12 +29,7 @@ void DestroyShipAction::play()
 	}
 }
 
-DestroyShipAction::TransferJson DestroyShipAction::toJson() const
+rn::Json DestroyShipAction::toJson() const
 {
-	return { id };
-}
-
-AbstractAction *DestroyShipAction::copy() const
-{
-    return new DestroyShipAction(m_ship, m_destroyer);
+	return { };
 }
