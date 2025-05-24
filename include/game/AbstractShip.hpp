@@ -60,7 +60,7 @@ public:
 	void onCollisionEnter(Collidable *collidable) override;
 	bool resolve(const Collidable *collidable) const override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
-	void destroyFromField() override;
+	void doDestroy() override;
 
 protected:
 

@@ -10,5 +10,5 @@ SpaceFieldObject::~SpaceFieldObject()
 void SpaceFieldObject::destroy()
 {
     onDestroy();
-    destroyFromField();
+    doDestroy();
 }

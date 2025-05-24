@@ -87,7 +87,7 @@ void AbstractShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	target.draw(sprite, states);
 	target.draw(health_bar, st);
 }
-void AbstractShip::destroyFromField()
+void AbstractShip::doDestroy()
 {
 	if (GameManager::exist())
 		GameManager::instance().action_manager.emplaceToTop<DestroyShipAction>(this);

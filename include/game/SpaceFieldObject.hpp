@@ -14,7 +14,7 @@ protected:
 	virtual void onSummon() const
 	{
 	}
-	virtual void destroyFromField() = 0;
+	virtual void doDestroy() = 0;
 
 public:
 	SpaceFieldObject();
