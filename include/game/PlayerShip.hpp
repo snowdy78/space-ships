@@ -16,7 +16,6 @@ enum class PlayerControlsTypeSep
 
 struct MovementProps
 {
-public:
 	const rn::Vec2f move_dir{}; // movement_direction;
 	explicit MovementProps(const rn::Vec2f &movement_direction = {})
 		: move_dir(movement_direction)
@@ -25,7 +24,6 @@ public:
 };
 struct AccelerationProps
 {
-public:
 	const float acceleration{};
 	explicit AccelerationProps(float acceleration = 0)
 		: acceleration(acceleration)
@@ -34,7 +32,6 @@ public:
 };
 struct ShootProps
 {
-public:
 	const rn::Vec2f direction{};
 	explicit ShootProps(const rn::Vec2f &direction = {})
 		: direction(direction)
@@ -50,7 +47,7 @@ using PlayerControls = ControlsScheme<
 	ShootProps
 	>;
 
-class PlayerShip : public AbstractShip, public Converted<PlayerShip, ConnectedPlayerShip>
+class PlayerShip : public AbstractShip, public ConvertedTransfer<PlayerShip, ConnectedPlayerShip>
 {
 	inline static loading<sf::Texture> texture		= FileLoader::Instance().addTextureToUpload("img/ship.png").get();
 	constexpr static float shift_acceleration = 1.5f;

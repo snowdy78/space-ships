@@ -47,7 +47,7 @@ Transferable::TransferJson BasicRouter<RespT>::prepareObject(const Transferable:
 template<class RespT>
 sf::Socket::Status BasicRouter<RespT>::send(const TransferableObject *data)
 {
-	auto send_data	  = data->toJson();
+	auto send_data	  = data->requestData();
 	send_data[BasicRouterResponse::type_key] = BasicRouterResponse::object_key;
 	return sendJson(prepareObject(send_data));
 }
@@ -58,14 +58,14 @@ sf::Socket::Status BasicRouter<RespT>::send(const TransferableAction *action)
 	using namespace std::string_literals;
 	if (!action)
 		return sf::Socket::Status::Error;
-	Transferable::TransferJson send_data = action->toJson();
+	Transferable::TransferJson send_data = action->requestData();
 	send_data[BasicRouterResponse::type_key]  = BasicRouterResponse::action_key;
-	if (action->author)
-		send_data[BasicRouterResponse::author_id_key] = *action->author;
+	if (action->m_author_id)
+		send_data[BasicRouterResponse::author_id_key] = *action->m_author_id;
 	else
 		send_data[BasicRouterResponse::author_id_key] = nullptr;
-	if (action->contributor)
-		send_data[BasicRouterResponse::author_id_key] = *action->contributor;
+	if (action->m_contributor_id)
+		send_data[BasicRouterResponse::author_id_key] = *action->m_contributor_id;
 	else
 		send_data[BasicRouterResponse::contributor_id_key] = nullptr;
 	return sendJson(send_data);

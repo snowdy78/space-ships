@@ -1,8 +1,9 @@
 #pragma once
 
 #include "decl.hpp"
+#include "components/Jsonable.hpp"
 
-class Transferable
+class Transferable : public virtual Jsonable
 {
 	class TransferData : public rn::Json
 	{
@@ -17,5 +18,5 @@ public:
 	using TransferJson					= TransferData;
 	Transferable()						= default;
 	virtual ~Transferable()				= 0;
-	virtual TransferJson toJson() const = 0;
+	virtual TransferJson requestData() const = 0;
 };

@@ -103,7 +103,7 @@ void HostGameBranch::receivePackets() const
 					if (status != sf::Socket::Done)
 						std::cerr << "Failed to send with code: " << status << "\n";
 					else
-						std::cout << "Successfully sent data: " << translator.toJson().dump(2, ' ', '\n') << "\n";
+						std::cout << "Successfully sent data: " << translator.requestData().dump(2, ' ', '\n') << "\n";
 				}
 			}
 			if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))

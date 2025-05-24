@@ -41,7 +41,7 @@ void ConnectToGameBranch::start()
 		if (status != sf::Socket::Done)
 			std::cerr << "Failed to send with code: " << status << "\n";
 		else
-			std::cout << "Successfully sent data: " << request.toJson().dump(2, ' ', '\n') << "\n";
+			std::cout << "Successfully sent data: " << request.requestData().dump(2, ' ', '\n') << "\n";
 	}
 	GameManager::instance().action_manager.setTransfering(TransferType::Tcp);
 	send_status.setPosition(table.getCellGlobalPos(1, 2));

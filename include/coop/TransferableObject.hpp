@@ -26,15 +26,15 @@ template<class T>
 class TransferObjectBase : public TransferableObject, public GameObjectBase<T>
 {
 public:
-	~TransferObjectBase() override;
+	~TransferObjectBase() override = 0;
 
-	virtual rn::Json getData() const
+	rn::Json toJson() const override
 	{
-		return {};
+		return GameObjectBase<T>::toJson();
 	}
-	TransferJson toJson() const override
+	TransferJson requestData() const override
 	{
-		return { GameObjectBase<T>::identifier, getData() };
+		return { GameObjectBase<T>::identifier, toJson() };
 	}
 };
 

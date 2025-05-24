@@ -2,13 +2,23 @@
 #include "game/GameObjectFactory.hpp"
 
 GameObject::GameObject()
-    : id(GameObjectFactory::instance().push(this)) 
-{   
-}
-
-size_t GameObject::hash() const
+	: m_id(GameObjectFactory::instance().push(this))
 {
-	return id;
 }
 
-GameObject::~GameObject() = default;
+size_t GameObject::id() const
+{
+	return m_id;
+}
+
+GameObject::~GameObject()
+{
+	GameObjectFactory::instance().erase(m_id);
+}
+
+rn::Json GameObject::toJson() const
+{
+	return {
+		{ names::object_id, id() }
+	};
+}

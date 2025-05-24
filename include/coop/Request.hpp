@@ -9,5 +9,5 @@ struct Request : TransferObjectBase<Request>, rn::Json
     using rn::Json::Json;
     Request() = default;
     void receiveJson(const rn::Json &json) override;
-	rn::Json getData() const override;
+	rn::Json toJson() const override;
 };

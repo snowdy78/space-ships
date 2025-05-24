@@ -79,7 +79,7 @@ enum class DefaultBindingSeparators
 class TransferDataConverter;
 struct ConvertFunction;
 template<class FromType, class ToType, class ConvertFunc = ConvertFunction>
-class Converted;
+class ConvertedTransfer;
 
 template<class PropsT>
 concept BindingPropsConcept = requires {

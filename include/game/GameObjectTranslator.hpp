@@ -31,7 +31,7 @@ public:
 	void clearUpdateData();
 
 	void receiveJson(const rn::Json &json) override;
-	rn::Json getData() const override;
+	rn::Json toJson() const override;
 
 private:
 	TranslateType translate_type = TranslateType::Append;

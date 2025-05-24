@@ -13,7 +13,6 @@ public:
 	inline static const size_t identifier = identify();
 };
 
-
 template<class T>
 GameObjectBase<T>::~GameObjectBase() = default;
 

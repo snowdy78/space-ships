@@ -19,7 +19,7 @@ void GameObjectTranslator::receiveJson(const rn::Json &json)
 	}
 }
 
-rn::Json GameObjectTranslator::getData() const
+rn::Json GameObjectTranslator::toJson() const
 {
 	rn::Json arr;
 	for (auto &it: data_to_update)
@@ -56,7 +56,7 @@ bool GameObjectTranslator::insert(GameObjectFactory::ConstIterator iterator)
 {
 	if (auto obj = dynamic_cast<TransferableObject *>(iterator->second))
 	{
-		auto obj_json = Router::prepareObject(obj->toJson());
+		auto obj_json = Router::prepareObject(obj->requestData());
 		data_to_update.emplace(iterator->first, obj_json);
 		return true;
 	}

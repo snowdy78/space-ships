@@ -105,7 +105,7 @@ private:
 };
 
 template<class FromType, class ToType, class ConvertFunc>
-class Converted : public TransferObjectBase<FromType>
+class ConvertedTransfer : public TransferObjectBase<FromType>
 {
 	static const TransferDataConverter::value_type &createConversion();
 	static const TransferDataConverter::value_type &conversion()
@@ -116,11 +116,11 @@ class Converted : public TransferObjectBase<FromType>
 	const TransferDataConverter::value_type &_;
 
 public:
-	Converted()
+	ConvertedTransfer()
 		: _(conversion())
 	{
 	}
-	~Converted() override;
+	~ConvertedTransfer() override;
 
 	rn::Json convert() const
 	{
@@ -129,7 +129,7 @@ public:
 };
 
 template<class FromType, class ToType, class ConvertFunc>
-const TransferDataConverter::value_type &Converted<FromType, ToType, ConvertFunc>::createConversion()
+const TransferDataConverter::value_type &ConvertedTransfer<FromType, ToType, ConvertFunc>::createConversion()
 {
 	return TransferDataConverter::instance().push<FromType, ToType>(
 		TransferDataConverter::convert_function_t([](const rn::Json &json) {
@@ -139,4 +139,4 @@ const TransferDataConverter::value_type &Converted<FromType, ToType, ConvertFunc
 }
 
 template<class FromType, class ToType, class ConvertFunc>
-Converted<FromType, ToType, ConvertFunc>::~Converted() = default;
+ConvertedTransfer<FromType, ToType, ConvertFunc>::~ConvertedTransfer() = default;
