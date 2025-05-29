@@ -57,10 +57,10 @@ public:
 	AbstractAsteroid *summonAsteroid(const rn::Vec2f &summon_position, const rn::Vec2f &velocity);
 	void destroyAsteroid(const AbstractAsteroid *asteroid);
 	void destroyBullet(Bullet *const &bullet);
+	void destroyShip(const AbstractShip *ship);
 	virtual void onObjectAppend(GameObject *object) const
 	{
 	}
-	void destroyShip(const AbstractShip *ship);
 
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 	SpaceField &operator=(const SpaceField &other) = delete;
