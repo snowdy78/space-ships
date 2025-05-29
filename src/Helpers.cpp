@@ -28,6 +28,13 @@ std::ostream &operator<<(std::ostream &os, const sf::View &v)
 	   << ", h:" << v.getSize().y << ")";
 	return os;
 }
+
+rn::Vec2f randomAreaPoint(const sf::FloatRect &area)
+{
+	return { rn::random::real(area.getPosition().x, area.getPosition().x + area.getSize().x),
+	         rn::random::real(area.getPosition().y, area.getPosition().y + area.getSize().y) };
+}
+
 bool everyTime(rn::Stopwatch &clock, const float t)
 {
 	if (clock.is_stopped())
