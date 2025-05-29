@@ -10,7 +10,7 @@
 #include "decl.hpp"
 #include "game/Gun.hpp"
 #include "game/colliders/EllipseCollider.hpp"
-
+#include "components/effects/ShipEngineFlame.hpp"
 
 template<class T>
 concept GunConcept = std::is_base_of_v<Gun, T> && !std::is_same_v<Gun, T>;
@@ -23,7 +23,7 @@ class AbstractShip : public RigitBody2d, public Collidable, public Hittable, pub
 protected:
 	void updateGunPosition();
 	void updateCollider();
-	static sf::String generateRandomTeamName(size_t length = 16);
+	static size_t generateTeamHash(const sf::String &name);
 	void setMoveDirection(const rn::Vec2f &move_dir);
 
 public:
@@ -31,9 +31,9 @@ public:
 
 	const rn::Vec2f &getMoveDirection() const;
 	bool isFriend(const AbstractShip *) const;
-	void setTeamName(const sf::String &team_name);
+	void setTeam(const sf::String &team_name);
 	void resetTeamName();
-	const sf::String &getTeamName() const;
+	const size_t &getTeam() const;
 	void setGun(const Gun &gun);
 	const Gun *getGun() const;
 	rn::Vec2f getSize() const;
@@ -62,7 +62,6 @@ public:
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 protected:
-
 	inline static loading<AnimatedSprite> destroy_animation
 		= FileLoader::Instance().addAnimatedSpriteToUpload("./img/animation/Explosion4", ".png").get();
 	inline static loading<sf::SoundBuffer> hit_buffer = FileLoader::Instance().addSoundToUpload("hit.ogg").get();
@@ -71,20 +70,22 @@ protected:
 	};
 	sf::Sprite sprite;
 	std::unique_ptr<Gun> gun;
+
 private:
+	ShipEngineFlame m_engine_effect;
 	EllipseCollider collider;
 
 	SoundDisperseTraits hit_sound_traits{ 100, 300 };
 	SoundDisperseTraits destroy_sound_traits{ 200, 1000 };
 
-	sf::String team_name = generateRandomTeamName();
+	size_t m_team_hash = 0;
 	rn::Vec2f m_move_dir{};
 };
 
 template<GunConcept GunT>
 void AbstractShip::setGun()
 {
-	Gun *gun_ = new GunT;
+	Gun *gun_  = new GunT;
 	gun_->user = this;
 	gun.reset(gun_);
 }
