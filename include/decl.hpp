@@ -9,6 +9,10 @@
 #include "components/GameInfo.hpp"
 #include "exceptions/exceptions.hpp"
 
+#ifndef SPACE_SHIP_DEBUG
+	#define SPACE_SHIP_DEBUG
+#endif
+
 template<class T>
 rn::Json to_json(const rn::Vec2<T> &vec)
 {

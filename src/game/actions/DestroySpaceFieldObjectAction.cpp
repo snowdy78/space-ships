@@ -11,7 +11,7 @@ DestroySpaceFieldObjectAction::DestroySpaceFieldObjectAction(const TransferableA
 
 void DestroySpaceFieldObjectAction::play()
 {
-	if (!m_what_destroy)
+	if (!m_what_destroy || m_what_destroy->willBeDestroyed())
 		return;
 
 	m_what_destroy->destroy();

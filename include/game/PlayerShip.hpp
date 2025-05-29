@@ -1,7 +1,6 @@
 #pragma once
 
 #include "AbstractShip.hpp"
-#include "Camera2d.hpp"
 #include "ConnectedPlayerShip.hpp"
 #include "components/ControlsScheme/ControlsScheme.hpp"
 #include "components/FileLoader.hpp"

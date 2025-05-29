@@ -48,7 +48,6 @@ public:
 	const std::optional<rn::Vec2f> &getSize() const;
 
 	void onCollisionEnter(Collidable *obstacle) override;
-	void doDestroy() override;
 
 	bool isIntersected(const rn::Vec2f &point) const override;
 	const Collider *getCollider() const override;

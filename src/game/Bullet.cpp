@@ -90,11 +90,6 @@ void Bullet::move(const rn::Vec2f &p)
 	onMove();
 }
 
-void Bullet::doDestroy()
-{
-	if (GameManager::exist())
-		GameManager::session()->field.destroyBullet(this);
-}
 
 void Bullet::updateCollider()
 {

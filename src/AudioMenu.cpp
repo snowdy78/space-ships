@@ -65,8 +65,6 @@ void AudioMenu::update()
 		return;
 	th->launch();
 	background.update();
-	GameManager::instance().sound_manager.update();
-	GameManager::instance().effect_manager.update();
 	th->wait();
 	sf::Transform bg_transform = space->camera.getTransform();
 	window.clear();
@@ -113,9 +111,11 @@ void AudioMenu::updateObjectsState()
 {
 	if (!window.hasFocus() || !space)
 		return;
-	space->update();
 	GameManager::instance().action_manager.update();
+	GameManager::instance().sound_manager.update();
+	GameManager::instance().effect_manager.update();
 	Collidable::updateCollisionState();
+	space->update();
 }
 
 void AudioMenu::summonShip()

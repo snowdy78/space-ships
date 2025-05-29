@@ -86,13 +86,6 @@ void AbstractShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	target.draw(sprite, states);
 	target.draw(health_bar, st);
 }
-void AbstractShip::doDestroy()
-{
-	if (GameManager::exist())
-	{
-		GameManager::session()->field.remove(this);
-	}
-}
 void AbstractShip::onMove()
 {
 	updateGunPosition();

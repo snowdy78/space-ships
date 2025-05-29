@@ -2,140 +2,141 @@
 #include <algorithm>
 
 SpaceField::SpaceField(const Camera2d *camera)
-	: camera(camera),
-	  mother(camera)
+	: m_camera(camera),
+	  m_mother(camera)
 {
-}
-
-SpaceField::~SpaceField()
-{
-	for (auto &ship: ships)
-		delete ship;
 }
 
 void SpaceField::setCamera(const Camera2d *camera2d)
 {
-	camera = camera2d;
-	mother.setCamera(camera2d);
+	m_camera = camera2d;
+	m_mother.setCamera(camera2d);
 }
 
 const Camera2d *SpaceField::getCamera() const
 {
-	return camera;
+	return m_camera;
 }
 
 const BulletMother &SpaceField::getBulletMother() const
 {
-	return mother;
+	return m_mother;
 }
 
-void SpaceField::remove(const AbstractShip *ship)
+void SpaceField::destroyShip(const AbstractShip *ship)
 {
-	auto it = std::ranges::find(ships, ship);
-	if (it != ships.end())
+	auto it = std::ranges::find_if(m_ships, [ship](const ships_container::value_type &value) {
+		return ship == value.get();
+	});
+	if (it != m_ships.end())
 	{
-		delete *it;
-		ships.erase(it);
+		it->get()->need_destroy = true;
 	}
 }
 AbstractShip *SpaceField::get(size_t index)
 {
-	return ships.at(index);
+	return m_ships.at(index).get();
 }
 
 const AbstractShip *SpaceField::get(size_t index) const
 {
-	return ships.at(index);
+	return m_ships.at(index).get();
 }
 
 AbstractShip *SpaceField::operator[](size_t index)
 {
-	return ships[index];
+	return m_ships[index].get();
 }
 
 const AbstractShip *SpaceField::operator[](size_t index) const
 {
-	return ships[index];
+	return m_ships[index].get();
 }
 
 const SpaceField::ships_container &SpaceField::getShips() const
 {
-	return ships;
+	return m_ships;
 }
 void SpaceField::start()
 {
-	for (auto &ship: ships)
+	for (auto &ship: m_ships)
 		ship->start();
-	for (auto &asteroid: asteroids)
+	for (auto &asteroid: m_asteroids)
 		asteroid->start();
-	mother.start();
+	m_mother.start();
 }
 void SpaceField::update()
 {
-	for (auto &ship: ships)
+	garbageFree();
+	for (auto &ship: m_ships)
 		ship->update();
-	for (auto &asteroid: asteroids)
+	for (auto &asteroid: m_asteroids)
 		asteroid->update();
-	mother.update();
+	m_mother.update();
 }
 void SpaceField::onEvent(sf::Event &event)
 {
-	for (auto &ship: ships)
+	for (auto &ship: m_ships)
 		ship->onEvent(event);
-	for (auto &asteroid: asteroids)
+	for (auto &asteroid: m_asteroids)
 		asteroid->onEvent(event);
-	mother.onEvent(event);
+	m_mother.onEvent(event);
 }
 size_t SpaceField::size() const
 {
-	return ships.size();
+	return m_ships.size();
 }
 
 void SpaceField::clear()
 {
-	for (auto &ship: ships)
-		delete ship;
-	ships.clear();
-	asteroids.clear();
+	m_ships.clear();
+	m_asteroids.clear();
+	m_mother.clear();
 }
 
 void SpaceField::destroyAsteroid(const AbstractAsteroid *asteroid)
 {
-	auto it = std::ranges::find_if(asteroids, [asteroid](const asteroid_ptr_t &obj) {
+	auto it = std::ranges::find_if(m_asteroids, [asteroid](const asteroid_ptr_t &obj) {
 		return obj.get() == asteroid;
 	});
-	if (it != asteroids.end())
+	if (it != m_asteroids.end())
 	{
-		asteroids.erase(it);
+		it->get()->need_destroy = true;
 	}
 }
 
-void SpaceField::destroyBullet(const Bullet *const &bullet)
+void SpaceField::destroyBullet(Bullet *const &bullet)
 {
-	mother.destroy(bullet);
+	auto it = std::ranges::find_if(m_mother, [bullet](const BulletMother::value_type &child) {
+		return bullet == child.get();
+	});
+	if (it != m_mother.end())
+	{
+		it->bullet->need_destroy = true;
+	}
 }
 
 
 void SpaceField::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-	for (auto &iterator: mother)
+	for (auto &iterator: m_mother)
 		if (auto bullet = iterator.get())
 			target.draw(*bullet, states);
-	for (auto &ship: ships)
+	for (auto &ship: m_ships)
 		target.draw(*ship, states);
-	for (auto &asteroid: asteroids)
+	for (auto &asteroid: m_asteroids)
 		target.draw(*asteroid, states);
 }
 
-SpaceField &SpaceField::operator=(SpaceField &&other) noexcept
+void SpaceField::garbageFree()
 {
-	if (&other != this)
-	{
-		camera = other.camera;
-		mother = std::move(other.mother);
-		for (auto &ship: ships)
-			delete ship;
-		ships = std::move(other.ships);
-	}
-	return *this;
+	std::erase_if(m_ships, [](const ships_container::value_type &ship) {
+		return ship->need_destroy;
+	});
+	std::erase_if(m_asteroids, [](const asteroids_container::value_type &asteroid) {
+		return asteroid->need_destroy;
+	});
+	std::erase_if(m_mother, [](const BulletMother::value_type &child_bullet) {
+		return child_bullet.bullet->need_destroy;
+	});
 }

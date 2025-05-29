@@ -20,26 +20,17 @@ class SpaceField : public sf::Drawable, public rn::LogicalObject
 public:
 	template<class T>
 	using container = std::vector<T>;
-	using ship_ptr_t = AbstractShip *;
+	using ship_ptr_t = std::unique_ptr<AbstractShip>;
 	using asteroid_ptr_t = std::unique_ptr<AbstractAsteroid>;
 	using bullet_ptr_t = Bullet *;
 	using ships_container = container<ship_ptr_t>;
 	using asteroids_container = container<asteroid_ptr_t>;
-private:
-	ships_container ships{};
-	asteroids_container asteroids{};
-
-	const Camera2d *camera;
-	BulletMother mother{camera};
-
-public:
 	using iterator		 = std::vector<AbstractShip *>::iterator;
 	using const_iterator = std::vector<AbstractShip *>::const_iterator;
 
 	SpaceField(const Camera2d *camera = nullptr);
 	SpaceField(const SpaceField &field) = delete;
-	SpaceField(SpaceField &&) noexcept = default;
-	~SpaceField() override;
+	~SpaceField() override = default;
 
 	void setCamera(const Camera2d *camera2d);
 	const Camera2d *getCamera() const;
@@ -65,15 +56,22 @@ public:
 	template<AsteroidConcept AsteroidT>
 	AbstractAsteroid *summonAsteroid(const rn::Vec2f &summon_position, const rn::Vec2f &velocity);
 	void destroyAsteroid(const AbstractAsteroid *asteroid);
-	void destroyBullet(const Bullet *const &bullet);
+	void destroyBullet(Bullet *const &bullet);
 	virtual void onObjectAppend(GameObject *object) const
 	{
 	}
-	void remove(const AbstractShip *ship);
+	void destroyShip(const AbstractShip *ship);
 
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 	SpaceField &operator=(const SpaceField &other) = delete;
-	SpaceField &operator=(SpaceField &&other) noexcept;
+private:
+	void garbageFree();
+
+	ships_container m_ships{};
+	asteroids_container m_asteroids{};
+
+	const Camera2d *m_camera;
+	BulletMother m_mother{ m_camera };
 };
 
 
@@ -83,7 +81,7 @@ AbstractShip *SpaceField::summonShip(const Args &...args) noexcept
 {
 	T *ship = new T(args...);
 	ship->start();
-	ships.push_back(ship);
+	m_ships.emplace_back(ship);
 	this->onObjectAppend(ship);
 	return ship;
 }
@@ -94,7 +92,7 @@ Bullet *SpaceField::summonBullet(const std::function<void(BulletT &)> &init, con
 	BulletT *bullet = new BulletT;
 	init(*bullet);
 	bullet->author = gun;
-	mother.summon(bullet);
+	m_mother.summon(bullet);
 	bullet->start();
 	bullet->onSummon();
 	this->onObjectAppend(bullet);
@@ -109,7 +107,7 @@ AbstractAsteroid *SpaceField::summonAsteroid(const rn::Vec2f &summon_position, c
 	asteroid->setVelocity(rn::math::length(velocity));
 	asteroid->setDirection(rn::math::norm(velocity));
 	asteroid->start();
-	asteroids.emplace_back(asteroid);
+	m_asteroids.emplace_back(asteroid);
 	this->onObjectAppend(asteroid);
 	return asteroid;
 }

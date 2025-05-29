@@ -20,7 +20,6 @@ public:
 	void rotation() override;
 	void start() override;
 	void update() override;
-	void doDestroy() override;
 	virtual void updateCollider() = 0;
 	const Collider *getCollider() const override;
 	void onCollisionEnter(Collidable *obstacle) override;

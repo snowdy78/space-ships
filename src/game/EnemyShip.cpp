@@ -27,14 +27,18 @@ void EnemyShip::summonCopy(SpaceField &field) const
 
 rn::Vec2f EnemyShip::countMove() const
 {
+	std::cout << "enemy target: " << target << " enemy randomly_move data: " << randomly_move.has_value() << "\n";
 	if (!target)
 		return {};
-	if (!randomly_move)
+	if (!randomly_move.has_value())
 		randomly_move = rn::random::integer(0, 1);
-	float sign = *randomly_move
-				 * rn::math::sgn(rn::math::length(target->getPosition() - getPosition()) - min_distance_to_target);
+	using rn::math::number_t;
+	float sign
+		= static_cast<float>(*randomly_move)
+		  * static_cast<float>(rn::math::sgn(
+			  rn::math::length(target->getPosition() - getPosition()) - static_cast<number_t>(min_distance_to_target)
+		  ));
 	rn::Vec2f dir{ getMoveDirection() * sign };
-
 	return getAcceleration() * getVelocity() * dir;
 }
 void EnemyShip::rotation()

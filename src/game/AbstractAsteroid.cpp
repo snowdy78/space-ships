@@ -67,12 +67,6 @@ void AbstractAsteroid::update()
 	onMove();	
 }
 
-void AbstractAsteroid::doDestroy()
-{
-	if (GameManager::exist())
-		GameManager::session()->field.destroyAsteroid(this);
-}
-
 
 const Collider *AbstractAsteroid::getCollider() const
 {
