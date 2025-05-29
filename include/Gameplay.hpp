@@ -7,7 +7,7 @@
 
 // audio distance playing
 
-class AudioMenu : public rn::MenuBranch
+class Gameplay : public rn::MenuBranch
 {
 	Background background{};
 	GameInfo info;
@@ -17,8 +17,8 @@ class AudioMenu : public rn::MenuBranch
 	bool dev_mode = true;
 
 public:
-	explicit AudioMenu(sf::RenderWindow &window);
-	~AudioMenu() override;
+	explicit Gameplay(sf::RenderWindow &window);
+	~Gameplay() override;
 	void start() override;
 	void updateObjectsState();
 	void summonShip();

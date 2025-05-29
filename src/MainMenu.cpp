@@ -1,5 +1,5 @@
 #include "MainMenu.hpp"
-#include "AudioMenu.hpp"
+#include "Gameplay.hpp"
 #include "ConnectToGameBranch.hpp"
 #include "HostGameBranch.hpp"
 
@@ -43,7 +43,7 @@ void MainMenu::onEvent(sf::Event &event)
 	if (event.type == sf::Event::Closed)
 		window.close();
 	if (play_button.isClicked(sf::Mouse::Left))
-		next_branch<AudioMenu>(window);
+		next_branch<Gameplay>(window);
 	else if (host_button.isClicked(sf::Mouse::Left))
 		next_branch<HostGameBranch>(window);
 	else if (connect_button.isClicked(sf::Mouse::Left))
