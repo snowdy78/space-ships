@@ -13,16 +13,6 @@
 	#define SPACE_SHIP_DEBUG
 #endif
 
-template<class T>
-rn::Json to_json(const rn::Vec2<T> &vec)
-{
-	return {
-		{ "x", vec.x },
-		{ "y", vec.y }
-	};
-}
-
-
 inline sf::Mutex mutex;
 struct ChatSocket;
 struct Client;

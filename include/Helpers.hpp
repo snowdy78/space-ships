@@ -3,6 +3,33 @@
 #include "decl.hpp"
 #include "game/GameManager.hpp"
 
+
+template<class T>
+rn::Json to_json(const rn::Vec2<T> &vec)
+{
+	return {
+		{ "x", vec.x },
+		{ "y", vec.y }
+	};
+}
+
+rn::Json to_json(const sf::Transformable &transformable);
+rn::Json to_json(const RigitBody2d &body);
+template<class T>
+rn::Vec2<T> vector_from_json(const rn::Json &json)
+{
+	if (!json.contains("x") || !json.contains("y"))
+	{
+		using namespace std::string_literals;
+		throw std::out_of_range(
+			"json does not contains keys ["s + (!json.contains("x") ? "x " : "") + (!json.contains("y") ? "y " : "")
+		);
+	}
+	return rn::Vec2<T>(json["x"], json["y"]);
+}
+void json_assign(sf::Transformable &t, const rn::Json &json);
+void json_assign(RigitBody2d &body, const rn::Json &json);
+
 sf::SoundBuffer loadSound(const sf::String &file_name);
 /**
  * @brief if clock is running then it will check on every frame does it over rollback
