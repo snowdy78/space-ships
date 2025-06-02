@@ -27,7 +27,11 @@ public:
 	virtual float getMillisDelay() const;
 
 protected:
-	virtual void summonBullet() const = 0;
+	/**
+	 * @brief should return the id of a bullet
+	 * @return 
+	 */
+	virtual size_t bullet() const = 0;
 	virtual void onShoot()
 	{
 	}

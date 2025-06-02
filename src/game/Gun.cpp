@@ -1,6 +1,6 @@
 #include "game/Gun.hpp"
 #include "Helpers.hpp"
-#include "game/AbstractShip.hpp"
+#include "game/actions/AbstractSummonAction.hpp"
 #include "game/GameManager.hpp"
 #include "game/actions/ShootAction.hpp"
 
@@ -27,7 +27,13 @@ void Gun::fire()
 {
 	if (GameManager::exist())
 	{
-		summonBullet();
+		GameManager::session()->action_manager.emplaceToTop<SummonBulletAction>(
+			bullet(), [this](Bullet &bullet) {
+				bullet.author = this;
+				bullet.setPosition(getPosition());
+				bullet.setDirection(getTrajectory());
+			}
+		);
 		onShoot();
 		startRollback();
 	}

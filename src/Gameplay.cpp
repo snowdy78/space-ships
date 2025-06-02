@@ -3,7 +3,7 @@
 #include "Helpers.hpp"
 #include "RuneEngine/EngineDecl.hpp"
 #include "RuneEngine/SettingsFile.hpp"
-#include "coop/TransferableAction.hpp"
+#include "game/actions/AbstractSummonAction.hpp"
 #include "decl.hpp"
 #include "game/EnemyShip.hpp"
 #include "game/asteroids/SimpleAsteroid.hpp"
@@ -119,19 +119,22 @@ void Gameplay::updateObjectsState()
 
 void Gameplay::summonShip()
 {
-	if (!space)
+	if (!space || !GameManager::exist())
 		return;
-	auto res = rn::Vec2f(rn::VideoSettings::getResolution());
-	space->field.summonShip<EnemyShip>();
-	auto ship = dynamic_cast<EnemyShip *>(space->field[space->field.size() - 1]);
-	if (ship)
-	{
-		ship->start();
-		if (!space->player)
-			std::cerr << "cannot set nullptr as ship target\n";
-		ship->setTarget(space->player);
-		rn::Vec2f randomPosition{ rn::random::real(0.f, 1.f) * space->camera.getViewSize().x,
-								  rn::random::real(0.f, 1.f) * space->camera.getViewSize().x };
-		ship->setPosition(space->camera.getPosition() + randomPosition);
-	}
+	GameManager::session()->action_manager.emplaceToTop<SummonShipAction>(
+		EnemyShip::identifier, [this](AbstractShip &ship) {
+			if (auto enemy = dynamic_cast<EnemyShip *>(&ship))
+			{
+#ifdef SPACE_SHIP_DEBUG
+				if (!space->player)
+					std::cerr << "cannot set nullptr as ship target\n";
+#endif
+				enemy->setTarget(space->player);
+				rn::Vec2f randomPosition{ rn::random::real(0.f, 1.f) * space->camera.getViewSize().x,
+										  rn::random::real(0.f, 1.f) * space->camera.getViewSize().x };
+				enemy->setPosition(space->camera.getPosition() + randomPosition);
+			}
+			
+		}
+	);
 }

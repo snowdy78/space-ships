@@ -3,7 +3,6 @@
 #include "AbstractShip.hpp"
 #include "BulletMother.hpp"
 #include "decl.hpp"
-#include "game/BulletMother.hpp"
 #include "game/AbstractAsteroid.hpp"
 
 template<class T>
@@ -54,7 +53,10 @@ public:
 	template<BulletConcept BulletT>
 	Bullet *summonBullet(const std::function<void(BulletT &)> &init, const Gun *gun) noexcept;
 	template<AsteroidConcept AsteroidT>
-	AbstractAsteroid *summonAsteroid(const rn::Vec2f &summon_position, const rn::Vec2f &velocity);
+	AbstractAsteroid *summonAsteroid(const rn::Vec2f &summon_position = {}, const rn::Vec2f &velocity = {});
+	void push_back(AbstractShip *ship);
+	void push_back(Bullet *bullet, const Gun *const &gun = nullptr);
+	void push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_position = {}, const rn::Vec2f &velocity = {});
 	void destroyAsteroid(const AbstractAsteroid *asteroid);
 	void destroyBullet(Bullet *const &bullet);
 	void destroyShip(const AbstractShip *ship);

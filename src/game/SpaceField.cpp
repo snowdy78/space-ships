@@ -94,6 +94,39 @@ void SpaceField::clear()
 	m_mother.clear();
 }
 
+void SpaceField::push_back(AbstractShip *ship)
+{
+	if (!ship)
+		throw std::runtime_error("Error: Cannot summon null on field");
+	ship->start();
+	m_ships.emplace_back(ship);
+	onObjectAppend(ship);
+}
+
+void SpaceField::push_back(Bullet *bullet, const Gun * const &gun)
+{
+	if (!bullet)
+		throw std::runtime_error("Error: Cannot summon null on field");
+	if (gun)
+		bullet->author = gun;
+	m_mother.summon(bullet);
+	bullet->start();
+	bullet->onSummon();
+	onObjectAppend(bullet);
+}
+
+void SpaceField::push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_position, const rn::Vec2f &velocity)
+{
+	if (!asteroid)
+		throw std::runtime_error("Error: Cannot summon null on field");
+	asteroid->setPosition(summon_position);
+	asteroid->setVelocity(static_cast<float>(rn::math::length(velocity)));
+	asteroid->setDirection(rn::math::norm(velocity));
+	asteroid->start();
+	m_asteroids.emplace_back(asteroid);
+	onObjectAppend(asteroid);
+}
+
 void SpaceField::destroyAsteroid(const AbstractAsteroid *asteroid)
 {
 	auto it = std::ranges::find_if(m_asteroids, [asteroid](const asteroid_ptr_t &obj) {

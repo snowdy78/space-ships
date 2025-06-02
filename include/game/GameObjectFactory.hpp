@@ -49,6 +49,17 @@ public:
 	template<GameObjectConcept T>
 	size_t push() noexcept;
 	size_t find(const GameObject *object) const;
+	/**
+	 * @brief true, if factory has specific game object
+	 * @param object 
+	 * @return 
+	 */
+	bool contains(const GameObject *object) const;
+	/**
+	 * @brief true, if factory can create an object with specific identifier
+	 * @return 
+	 */
+	bool can_create(size_t id) const;
 	void erase(size_t id);
 	void clear();
 	size_t size() const;

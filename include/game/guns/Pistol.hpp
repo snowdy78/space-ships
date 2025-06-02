@@ -15,7 +15,7 @@ class Pistol : public Gun, public GameObjectBase<Pistol>
 
 public:
 	using Gun::Gun;
-	void summonBullet() const override;
+	size_t bullet() const override;
 	rn::Vec2f getTrajectory() const override;
 	Gun *copy() const override;
 	void onShoot() override;

@@ -125,6 +125,19 @@ size_t GameObjectFactory::find(const GameObject *object) const
 	throw std::out_of_range("Object not found");
 }
 
+bool GameObjectFactory::contains(const GameObject *object) const
+{
+	auto it = std::ranges::find_if(objects, [object](std::pair<size_t, GameObject *> other) {
+		return object == other.second;
+	});
+	return it != objects.end();
+}
+
+bool GameObjectFactory::can_create(size_t id) const
+{
+	return m_factory.contains(id);
+}
+
 void GameObjectFactory::erase(size_t id)
 {
 	objects.erase(id);

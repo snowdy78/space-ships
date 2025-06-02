@@ -27,7 +27,6 @@ void EnemyShip::summonCopy(SpaceField &field) const
 
 rn::Vec2f EnemyShip::countMove() const
 {
-	std::cout << "enemy target: " << target << " enemy randomly_move data: " << randomly_move.has_value() << "\n";
 	if (!target)
 		return {};
 	if (!randomly_move.has_value())

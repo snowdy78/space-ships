@@ -4,15 +4,9 @@
 #include "game/GameManager.hpp"
 #include "game/bullets/BaseBullet.hpp"
 
-void Pistol::summonBullet() const
+size_t Pistol::bullet() const
 {
-	if (GameManager::exist())
-	{
-		GameManager::session()->field.summonBullet<BaseBullet>([this](BaseBullet &bullet) {
-			bullet.setPosition(getPosition());
-			bullet.setDirection(getTrajectory());
-		}, this);
-	}
+	return BaseBullet::identifier;
 }
 Gun *Pistol::copy() const
 {
@@ -39,5 +33,5 @@ rn::Vec2f Pistol::getTrajectory() const
 {
 	auto angle
 		= rn::math::rot(user->getDirection()) + rn::math::degrees(rn::random::real(-1.f, 1.f) * disperse_angle / 2.f);
-	return rn::math::direction(angle);
+	return direction(angle);
 }

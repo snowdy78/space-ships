@@ -1,4 +1,6 @@
 #include "game/actions/ShootAction.hpp"
+#include "game/actions/AbstractSummonAction.hpp"
+#include "game/GameManager.hpp"
 #include "game/Gun.hpp"
 
 ShootAction::ShootAction(const TransferableActionProps &props)
