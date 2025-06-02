@@ -121,8 +121,8 @@ void Bullet::onCollisionEnter(Collidable *obstacle)
 {
 	if (auto hittable = dynamic_cast<Hittable *>(obstacle); GameManager::exist())
 	{
-		GameManager::instance().action_manager.emplaceToTop<DestroySpaceFieldObjectAction>(TransferableActionProps{this});
-		GameManager::instance().action_manager.emplaceToTop<DealDamageAction>(TransferableActionProps{this, hittable});
+		GameManager::session()->action_manager.emplaceToTop<DestroySpaceFieldObjectAction>(TransferableActionProps{this});
+		GameManager::session()->action_manager.emplaceToTop<DealDamageAction>(TransferableActionProps{this, hittable});
 	}
 }
 void Bullet::setTexture(const sf::Texture &texture)

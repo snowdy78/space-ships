@@ -1,6 +1,5 @@
 #pragma once
 
-#include "RuneEngine/Math/math_functionality.hpp"
 #include "decl.hpp"
 
 class Direction : public rn::Vec2f

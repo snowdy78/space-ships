@@ -2,6 +2,7 @@
 
 #include "components/LocalDriveSession.hpp"
 #include "SpaceField.hpp"
+#include "actions/ActionManager.hpp"
 #include "components/TargetCamera.hpp"
 
 class GameSession : protected LocalDriveSession, public rn::LogicalObject
@@ -19,6 +20,7 @@ public:
 	void update() override;
 	void onEvent(sf::Event &event) override;
 	AbstractShip *player = nullptr;
+	ActionManager action_manager;
 	TargetCamera camera;
 	struct GameSessionSpaceField : SpaceField
 	{

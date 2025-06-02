@@ -104,7 +104,7 @@ bool AbstractShip::resolve(const Collidable *collidable) const
 void AbstractShip::onCollisionEnter(Collidable *collidable)
 {
 	if (auto dd = dynamic_cast<DamageDealer *>(collidable); GameManager::exist())
-		GameManager::instance().action_manager.emplaceToTop<TakeDamageAction>(TransferableActionProps{ this, dd });
+		GameManager::session()->action_manager.emplaceToTop<TakeDamageAction>(TransferableActionProps{ this, dd });
 }
 void AbstractShip::onHit()
 {

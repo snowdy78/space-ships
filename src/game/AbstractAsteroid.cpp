@@ -77,7 +77,7 @@ void AbstractAsteroid::onCollisionEnter(Collidable *obstacle)
 {
 	if (GameManager::exist())
 	{
-		GameManager::instance().action_manager.emplaceToTop<DestroySpaceFieldObjectAction>(TransferableActionProps{
+		GameManager::session()->action_manager.emplaceToTop<DestroySpaceFieldObjectAction>(TransferableActionProps{
 			this });
 	}
 }

@@ -62,7 +62,7 @@ public:
 	void pushAction(const action_props &props) const
 	{
 		if (GameManager::exist())
-			GameManager::instance().action_manager.addToTop(std::unique_ptr<AbstractAction>(createAction(props)));
+			GameManager::session()->action_manager.addToTop(std::unique_ptr<AbstractAction>(createAction(props)));
 	}
 	template<class P, class K>
 		requires SchemeBindingPropsKeysConcept<K, AcceptedKeyTypes, P, PropsTypes...>

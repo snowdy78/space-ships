@@ -8,6 +8,7 @@
 #include "game/EnemyShip.hpp"
 #include "game/asteroids/SimpleAsteroid.hpp"
 
+
 Gameplay::Gameplay(sf::RenderWindow &window)
 	: MenuBranch(window)
 {
@@ -51,7 +52,7 @@ void Gameplay::start()
 		space->start();
 		GameManager::instance().effect_manager.start();
 		GameManager::instance().sound_manager.start();
-		GameManager::instance().action_manager.start();
+		GameManager::session()->action_manager.start();
 	}
 	background.start();
 	fps_clock.start();
@@ -79,7 +80,7 @@ void Gameplay::onEvent(sf::Event &event)
 	background.onEvent(event);
 	if (space)
 	{
-		GameManager::instance().action_manager.onEvent(event);
+		GameManager::session()->action_manager.onEvent(event);
 		if (window.hasFocus())
 			space->onEvent(event);
 	}
@@ -109,7 +110,7 @@ void Gameplay::updateObjectsState()
 {
 	if (!window.hasFocus() || !space)
 		return;
-	GameManager::instance().action_manager.update();
+	GameManager::session()->action_manager.update();
 	GameManager::instance().sound_manager.update();
 	GameManager::instance().effect_manager.update();
 	Collidable::updateCollisionState();

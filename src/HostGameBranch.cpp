@@ -31,7 +31,7 @@ void HostGameBranch::start()
 	receive_status.setPosition(table.getCellGlobalPos(1, 3));
 	if (GameManager::exist())
 		session = GameManager::session();
-	GameManager::instance().action_manager.setTransfering(TransferType::Tcp);
+	GameManager::session()->action_manager.setTransfering(TransferType::Tcp);
 	online	= GameManager::instance().online.get();
 	auto ls = online->tcp->host();
 	if (ls == sf::Socket::Done)
@@ -41,7 +41,7 @@ void HostGameBranch::start()
 	{
 		session->start();
 		background.start();
-		GameManager::instance().action_manager.start();
+		GameManager::session()->action_manager.start();
 	}
 }
 void HostGameBranch::update()
@@ -56,7 +56,7 @@ void HostGameBranch::update()
 		return;
 	}
 	session->update();
-	GameManager::instance().action_manager.update();
+	GameManager::session()->action_manager.update();
 	background.update();
 	receivePackets();
 	window.clear();
@@ -76,7 +76,7 @@ void HostGameBranch::onEvent(sf::Event &event)
 	if (rn::isKeydown(sf::Keyboard::Escape))
 		next_branch<MainMenu>(window);
 	session->onEvent(event);
-	GameManager::instance().action_manager.onEvent(event);
+	GameManager::session()->action_manager.onEvent(event);
 }
 
 void HostGameBranch::receivePackets() const
@@ -110,7 +110,7 @@ void HostGameBranch::receivePackets() const
 		}
 		if (response.is_action())
 		{
-			GameManager::instance().action_manager.receiveToTop(response.action());
+			GameManager::session()->action_manager.receiveToTop(response.action());
 		}
 	}
 }

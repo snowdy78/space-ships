@@ -4,8 +4,6 @@
 #include "decl.hpp"
 #include "components/EffectManager.hpp"
 #include "SpaceField.hpp"
-#include "actions/ActionManager.hpp"
-#include "components/TargetCamera.hpp"
 #include "coop/TcpRouter.hpp"
 #include "coop/UdpRouter.hpp"
 #include "GameSession.hpp"
@@ -46,7 +44,6 @@ private:
     inline static std::unique_ptr<GameManager> instance_ptr = nullptr;
 	GameSession m_session;
 public:
-    ActionManager action_manager;
     EffectManager effect_manager;
     SoundManager sound_manager;
     std::unique_ptr<OnlineTraits> online{nullptr};
