@@ -1,11 +1,14 @@
-#include "AudioMenu.hpp"
+#include "Gameplay.hpp"
+
+#include "Helpers.hpp"
 #include "RuneEngine/EngineDecl.hpp"
 #include "RuneEngine/SettingsFile.hpp"
+#include "coop/TransferableAction.hpp"
 #include "decl.hpp"
 #include "game/EnemyShip.hpp"
-#include "coop/TransferableAction.hpp"
+#include "game/asteroids/SimpleAsteroid.hpp"
 
-AudioMenu::AudioMenu(sf::RenderWindow &window)
+Gameplay::Gameplay(sf::RenderWindow &window)
 	: MenuBranch(window)
 {
 	th.reset(new sf::Thread([this]() {
@@ -14,13 +17,13 @@ AudioMenu::AudioMenu(sf::RenderWindow &window)
 	info.setVisible(dev_mode);
 }
 
-AudioMenu::~AudioMenu()
+Gameplay::~Gameplay()
 {
 	window.setView(window.getDefaultView());
 	GameManager::clear();
 }
 
-void AudioMenu::start()
+void Gameplay::start()
 {
 	GameManager::create(window, [&]() {
 		background.setPosition(space->camera.getPosition());
@@ -43,11 +46,9 @@ void AudioMenu::start()
 	info.addData("fps", [&]() -> sf::String {
 		return std::to_string(rn::FPS);
 	});
-	rn::Vec2f res{ rn::VideoSettings::getResolution() };
 	if (space)
 	{
 		space->start();
-		summonShip();
 		GameManager::instance().effect_manager.start();
 		GameManager::instance().sound_manager.start();
 		GameManager::instance().action_manager.start();
@@ -56,14 +57,12 @@ void AudioMenu::start()
 	fps_clock.start();
 }
 
-void AudioMenu::update()
+void Gameplay::update()
 {
 	if (!space || !window.isOpen())
 		return;
 	th->launch();
 	background.update();
-	GameManager::instance().sound_manager.update();
-	GameManager::instance().effect_manager.update();
 	th->wait();
 	sf::Transform bg_transform = space->camera.getTransform();
 	window.clear();
@@ -75,16 +74,14 @@ void AudioMenu::update()
 	window.display();
 }
 
-void AudioMenu::onEvent(sf::Event &event)
+void Gameplay::onEvent(sf::Event &event)
 {
 	background.onEvent(event);
 	if (space)
 	{
 		GameManager::instance().action_manager.onEvent(event);
 		if (window.hasFocus())
-		{
 			space->onEvent(event);
-		}
 	}
 	if (event.type == sf::Event::Closed)
 	{
@@ -99,21 +96,27 @@ void AudioMenu::onEvent(sf::Event &event)
 	if (dev_mode)
 	{
 		if (rn::isKeydown(sf::Keyboard::P))
-		{
 			summonShip();
+		if (rn::isKeydown(sf::Keyboard::O))
+		{
+			randomlySummonAsteroidOutsideArea<SimpleAsteroid>(
+				space->camera.getTransform().transformRect({ {}, space->camera.getViewSize() }), 10.f
+			);
 		}
 	}
 }
-void AudioMenu::updateObjectsState()
+void Gameplay::updateObjectsState()
 {
 	if (!window.hasFocus() || !space)
 		return;
-	space->update();
 	GameManager::instance().action_manager.update();
+	GameManager::instance().sound_manager.update();
+	GameManager::instance().effect_manager.update();
 	Collidable::updateCollisionState();
+	space->update();
 }
 
-void AudioMenu::summonShip()
+void Gameplay::summonShip()
 {
 	if (!space)
 		return;

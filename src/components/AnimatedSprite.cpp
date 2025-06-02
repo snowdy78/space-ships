@@ -64,7 +64,7 @@ bool AnimatedSprite::load(const AnimationDataInfo &datainfo)
 		{
 			std::wstring str{ item.path() };
 			std::string path{ str.begin(), str.end() };
-			if (str.find(datainfo.file_extention.c_str()))
+			if (str.find(datainfo.file_extention.c_str()) != std::wstring::npos)
 			{
 				paths.push_back(std::move(path));
 			}

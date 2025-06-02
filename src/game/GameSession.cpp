@@ -12,9 +12,9 @@ GameSession::GameSession(TargetCamera &&camera)
 void GameSession::start()
 {
 	rn::Vec2f res{ rn::VideoSettings::getResolution() };
+	field.start();
 	createPlayer();
 	player->setPosition(res / 2.f);
-	field.start();
 }
 
 void GameSession::update()

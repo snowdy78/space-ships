@@ -6,6 +6,7 @@
 class SpaceFieldObject : public virtual GameObject
 {
 	friend class SpaceField;
+	bool need_destroy = false;
 
 protected:
 	virtual void onDestroy()
@@ -14,11 +15,11 @@ protected:
 	virtual void onSummon() const
 	{
 	}
-	virtual void doDestroy() = 0;
 
 public:
 	SpaceFieldObject();
 	~SpaceFieldObject() override;
+	bool willBeDestroyed() const;
 	virtual void summonCopy(SpaceField &field) const = 0;
 	/**
 	 * @brief proceed destroying from the field

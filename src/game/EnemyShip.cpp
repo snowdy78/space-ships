@@ -20,32 +20,25 @@ const AbstractShip *EnemyShip::getTarget() const
 	return target;
 }
 
-
-void EnemyShip::onMove()
-{
-	AbstractShip::onMove();
-	updateCollider();
-}
-void EnemyShip::onHit()
-{
-	AbstractShip::onHit();
-}
-
-void EnemyShip::summonCopy(SpaceField& field) const
+void EnemyShip::summonCopy(SpaceField &field) const
 {
 	field.summonShip<EnemyShip>();
 }
 
 rn::Vec2f EnemyShip::countMove() const
 {
+	std::cout << "enemy target: " << target << " enemy randomly_move data: " << randomly_move.has_value() << "\n";
 	if (!target)
 		return {};
-	if (!randomly_move)
+	if (!randomly_move.has_value())
 		randomly_move = rn::random::integer(0, 1);
-	float sign = *randomly_move
-				 * rn::math::sgn(rn::math::length(target->getPosition() - getPosition()) - min_distance_to_target);
+	using rn::math::number_t;
+	float sign
+		= static_cast<float>(*randomly_move)
+		  * static_cast<float>(rn::math::sgn(
+			  rn::math::length(target->getPosition() - getPosition()) - static_cast<number_t>(min_distance_to_target)
+		  ));
 	rn::Vec2f dir{ getMoveDirection() * sign };
-
 	return getAcceleration() * getVelocity() * dir;
 }
 void EnemyShip::rotation()
@@ -67,12 +60,12 @@ void EnemyShip::movement()
 	if (static_cast<int>(clock.getElapsedTime().asSeconds()) % 3 == 1)
 	{
 		setMoveDirection(getDirection());
-		GameManager::instance().action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{this, nullptr});
+		GameManager::instance().action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ this });
 	}
 	if (clock.getElapsedTime().asMilliseconds() % 1000 > 500)
 	{
 		setMoveDirection(Direction{ rn::math::nor(getDirection()) });
-		GameManager::instance().action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{this, nullptr});
+		GameManager::instance().action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ this });
 	}
 }
 
