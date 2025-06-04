@@ -19,6 +19,7 @@ void GameSession::start()
 
 void GameSession::update()
 {
+	action_manager.update();
 	field.update();
 }
 
@@ -50,7 +51,7 @@ GameSession::GameSessionSpaceField::GameSessionSpaceField(GameSession *session, 
 {
 }
 
-void GameSession::GameSessionSpaceField::onObjectAppend(GameObject *object) const
+void GameSession::GameSessionSpaceField::onObjectSummon(GameObject *object) const
 {
 	if (!m_session)
 		return;

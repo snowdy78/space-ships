@@ -7,6 +7,8 @@
 #include "game/RigitBody2d.hpp"
 #include "game/actions/TakeDamageAction.hpp"
 #include "game/guns/Pistol.hpp"
+#include "game/DamageDealer.hpp"
+#include "game/AbstractBullet.hpp"
 
 AbstractShip::AbstractShip(const sf::Texture &texture)
 	: sprite(texture)
@@ -96,7 +98,7 @@ size_t AbstractShip::generateTeamHash(const sf::String &name)
 }
 bool AbstractShip::resolve(const Collidable *collidable) const
 {
-	auto bullet = dynamic_cast<const Bullet *>(collidable);
+	auto bullet = dynamic_cast<const AbstractBullet *>(collidable);
 	bool state	= bullet;
 	state		= state && bullet->author->user != this;
 	return state;

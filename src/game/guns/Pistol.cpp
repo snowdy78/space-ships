@@ -25,9 +25,9 @@ void Pistol::onShoot()
 		);
 	}
 }
-float Pistol::getMillisDelay() const
+std::chrono::milliseconds Pistol::getRollback() const
 {
-	return 500;
+	return std::chrono::milliseconds{500};
 }
 rn::Vec2f Pistol::getTrajectory() const
 {

@@ -54,5 +54,13 @@ public:
 	const Collidable *getObstacle(size_t index) const;
 	size_t getCollisionCount() const;
 	CollisionState getCollisionState(Collidable *obstacle) const;
+	/**
+	 * \brief Resolves a collision between this Bullet and the given Collidable.
+	 *
+	 * The collision is resolved if the Collidable is not a Bullet.
+	 *
+	 * \param collidable The collidable to check against.
+	 * \return True if the collision is resolved, false otherwise.
+	 */
 	virtual bool resolve(const Collidable *collidable) const = 0;
 };

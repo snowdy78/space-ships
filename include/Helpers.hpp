@@ -1,8 +1,8 @@
 #pragma once
 
 #include "decl.hpp"
+#include "game/AbstractAsteroid.hpp"
 #include "game/GameManager.hpp"
-
 
 template<class T>
 rn::Json to_json(const rn::Vec2<T> &vec)
@@ -32,12 +32,24 @@ void json_assign(RigitBody2d &body, const rn::Json &json);
 
 sf::SoundBuffer loadSound(const sf::String &file_name);
 /**
- * @brief if clock is running then it will check on every frame does it over rollback
+ * @brief true if time is over the `t` parameter
  * @param clock Stopwatch to check
  * @param t modulo value
- * @return True if delay is over and stop clock
  */
-bool everyTime(rn::Stopwatch &clock, const float t);
+bool everyTime(const rn::Stopwatch &clock, const std::chrono::milliseconds &t);
+
+/**
+ * @brief true on time interval [2*n*t, t1 + 2*n*`t`], false on interval (t1 + 2*n*t, 2*t2 + 2*n*t] where n is an integer
+ * step
+ * @param clock
+ * @param t1 - first interval time value
+ * @param t2 - second interval time value
+ * @return
+ */
+bool timeStep(
+	const rn::Stopwatch &clock, const std::chrono::milliseconds &t1,
+	std::optional<std::chrono::milliseconds> t2 = std::nullopt
+);
 
 std::ostream &operator<<(std::ostream &os, const sf::Vector2f &v);
 std::ostream &operator<<(std::ostream &os, const sf::FloatRect &v);

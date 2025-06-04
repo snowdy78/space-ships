@@ -86,8 +86,3 @@ bool AbstractAsteroid::resolve(const Collidable *obstacle) const
 {
 	return dynamic_cast<const SpaceFieldObject *>(obstacle);
 }
-
-rn::Vec2f AbstractAsteroid::countMove() const
-{
-	return getVelocity() * getDirection() * getAcceleration();
-}

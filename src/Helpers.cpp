@@ -1,5 +1,5 @@
 #include "Helpers.hpp"
-
+#include <optional>
 rn::Json to_json(const sf::Transformable &transformable)
 {
 	return {
@@ -46,13 +46,14 @@ void json_assign(sf::Transformable &t, const rn::Json &json)
 
 void json_assign(RigitBody2d &body, const rn::Json &json)
 {
-	if (!(json.contains("velocity") && json.contains("direction") && json.contains("acceleration") && json.contains("mass")))
+	if (!(json.contains("velocity") && json.contains("direction") && json.contains("acceleration")
+		  && json.contains("mass")))
 	{
 		using namespace std::string_literals;
 		throw std::out_of_range(
 			"json does not contains keys ["s + (!json.contains("velocity") ? "velocity " : "")
-			+ (!json.contains("direction") ? "direction " : "") + (!json.contains("acceleration") ? "acceleration " : "")
-			+ (!json.contains("mass") ? "mass " : "") + "]"
+			+ (!json.contains("direction") ? "direction " : "")
+			+ (!json.contains("acceleration") ? "acceleration " : "") + (!json.contains("mass") ? "mass " : "") + "]"
 		);
 	}
 	json_assign(static_cast<sf::Transformable &>(body), json);
@@ -97,14 +98,24 @@ rn::Vec2f randomAreaPoint(const sf::FloatRect &area)
 	return { rn::random::real(area.getPosition().x, area.getPosition().x + area.getSize().x),
 			 rn::random::real(area.getPosition().y, area.getPosition().y + area.getSize().y) };
 }
-bool everyTime(rn::Stopwatch &clock, const float t)
+bool everyTime(const rn::Stopwatch &clock, const std::chrono::milliseconds &t)
 {
 	if (clock.is_stopped())
 		return false;
-	if (clock.time<std::chrono::milliseconds>().count() > t)
-	{
-		clock.stop();
+	return clock.time<std::chrono::milliseconds>() > t;
+}
+
+bool timeStep(
+	const rn::Stopwatch &clock, const std::chrono::milliseconds &t1, std::optional<std::chrono::milliseconds> t2
+)
+{
+	using ms_t = std::chrono::milliseconds;
+	using namespace std::chrono_literals;
+	if (!t2.has_value())
+		t2 = 2 * t1;
+	const ms_t full_dist = *t2;
+	const ms_t t		 = clock.time<ms_t>() % full_dist;
+	if (t <= t1)
 		return true;
-	}
 	return false;
 }

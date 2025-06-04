@@ -1,16 +1,36 @@
 #include "game/SpaceField.hpp"
-#include <algorithm>
+#include "game/AbstractShip.hpp"
+#include "game/AbstractBullet.hpp"
+#include "game/AbstractAsteroid.hpp"
 
 SpaceField::SpaceField(const Camera2d *camera)
-	: m_camera(camera),
-	  m_mother(camera)
+	: m_camera(camera)
 {
+}
+
+SpaceField::const_iterator SpaceField::begin() const
+{
+	return m_objects.begin();
+}
+
+SpaceField::const_iterator SpaceField::end() const
+{
+	return m_objects.end();
+}
+
+SpaceField::const_iterator SpaceField::cbegin() const
+{
+	return m_objects.cbegin();
+}
+
+SpaceField::const_iterator SpaceField::cend() const
+{
+	return m_objects.cend();
 }
 
 void SpaceField::setCamera(const Camera2d *camera2d)
 {
 	m_camera = camera2d;
-	m_mother.setCamera(camera2d);
 }
 
 const Camera2d *SpaceField::getCamera() const
@@ -18,80 +38,41 @@ const Camera2d *SpaceField::getCamera() const
 	return m_camera;
 }
 
-const BulletMother &SpaceField::getBulletMother() const
+SpaceField::const_reference SpaceField::at(size_t index) const
 {
-	return m_mother;
+	return m_objects.at(index);
 }
 
-void SpaceField::destroyShip(const AbstractShip *ship)
+SpaceField::const_reference SpaceField::operator[](size_t index) const
 {
-	auto it = std::ranges::find_if(m_ships, [ship](const ships_container::value_type &value) {
-		return ship == value.get();
-	});
-	if (it != m_ships.end())
-	{
-		it->get()->need_destroy = true;
-	}
-}
-AbstractShip *SpaceField::get(size_t index)
-{
-	return m_ships.at(index).get();
+	return m_objects[index];
 }
 
-const AbstractShip *SpaceField::get(size_t index) const
-{
-	return m_ships.at(index).get();
-}
-
-AbstractShip *SpaceField::operator[](size_t index)
-{
-	return m_ships[index].get();
-}
-
-const AbstractShip *SpaceField::operator[](size_t index) const
-{
-	return m_ships[index].get();
-}
-
-const SpaceField::ships_container &SpaceField::getShips() const
-{
-	return m_ships;
-}
 void SpaceField::start()
 {
-	for (auto &ship: m_ships)
-		ship->start();
-	for (auto &asteroid: m_asteroids)
-		asteroid->start();
-	m_mother.start();
+	for (auto &object: m_objects)
+		object->start();
 }
 void SpaceField::update()
 {
-	garbageFree();
-	for (auto &ship: m_ships)
-		ship->update();
-	for (auto &asteroid: m_asteroids)
-		asteroid->update();
-	m_mother.update();
+	for (auto &object: m_objects)
+		object->update();
+	// clear garbage after update state
+	clearGarbage();
 }
 void SpaceField::onEvent(sf::Event &event)
 {
-	for (auto &ship: m_ships)
-		ship->onEvent(event);
-	for (auto &asteroid: m_asteroids)
-		asteroid->onEvent(event);
-	m_mother.onEvent(event);
+	for (auto &object: m_objects)
+		object->onEvent(event);
 }
 size_t SpaceField::size() const
 {
-	return m_ships.size();
+	return m_objects.size();
 }
 
 void SpaceField::clear()
 {
-	m_ships.clear();
-	m_asteroids.clear();
-	m_mother.clear();
+	m_objects.clear();
 }
 
 void SpaceField::push_back(AbstractShip *ship)
@@ -99,20 +80,20 @@ void SpaceField::push_back(AbstractShip *ship)
 	if (!ship)
 		throw std::runtime_error("Error: Cannot summon null on field");
 	ship->start();
-	m_ships.emplace_back(ship);
-	onObjectAppend(ship);
+	m_objects.emplace_back(ship);
+	onObjectSummon(ship);
 }
 
-void SpaceField::push_back(Bullet *bullet, const Gun * const &gun)
+void SpaceField::push_back(AbstractBullet *bullet, const Gun * const &gun)
 {
 	if (!bullet)
 		throw std::runtime_error("Error: Cannot summon null on field");
 	if (gun)
 		bullet->author = gun;
-	m_mother.summon(bullet);
 	bullet->start();
 	bullet->onSummon();
-	onObjectAppend(bullet);
+	m_objects.emplace_back(bullet);
+	onObjectSummon(bullet);
 }
 
 void SpaceField::push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_position, const rn::Vec2f &velocity)
@@ -123,53 +104,39 @@ void SpaceField::push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_p
 	asteroid->setVelocity(static_cast<float>(rn::math::length(velocity)));
 	asteroid->setDirection(rn::math::norm(velocity));
 	asteroid->start();
-	m_asteroids.emplace_back(asteroid);
-	onObjectAppend(asteroid);
+	m_objects.emplace_back(asteroid);
+	onObjectSummon(asteroid);
 }
 
-void SpaceField::destroyAsteroid(const AbstractAsteroid *asteroid)
+void SpaceField::destroy(const SpaceFieldObject *object)
 {
-	auto it = std::ranges::find_if(m_asteroids, [asteroid](const asteroid_ptr_t &obj) {
-		return obj.get() == asteroid;
+	auto it = std::ranges::find_if(m_objects, [object](const value_type &value) {
+		return object == value.get();
 	});
-	if (it != m_asteroids.end())
+	if (it != end())
 	{
 		it->get()->need_destroy = true;
+		onObjectDestroy(it->get());
 	}
 }
 
-void SpaceField::destroyBullet(Bullet *const &bullet)
+void SpaceField::onObjectSummon(GameObject *object) const
 {
-	auto it = std::ranges::find_if(m_mother, [bullet](const BulletMother::value_type &child) {
-		return bullet == child.get();
-	});
-	if (it != m_mother.end())
-	{
-		it->bullet->need_destroy = true;
-	}
 }
 
+void SpaceField::onObjectDestroy(GameObject *object) const
+{
+}
 
 void SpaceField::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-	for (auto &iterator: m_mother)
-		if (auto bullet = iterator.get())
-			target.draw(*bullet, states);
-	for (auto &ship: m_ships)
-		target.draw(*ship, states);
-	for (auto &asteroid: m_asteroids)
-		target.draw(*asteroid, states);
+	for (auto &iterator: m_objects)
+		target.draw(*iterator, states);
 }
 
-void SpaceField::garbageFree()
+void SpaceField::clearGarbage()
 {
-	std::erase_if(m_ships, [](const ships_container::value_type &ship) {
-		return ship->need_destroy;
-	});
-	std::erase_if(m_asteroids, [](const asteroids_container::value_type &asteroid) {
-		return asteroid->need_destroy;
-	});
-	std::erase_if(m_mother, [](const BulletMother::value_type &child_bullet) {
-		return child_bullet.bullet->need_destroy;
+	std::erase_if(m_objects, [](const value_type &value) {
+		return value->need_destroy;
 	});
 }

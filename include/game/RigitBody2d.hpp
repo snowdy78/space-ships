@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SpaceFieldObject.hpp"
 #include "decl.hpp"
 
 class Direction : public rn::Vec2f
@@ -27,10 +28,13 @@ public:
 		return *this;
 	}
 };
-class RigitBody2d : public rn::MonoBehaviour
+class RigitBody2d : public SpaceFieldObject
 {
-	float velocity = 5.f;
-	Direction direction{};
+	/**
+	 * @brief not accelerating velocity
+	 */
+	float m_static_velocity = 5.f;
+	Direction m_direction{};
 	bool is_capable = true;
 	struct PullForce
 	{
@@ -38,8 +42,10 @@ class RigitBody2d : public rn::MonoBehaviour
 		float force{0.0f};
 	};
 	PullForce pull_force;
-	float mass{1.0};
-	float m_acceleration{1.0f};
+	float m_mass{1.0};
+	float m_acceleration{0.0f};
+	float m_velocity = 5.f;
+
 public:
 	using Transformable::getPosition;
 
@@ -50,23 +56,28 @@ public:
 
 	bool isCapable() const;
 	void setCapability(bool capability);
+
 	void setPosition(const rn::Vec2f &p);
 	void setPosition(float x, float y);
+	void move(float x, float y);
+	void move(const rn::Vec2f &p);
+	void setRotation(float angle);
+	void rotate(float angle);
+	void resetVelocity();
+	void setStaticVelocity(float value, bool reset_velocity = true);
+	float getStaticVelocity() const;
 	void setDirection(float x, float y);
 	void setDirection(const rn::Vec2f &p);
 	void setVelocity(float velocity);
 	void setAcceleration(float acceleration);
 	float getAcceleration() const;
 	virtual void onAccelerate() {}
+	void accelerate();
 	
 	Direction getDirection() const;
-	void move(float x, float y);
 	float getMass() const;
 	void setMass(float mass);
-	void move(const rn::Vec2f &p);
-	void setRotation(float angle);
-	void rotate(float angle);
-	virtual rn::Vec2f countMove() const = 0;
+	virtual rn::Vec2f countMove() const;
 
 	virtual void onMove() {}
 	virtual void onRotation() {}

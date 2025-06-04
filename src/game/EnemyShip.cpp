@@ -1,9 +1,11 @@
 #include "game/EnemyShip.hpp"
+
+#include "Helpers.hpp"
 #include "game/AbstractShip.hpp"
 #include "game/GameManager.hpp"
 #include "game/SpaceField.hpp"
 #include "game/actions/MoveShipAction.hpp"
-
+#include <list>
 
 EnemyShip::EnemyShip()
 	: AbstractShip(*texture)
@@ -20,6 +22,14 @@ const AbstractShip *EnemyShip::getTarget() const
 	return target;
 }
 
+void EnemyShip::start()
+{
+	vertical_movement_clock.start();
+	horizontal_movement_clock.start();
+	shoot_clock.start();
+	AbstractShip::start();
+}
+
 void EnemyShip::summonCopy(SpaceField &field) const
 {
 	field.summonShip<EnemyShip>();
@@ -29,16 +39,15 @@ rn::Vec2f EnemyShip::countMove() const
 {
 	if (!target)
 		return {};
-	if (!randomly_move.has_value())
-		randomly_move = rn::random::integer(0, 1);
 	using rn::math::number_t;
+	using namespace std::chrono_literals;
 	float sign
-		= static_cast<float>(*randomly_move)
-		  * static_cast<float>(rn::math::sgn(
+		= static_cast<float>(rn::math::sgn(
 			  rn::math::length(target->getPosition() - getPosition()) - static_cast<number_t>(min_distance_to_target)
 		  ));
-	rn::Vec2f dir{ getMoveDirection() * sign };
-	return getAcceleration() * getVelocity() * dir;
+	rn::Vec2f dir{ getMoveDirection() * sign * (*randomly_move == 0 ? 1.f : -1.f) };
+	
+	return getVelocity() * dir;
 }
 void EnemyShip::rotation()
 {
@@ -51,33 +60,45 @@ void EnemyShip::rotation()
 }
 void EnemyShip::movement()
 {
+	using namespace std::chrono;
 	AbstractShip::movement();
 	if (!target || !GameManager::exist())
 		return;
-	if (static_cast<int>(clock.getElapsedTime().asSeconds()) % 2 == 0)
-		randomly_move = std::nullopt;
-	if (static_cast<int>(clock.getElapsedTime().asSeconds()) % 3 == 1)
+	if (timeStep(vertical_movement_clock, time_vertical_movement))
 	{
+		if (!randomly_move.has_value())
+			randomly_move = rn::random::integer(0, 1);
 		setMoveDirection(getDirection());
 		GameManager::session()->action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ this });
 	}
-	if (clock.getElapsedTime().asMilliseconds() % 1000 > 500)
+	else
 	{
-		setMoveDirection(Direction{ rn::math::nor(getDirection()) });
+		randomly_move = std::nullopt;
+	}
+	if (timeStep(horizontal_movement_clock, time_horizontal_movement))
+	{
+		if (!randomly_move.has_value())
+			randomly_move = rn::random::integer(0, 1);
+		setMoveDirection(rn::math::nor(getDirection()));
 		GameManager::session()->action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ this });
 	}
+	else
+	{
+		randomly_move = std::nullopt;
+	}
+
 }
 
 void EnemyShip::update()
 {
 	AbstractShip::update();
-	if (static_cast<int>(clock.getElapsedTime().asSeconds()) % 2 == 1)
+	if (target && target->willBeDestroyed())
 	{
-		ready_to_shoot = true;
+		target = nullptr;
 	}
-	else if (clock.getElapsedTime().asMilliseconds() % 1000 > 500 && ready_to_shoot)
+	if (everyTime(shoot_clock, shoot_timing))
 	{
 		shoot();
-		ready_to_shoot = false;
+		shoot_clock.reset();
 	}
 }

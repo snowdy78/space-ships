@@ -2,11 +2,10 @@
 
 #include "Collidable.hpp"
 #include "RigitBody2d.hpp"
-#include "SpaceFieldObject.hpp"
 #include "colliders/PolygonCollider.hpp"
 #include "decl.hpp"
 
-class AbstractAsteroid : public RigitBody2d, public SpaceFieldObject, public Collidable
+class AbstractAsteroid : public RigitBody2d, public Collidable
 {
 public:
 	AbstractAsteroid(const sf::Texture &texture);
@@ -24,7 +23,6 @@ public:
 	const Collider *getCollider() const override;
 	void onCollisionEnter(Collidable *obstacle) override;
 	bool resolve(const Collidable *obstacle) const override;
-	rn::Vec2f countMove() const override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 protected:

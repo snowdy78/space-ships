@@ -39,7 +39,7 @@ void Gameplay::start()
 		return "{ " + std::to_string(p.x) + ", " + std::to_string(p.y) + " }";
 	});
 	info.addData("view_area", [&]() -> sf::String {
-		const sf::View &view = space->field.getBulletMother().getViewArea();
+		const sf::View &view = space->camera.getView();
 
 		return "{ " + std::to_string(view.getCenter().x) + ", " + std::to_string(view.getCenter().y) + ", "
 			   + std::to_string(view.getSize().x) + ", " + std::to_string(view.getSize().y) + " }";
@@ -110,7 +110,6 @@ void Gameplay::updateObjectsState()
 {
 	if (!window.hasFocus() || !space)
 		return;
-	GameManager::session()->action_manager.update();
 	GameManager::instance().sound_manager.update();
 	GameManager::instance().effect_manager.update();
 	Collidable::updateCollisionState();

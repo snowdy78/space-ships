@@ -25,7 +25,7 @@ public:
 	struct GameSessionSpaceField : SpaceField
 	{
 		GameSessionSpaceField(GameSession *session, const Camera2d *camera = nullptr);
-		void onObjectAppend(GameObject *object) const override;
+		void onObjectSummon(GameObject *object) const override;
 	private:
 		GameSession *m_session;
 	} field;

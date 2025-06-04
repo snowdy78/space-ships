@@ -1,4 +1,6 @@
 #include "game/actions/MoveShipAction.hpp"
+
+#include "Helpers.hpp"
 #include "game/AbstractShip.hpp"
 
 MoveShipAction::MoveShipAction(const TransferableActionProps &props)

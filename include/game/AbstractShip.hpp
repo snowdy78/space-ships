@@ -15,7 +15,7 @@
 template<class T>
 concept GunConcept = std::is_base_of_v<Gun, T> && !std::is_same_v<Gun, T>;
 
-class AbstractShip : public RigitBody2d, public Collidable, public Hittable, public SpaceFieldObject
+class AbstractShip : public RigitBody2d, public Collidable, public Hittable
 {
 	friend class SpaceField;
 	friend class Gun;

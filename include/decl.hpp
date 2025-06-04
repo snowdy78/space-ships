@@ -115,9 +115,9 @@ class GameObjectFactory;
 class GameObjectTranslator;
 
 class RigitBody2d;
-class Bullet;
-class Ship;
-class BulletMother;
+class AbstractBullet;
+class PlayerShip;
+class AbstractAsteroid;
 class Gun;
 class Collider;
 class Collidable;

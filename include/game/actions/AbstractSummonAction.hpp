@@ -3,6 +3,9 @@
 #include "Helpers.hpp"
 #include "coop/TransferableAction.hpp"
 #include "game/GameManager.hpp"
+#include "game/AbstractShip.hpp"
+#include "game/AbstractAsteroid.hpp"
+#include "game/AbstractBullet.hpp"
 
 template<class T>
 concept SummonActionSummonType = requires(SpaceField field, T *t) { field.push_back(t); };
@@ -108,7 +111,7 @@ struct SummonShipAction : InitializingSummonAction<AbstractShip, SummonShipActio
 	using InitializingSummonAction::InitializingSummonAction;
 };
 
-struct SummonBulletAction : InitializingSummonAction<Bullet, SummonBulletAction>
+struct SummonBulletAction : InitializingSummonAction<AbstractBullet, SummonBulletAction>
 {
 	using base = InitializingSummonAction;
 	using InitializingSummonAction::InitializingSummonAction;

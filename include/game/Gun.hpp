@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SoundDisperseEntity.hpp"
 #include "decl.hpp"
 #include "game/GameObject.hpp"
 
@@ -11,7 +10,7 @@ class Gun : public sf::Transformable, public rn::LogicalObject, public virtual G
 
 protected:
 
-	friend class Bullet;
+	friend class AbstractBullet;
 	void startRollback();
 
 public:
@@ -24,7 +23,7 @@ public:
 	virtual rn::Vec2f getTrajectory() const = 0;
 	bool hasRollback() const;
 	void update() override;
-	virtual float getMillisDelay() const;
+	virtual std::chrono::milliseconds getRollback() const;
 
 protected:
 	/**

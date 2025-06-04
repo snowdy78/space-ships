@@ -3,6 +3,7 @@
 #include "game/actions/AbstractSummonAction.hpp"
 #include "game/GameManager.hpp"
 #include "game/actions/ShootAction.hpp"
+#include "game/AbstractBullet.hpp"
 
 Gun::~Gun() = default;
 
@@ -28,7 +29,7 @@ void Gun::fire()
 	if (GameManager::exist())
 	{
 		GameManager::session()->action_manager.emplaceToTop<SummonBulletAction>(
-			bullet(), [this](Bullet &bullet) {
+			bullet(), [this](AbstractBullet &bullet) {
 				bullet.author = this;
 				bullet.setPosition(getPosition());
 				bullet.setDirection(getTrajectory());
@@ -46,14 +47,15 @@ bool Gun::hasRollback() const
 
 void Gun::update()
 {
-	if (everyTime(clock, getMillisDelay()))
+	if (has_rollback && everyTime(clock, getRollback()))
 	{
+		clock.stop();
 		clock.reset();
 		has_rollback = false;
 	}
 }
 
-float Gun::getMillisDelay() const
+std::chrono::milliseconds Gun::getRollback() const
 {
-	return 300;
+	return std::chrono::milliseconds{ 300 };
 }

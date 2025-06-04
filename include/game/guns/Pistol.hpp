@@ -20,5 +20,5 @@ public:
 	Gun *copy() const override;
 	void onShoot() override;
 
-	float getMillisDelay() const override;
+	std::chrono::milliseconds getRollback() const override;
 };

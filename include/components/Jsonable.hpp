@@ -1,5 +1,7 @@
 #pragma once
 
+#include "decl.hpp"
+
 struct Jsonable
 {
 	virtual ~Jsonable()				= default;

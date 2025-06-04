@@ -1,9 +1,10 @@
 #pragma once
 
-#include "components/effects/GlowingEffect.hpp"
 #include "decl.hpp"
-#include "game/Bullet.hpp"
+#include "game/AbstractBullet.hpp"
 #include "game/GameObjectBase.hpp"
+#include "SoundDisperseEntity.hpp"
+#include "components/FileLoader.hpp"
 
 struct bullet_sound : SoundDisperseEntity
 {
@@ -11,7 +12,7 @@ struct bullet_sound : SoundDisperseEntity
     void start() override;
 };
 
-class BaseBullet : public Bullet, public GameObjectBase<BaseBullet>
+class BaseBullet : public AbstractBullet, public GameObjectBase<BaseBullet>
 {
 	static constexpr float initial_damage = 25.f;
 	inline static loading<sf::Texture> texture
@@ -19,7 +20,7 @@ class BaseBullet : public Bullet, public GameObjectBase<BaseBullet>
 	inline static loading<sf::SoundBuffer> fly_buf = FileLoader::Instance().addSoundToUpload("./assets/bullet_fly.wav").get();
 	bullet_sound fly_sound{300, 150, fly_buf};
 public:
-	using Bullet::Bullet;
+	using AbstractBullet::AbstractBullet;
     const sf::Texture &initTexture() const override;
 	void start() override;
 	void update() override;

@@ -3,7 +3,7 @@
 #include "decl.hpp"
 #include "GameObject.hpp"
 
-class SpaceFieldObject : public virtual GameObject
+class SpaceFieldObject : public virtual GameObject, public virtual rn::LogicalObject, public virtual sf::Drawable, public virtual sf::Transformable
 {
 	friend class SpaceField;
 	bool need_destroy = false;

@@ -1,4 +1,6 @@
 #include "game/PlayerShip.hpp"
+
+#include "Helpers.hpp"
 #include "game/SpaceField.hpp"
 #include "game/actions/AccelerateShipAction.hpp"
 #include "game/actions/MoveShipAction.hpp"
@@ -83,7 +85,7 @@ void PlayerShip::onEvent(sf::Event &event)
 
 rn::Vec2f PlayerShip::countMove() const
 {
-	return getAcceleration() * getVelocity() * getMoveDirection();
+	return getVelocity() * getMoveDirection();
 }
 void PlayerShip::onRotation()
 {
