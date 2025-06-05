@@ -118,7 +118,7 @@ class RigitBody2d;
 class AbstractBullet;
 class PlayerShip;
 class AbstractAsteroid;
-class Gun;
+class AbstractWeapon;
 class Collider;
 class Collidable;
 class PolygonCollider;

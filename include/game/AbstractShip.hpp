@@ -8,17 +8,17 @@
 #include "components/AnimatedSprite.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
-#include "game/Gun.hpp"
+#include "game/AbstractWeapon.hpp"
 #include "game/colliders/EllipseCollider.hpp"
 #include "components/effects/ShipEngineFlame.hpp"
 
 template<class T>
-concept GunConcept = std::is_base_of_v<Gun, T> && !std::is_same_v<Gun, T>;
+concept GunConcept = std::is_base_of_v<AbstractWeapon, T> && !std::is_same_v<AbstractWeapon, T>;
 
 class AbstractShip : public RigitBody2d, public Collidable, public Hittable
 {
 	friend class SpaceField;
-	friend class Gun;
+	friend class AbstractWeapon;
 
 protected:
 	void updateGunPosition();
@@ -34,8 +34,8 @@ public:
 	void setTeam(const sf::String &team_name);
 	void resetTeamName();
 	const size_t &getTeam() const;
-	void setGun(const Gun &gun);
-	const Gun *getGun() const;
+	void setGun(const AbstractWeapon &gun);
+	const AbstractWeapon &getGun() const;
 	rn::Vec2f getSize() const;
 	/**
 	 * \brief Shoot a bullet in the ship direction.
@@ -69,7 +69,7 @@ protected:
 		FileLoader::Instance().addSoundToUpload("./assets/explosion.wav").get()
 	};
 	sf::Sprite sprite;
-	std::unique_ptr<Gun> gun;
+	std::unique_ptr<AbstractWeapon> gun;
 
 private:
 	ShipEngineFlame m_engine_effect;
@@ -85,7 +85,7 @@ private:
 template<GunConcept GunT>
 void AbstractShip::setGun()
 {
-	Gun *gun_  = new GunT;
+	AbstractWeapon *gun_  = new GunT;
 	gun_->user = this;
 	gun.reset(gun_);
 }

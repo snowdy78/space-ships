@@ -4,7 +4,7 @@
 
 class ShootAction : public TransferActionBase<ShootAction> 
 {
-    Gun *m_gun{nullptr};
+    AbstractWeapon *m_gun{nullptr};
     rn::Vec2f m_direction{};
 public:
     constexpr static const char *direction = "direction";

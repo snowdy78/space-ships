@@ -1,7 +1,7 @@
 #include "game/AbstractBullet.hpp"
 #include "game/AbstractShip.hpp"
 #include "game/GameManager.hpp"
-#include "game/Gun.hpp"
+#include "game/AbstractWeapon.hpp"
 #include "game/actions/DealDamageAction.hpp"
 #include "game/actions/DestroySpaceFieldObjectAction.hpp"
 

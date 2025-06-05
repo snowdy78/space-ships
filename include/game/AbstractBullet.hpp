@@ -26,7 +26,7 @@ protected:
 
 public:
 	const sf::Texture &getTexture() const;
-	const Gun *author = nullptr;
+	const AbstractWeapon *author = nullptr;
 	AbstractBullet();
 	~AbstractBullet() override = 0;
 

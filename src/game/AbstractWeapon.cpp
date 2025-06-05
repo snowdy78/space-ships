@@ -1,20 +1,20 @@
-#include "game/Gun.hpp"
+#include "game/AbstractWeapon.hpp"
 #include "Helpers.hpp"
 #include "game/actions/AbstractSummonAction.hpp"
 #include "game/GameManager.hpp"
 #include "game/actions/ShootAction.hpp"
 #include "game/AbstractBullet.hpp"
 
-Gun::~Gun() = default;
+AbstractWeapon::~AbstractWeapon() = default;
 
-void Gun::startRollback()
+void AbstractWeapon::startRollback()
 {
 	has_rollback = true;
 	clock.start();
 }
-Gun::Gun() = default;
+AbstractWeapon::AbstractWeapon() = default;
 
-void Gun::shoot()
+void AbstractWeapon::shoot()
 {
 	if (GameManager::exist() && !has_rollback)
 	{
@@ -24,7 +24,7 @@ void Gun::shoot()
 	}
 }
 
-void Gun::fire()
+void AbstractWeapon::fire()
 {
 	if (GameManager::exist())
 	{
@@ -40,12 +40,12 @@ void Gun::fire()
 	}
 }
 
-bool Gun::hasRollback() const
+bool AbstractWeapon::hasRollback() const
 {
 	return has_rollback;
 }
 
-void Gun::update()
+void AbstractWeapon::update()
 {
 	if (has_rollback && everyTime(clock, getRollback()))
 	{
@@ -55,7 +55,7 @@ void Gun::update()
 	}
 }
 
-std::chrono::milliseconds Gun::getRollback() const
+std::chrono::milliseconds AbstractWeapon::getRollback() const
 {
 	return std::chrono::milliseconds{ 300 };
 }

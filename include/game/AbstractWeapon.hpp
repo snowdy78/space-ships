@@ -3,7 +3,7 @@
 #include "decl.hpp"
 #include "game/GameObject.hpp"
 
-class Gun : public sf::Transformable, public rn::LogicalObject, public virtual GameObject
+class AbstractWeapon : public sf::Transformable, public rn::LogicalObject, public virtual GameObject
 {
 	rn::Stopwatch clock;
 	bool has_rollback = false;
@@ -15,11 +15,11 @@ protected:
 
 public:
 	const AbstractShip *user = nullptr;
-	Gun();
-	~Gun() override = 0;
+	AbstractWeapon();
+	~AbstractWeapon() override = 0;
 	virtual void shoot();
 	void fire();
-	virtual Gun *copy() const				= 0;
+	virtual AbstractWeapon *copy() const				= 0;
 	virtual rn::Vec2f getTrajectory() const = 0;
 	bool hasRollback() const;
 	void update() override;

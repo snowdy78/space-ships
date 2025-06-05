@@ -59,11 +59,11 @@ public:
 		requires(ShipConcept<T, Args...>)
 	StatePtr<AbstractShip> summonShip(const Args &...args) noexcept;
 	template<BulletConcept BulletT>
-	StatePtr<AbstractBullet> summonBullet(const std::function<void(BulletT &)> &init, const Gun *gun) noexcept;
+	StatePtr<AbstractBullet> summonBullet(const std::function<void(BulletT &)> &init, const AbstractWeapon *gun) noexcept;
 	template<AsteroidConcept AsteroidT>
 	StatePtr<AbstractAsteroid> summonAsteroid(const rn::Vec2f &summon_position = {}, const rn::Vec2f &velocity = {});
 	void push_back(AbstractShip *ship);
-	void push_back(AbstractBullet *bullet, const Gun *const &gun = nullptr);
+	void push_back(AbstractBullet *bullet, const AbstractWeapon *const &gun = nullptr);
 	void push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_position = {}, const rn::Vec2f &velocity = {});
 	void destroy(const SpaceFieldObject *object);
 	virtual void onObjectSummon(GameObject *object) const;
@@ -93,7 +93,7 @@ SpaceField::StatePtr<AbstractShip> SpaceField::summonShip(const Args &...args) n
 
 template<BulletConcept BulletT>
 SpaceField::StatePtr<AbstractBullet>
-SpaceField::summonBullet(const std::function<void(BulletT &)> &init, const Gun *gun) noexcept
+SpaceField::summonBullet(const std::function<void(BulletT &)> &init, const AbstractWeapon *gun) noexcept
 {
 	BulletT *bullet = new BulletT;
 	init(*bullet);

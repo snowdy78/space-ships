@@ -1,12 +1,12 @@
 #include "game/actions/ShootAction.hpp"
 #include "game/actions/AbstractSummonAction.hpp"
 #include "game/GameManager.hpp"
-#include "game/Gun.hpp"
+#include "game/AbstractWeapon.hpp"
 
 ShootAction::ShootAction(const TransferableActionProps &props)
 	: TransferActionBase(props)
 {
-	auto gun	  = dynamic_cast<Gun *>(getAuthor());
+	auto gun	  = dynamic_cast<AbstractWeapon *>(getAuthor());
 	const char *x = "x", *y = "y";
 	auto &d = direction;
 	if (!gun

@@ -84,7 +84,7 @@ void SpaceField::push_back(AbstractShip *ship)
 	onObjectSummon(ship);
 }
 
-void SpaceField::push_back(AbstractBullet *bullet, const Gun * const &gun)
+void SpaceField::push_back(AbstractBullet *bullet, const AbstractWeapon * const &gun)
 {
 	if (!bullet)
 		throw std::runtime_error("Error: Cannot summon null on field");

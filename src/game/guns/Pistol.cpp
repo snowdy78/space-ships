@@ -8,7 +8,7 @@ size_t Pistol::bullet() const
 {
 	return BaseBullet::identifier;
 }
-Gun *Pistol::copy() const
+AbstractWeapon *Pistol::copy() const
 {
 	return new Pistol;
 }

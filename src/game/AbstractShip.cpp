@@ -3,7 +3,7 @@
 #include "components/AnimatedSprite.hpp"
 #include "components/EffectManager.hpp"
 #include "game/GameManager.hpp"
-#include "game/Gun.hpp"
+#include "game/AbstractWeapon.hpp"
 #include "game/RigitBody2d.hpp"
 #include "game/actions/TakeDamageAction.hpp"
 #include "game/guns/Pistol.hpp"
@@ -35,11 +35,11 @@ rn::Vec2f AbstractShip::getSize() const
 {
 	return rn::Vec2f(sprite.getTexture()->getSize());
 }
-const Gun *AbstractShip::getGun() const
+const AbstractWeapon &AbstractShip::getGun() const
 {
-	return gun.get();
+	return *gun;
 }
-void AbstractShip::setGun(const Gun &gun)
+void AbstractShip::setGun(const AbstractWeapon &gun)
 {
 	this->gun.reset(gun.copy());
 	updateGunPosition();
