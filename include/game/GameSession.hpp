@@ -4,6 +4,7 @@
 #include "SpaceField.hpp"
 #include "actions/ActionManager.hpp"
 #include "components/TargetCamera.hpp"
+#include "game/levels/Level1.hpp"
 
 class GameSession : protected LocalDriveSession, public rn::LogicalObject
 {
