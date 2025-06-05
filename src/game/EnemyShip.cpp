@@ -12,14 +12,14 @@ EnemyShip::EnemyShip()
 {
 }
 
-void EnemyShip::setTarget(AbstractShip *ship)
+void EnemyShip::setTarget(const SpaceField::StatePtr<AbstractShip> &target)
 {
-	target = ship;
+	m_target = target;
 }
 
-const AbstractShip *EnemyShip::getTarget() const
+SpaceField::StatePtr<AbstractShip> EnemyShip::getTarget() const
 {
-	return target;
+	return m_target;
 }
 
 void EnemyShip::start()
@@ -37,13 +37,14 @@ void EnemyShip::summonCopy(SpaceField &field) const
 
 rn::Vec2f EnemyShip::countMove() const
 {
-	if (!target)
+	if (m_target.expired())
 		return {};
 	using rn::math::number_t;
 	using namespace std::chrono_literals;
+	auto ship  = m_target.lock();
 	float sign
 		= static_cast<float>(rn::math::sgn(
-			  rn::math::length(target->getPosition() - getPosition()) - static_cast<number_t>(min_distance_to_target)
+			  rn::math::length(ship->getPosition() - getPosition()) - static_cast<number_t>(min_distance_to_target)
 		  ));
 	rn::Vec2f dir{ getMoveDirection() * sign * (*randomly_move == 0 ? 1.f : -1.f) };
 	
@@ -52,9 +53,10 @@ rn::Vec2f EnemyShip::countMove() const
 void EnemyShip::rotation()
 {
 	AbstractShip::rotation();
-	if (target)
+	if (!m_target.expired())
 	{
-		setDirection(target->getPosition() - getPosition());
+		auto ship = m_target.lock();
+		setDirection(ship->getPosition() - getPosition());
 		setRotation(rn::math::rot(getDirection()));
 	}
 }
@@ -62,7 +64,7 @@ void EnemyShip::movement()
 {
 	using namespace std::chrono;
 	AbstractShip::movement();
-	if (!target || !GameManager::exist())
+	if (m_target.expired() || !GameManager::exist())
 		return;
 	if (timeStep(vertical_movement_clock, time_vertical_movement))
 	{
@@ -92,10 +94,6 @@ void EnemyShip::movement()
 void EnemyShip::update()
 {
 	AbstractShip::update();
-	if (target && target->willBeDestroyed())
-	{
-		target = nullptr;
-	}
 	if (everyTime(shoot_clock, shoot_timing))
 	{
 		shoot();

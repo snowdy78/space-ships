@@ -8,22 +8,22 @@ SpaceField::SpaceField(const Camera2d *camera)
 {
 }
 
-SpaceField::const_iterator SpaceField::begin() const
+SpaceField::ConstIterator SpaceField::begin() const
 {
 	return m_objects.begin();
 }
 
-SpaceField::const_iterator SpaceField::end() const
+SpaceField::ConstIterator SpaceField::end() const
 {
 	return m_objects.end();
 }
 
-SpaceField::const_iterator SpaceField::cbegin() const
+SpaceField::ConstIterator SpaceField::cbegin() const
 {
 	return m_objects.cbegin();
 }
 
-SpaceField::const_iterator SpaceField::cend() const
+SpaceField::ConstIterator SpaceField::cend() const
 {
 	return m_objects.cend();
 }
@@ -38,12 +38,12 @@ const Camera2d *SpaceField::getCamera() const
 	return m_camera;
 }
 
-SpaceField::const_reference SpaceField::at(size_t index) const
+SpaceField::StatePtrType SpaceField::at(size_t index) const
 {
 	return m_objects.at(index);
 }
 
-SpaceField::const_reference SpaceField::operator[](size_t index) const
+SpaceField::StatePtrType SpaceField::operator[](size_t index) const
 {
 	return m_objects[index];
 }
@@ -110,7 +110,7 @@ void SpaceField::push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_p
 
 void SpaceField::destroy(const SpaceFieldObject *object)
 {
-	auto it = std::ranges::find_if(m_objects, [object](const value_type &value) {
+	auto it = std::ranges::find_if(m_objects, [object](const StateType &value) {
 		return object == value.get();
 	});
 	if (it != end())
@@ -136,7 +136,7 @@ void SpaceField::draw(sf::RenderTarget &target, sf::RenderStates states) const
 
 void SpaceField::clearGarbage()
 {
-	std::erase_if(m_objects, [](const value_type &value) {
+	std::erase_if(m_objects, [](const StateType &value) {
 		return value->need_destroy;
 	});
 }

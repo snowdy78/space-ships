@@ -1,8 +1,6 @@
 #include "Gameplay.hpp"
 
 #include "Helpers.hpp"
-#include "RuneEngine/EngineDecl.hpp"
-#include "RuneEngine/SettingsFile.hpp"
 #include "game/actions/AbstractSummonAction.hpp"
 #include "decl.hpp"
 #include "game/EnemyShip.hpp"
@@ -125,12 +123,12 @@ void Gameplay::summonShip()
 			if (auto enemy = dynamic_cast<EnemyShip *>(&ship))
 			{
 #ifdef SPACE_SHIP_DEBUG
-				if (!space->player)
+				if (space->player.expired())
 					std::cerr << "cannot set nullptr as ship target\n";
 #endif
-				enemy->setTarget(space->player);
+				else enemy->setTarget(space->player);
 				rn::Vec2f randomPosition{ rn::random::real(0.f, 1.f) * space->camera.getViewSize().x,
-										  rn::random::real(0.f, 1.f) * space->camera.getViewSize().x };
+										  rn::random::real(0.f, 1.f) * space->camera.getViewSize().y };
 				enemy->setPosition(space->camera.getPosition() + randomPosition);
 			}
 			

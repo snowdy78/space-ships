@@ -2,14 +2,11 @@
 
 #include <initializer_list>
 #include <map>
-#include <memory>
 #include <type_traits>
 #include <variant>
 #include "game/GameManager.hpp"
 #include "coop/TransferableAction.hpp"
 #include "decl.hpp"
-#include "game/GameObject.hpp"
-#include "game/actions/AbstractAction.hpp"
 
 template<class Action>
 concept ControlsSchemeActionConcept = std::is_base_of_v<TransferableAction, Action>

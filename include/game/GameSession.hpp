@@ -20,7 +20,6 @@ public:
 	void start() override;
 	void update() override;
 	void onEvent(sf::Event &event) override;
-	AbstractShip *player = nullptr;
 	ActionManager action_manager;
 	TargetCamera camera;
 	struct GameSessionSpaceField : SpaceField
@@ -30,6 +29,7 @@ public:
 	private:
 		GameSession *m_session;
 	} field;
+	GameSessionSpaceField::StatePtr<AbstractShip> player;
 private:
 	rn::Json m_game_objects = rn::Json::array();
 	std::hash<GameObject *> m_hash;

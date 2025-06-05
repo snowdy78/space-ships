@@ -14,7 +14,10 @@ void GameSession::start()
 	rn::Vec2f res{ rn::VideoSettings::getResolution() };
 	field.start();
 	createPlayer();
-	player->setPosition(res / 2.f);
+	if (player.expired())
+		return;
+	auto player_val = player.lock();
+	player_val->setPosition(res / 2.f);
 }
 
 void GameSession::update()
