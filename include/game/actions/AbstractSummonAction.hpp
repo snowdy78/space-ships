@@ -12,11 +12,11 @@ concept SummonActionSummonType = requires(SpaceField field, T *t) { field.push_b
 
 
 template<SummonActionSummonType SummonType, class Action>
-class SummonAction : public TransferActionBase<Action>
+class AbstractSummonAction : public TransferActionBase<Action>
 {
 public:
 	constexpr static const char *id_key = "id";
-	SummonAction(const TransferableActionProps &props)
+	AbstractSummonAction(const TransferableActionProps &props)
 		: TransferActionBase<Action>(props)
 	{
 		if (!props.props.contains(id_key))
@@ -25,7 +25,7 @@ public:
 			throw std::runtime_error("unable to summon ship with unknown id");
 		object_id = props.props[id_key].is_null() ? std::nullopt : std::optional<size_t>{ props.props[id_key] };
 	}
-	~SummonAction() override;
+	~AbstractSummonAction() override;
 	void play() override
 	{
 		if (!object_id.has_value() || !GameManager::exist())
@@ -33,15 +33,15 @@ public:
 		auto obj = GameObjectFactory::create(*object_id);
 		if (auto summon_object = dynamic_unique_cast<SummonType>(std::move(obj)))
 		{
-			auto row_object = summon_object.release();
-			this->handleCreate(row_object);
+			auto raw_object_ptr = summon_object.release();
+			this->handleCreate(raw_object_ptr);
 			try
 			{
-				GameManager::session()->field.push_back(row_object);
+				GameManager::session()->field.push_back(raw_object_ptr);
 			}
 			catch (std::runtime_error &err)
 			{
-				delete row_object;
+				delete raw_object_ptr;
 #ifdef SPACE_SHIP_DEBUG
 				std::cerr << err.what() << " (unable to summon null)" << '\n';
 #endif
@@ -67,18 +67,18 @@ protected:
 };
 
 template<SummonActionSummonType SummonT, class Action>
-SummonAction<SummonT, Action>::~SummonAction() = default;
+AbstractSummonAction<SummonT, Action>::~AbstractSummonAction() = default;
 
 template<SummonActionSummonType ST, class A>
-struct InitializingSummonAction : SummonAction<ST, A>
+struct SummonAction : AbstractSummonAction<ST, A>
 {
 private:
-	using base = SummonAction<ST, A>;
+	using base = AbstractSummonAction<ST, A>;
 
 public:
 	using init_func = std::function<void(ST &)>;
 	using base::base;
-	InitializingSummonAction(
+	SummonAction(
 		std::optional<size_t> id, init_func initializing_function = [](ST &) {}
 	)
 		: base(
@@ -91,7 +91,7 @@ public:
 	}
 	AbstractAction *copy() const override
 	{
-		return new InitializingSummonAction(this->object_id, m_init_f);
+		return new SummonAction(this->object_id, m_init_f);
 	}
 
 protected:
@@ -105,19 +105,17 @@ protected:
 private:
 	init_func m_init_f = [](ST &) {};
 };
-
-struct SummonShipAction : InitializingSummonAction<AbstractShip, SummonShipAction>
+struct SummonShipAction : SummonAction<AbstractShip, SummonShipAction>
 {
-	using InitializingSummonAction::InitializingSummonAction;
+	using SummonAction::SummonAction;
 };
 
-struct SummonBulletAction : InitializingSummonAction<AbstractBullet, SummonBulletAction>
+struct SummonBulletAction : SummonAction<AbstractBullet, SummonBulletAction>
 {
-	using base = InitializingSummonAction;
-	using InitializingSummonAction::InitializingSummonAction;
+	using SummonAction::SummonAction;
 };
 
-struct SummonAsteroidAction : InitializingSummonAction<AbstractAsteroid, SummonAsteroidAction>
+struct SummonAsteroidAction : SummonAction<AbstractAsteroid, SummonAsteroidAction>
 {
-	using InitializingSummonAction::InitializingSummonAction;
+	using SummonAction::SummonAction;
 };

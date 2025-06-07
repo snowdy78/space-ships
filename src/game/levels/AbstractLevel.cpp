@@ -3,7 +3,7 @@
 AbstractLevelFactory::~AbstractLevelFactory() = default;
 
 AbstractLevel::AbstractLevel(SpaceField &field, const Difficulty &difficulty)
-	: m_difficulty(difficulty),
+	: m_difficulty_type(difficulty),
 	  m_field(field)
 {
 }
@@ -12,7 +12,7 @@ AbstractLevel::~AbstractLevel() = default;
 
 AbstractLevel::Difficulty AbstractLevel::getDifficulty() const
 {
-	return m_difficulty;
+	return m_difficulty_type;
 }
 
 rn::Json AbstractLevel::toJson() const
@@ -43,8 +43,9 @@ AbstractLevel::PoolEntities::ConstIterator AbstractLevel::PoolEntities::end() co
 	return m_pool.end();
 }
 
-AbstractLevel::Entities::Entities(SpaceField &field)
-	: field(field)
+AbstractLevel::Entities::Entities(SpaceField &field, const PoolEntities &pool)
+	: m_field(field),
+	  m_pool(pool)
 {
 }
 
@@ -63,12 +64,6 @@ auto AbstractLevel::Entities::destroy(Iterator it)
 	const auto obj = it->lock();
 	obj->destroy();
 	return m_entities.erase(it);
-}
-
-
-void AbstractLevel::Entities::summon(PoolEntities::ConstIterator it)
-{
-	m_entities.push_back(field.push_back());
 }
 
 auto AbstractLevel::Entities::cend() const

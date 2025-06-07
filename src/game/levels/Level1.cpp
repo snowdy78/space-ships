@@ -1,11 +1,12 @@
 #include "game/levels/Level1.hpp"
 
-#include "game/PlayerShip.hpp"
+#include "game/EnemyShip.hpp"
+#include "game/asteroids/SimpleAsteroid.hpp"
 
-Level1::Level1()
-	: AbstractLevel(Difficulty::Star1)
+Level1::Level1(SpaceField &field)
+	: AbstractLevel(field, Difficulty::Star1)
 {
-
+	pool_entities.assign<EnemyShip, SimpleAsteroid>();
 }
 
 void Level1::start()

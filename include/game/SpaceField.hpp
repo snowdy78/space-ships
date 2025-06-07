@@ -28,13 +28,15 @@ public:
 	template<class T>
 	using StatePtr = std::weak_ptr<T>;
 	template<class T>
-	using State			= SmartPtrType<T>;
-	using StateType		= SmartPtrType<SpaceFieldObject>;
-	using StatePtrType	= StatePtr<SpaceFieldObject>;
-	using ObjectsType	= ContainerType<StateType>;
-	using Iterator		= ObjectsType::iterator;
-	using ConstIterator = ObjectsType::const_iterator;
-	using CallbackType	= std::function<void(SpaceFieldObject *)>;
+	using State = SmartPtrType<T>;
+	template<class T>
+	using InitializerFunc = std::function<void(T &)>;
+	using StateType		  = SmartPtrType<SpaceFieldObject>;
+	using StatePtrType	  = StatePtr<SpaceFieldObject>;
+	using ObjectsType	  = ContainerType<StateType>;
+	using Iterator		  = ObjectsType::iterator;
+	using ConstIterator	  = ObjectsType::const_iterator;
+	using CallbackType	  = std::function<void(SpaceFieldObject *)>;
 	SpaceField(const Camera2d *camera = nullptr);
 	SpaceField(const SpaceField &field) = delete;
 	~SpaceField() override				= default;
@@ -58,16 +60,12 @@ public:
 
 	template<class T, class... Args>
 		requires(ShipConcept<T, Args...>)
-	StatePtr<AbstractShip> summonShip(const Args &...args) noexcept;
+	StatePtr<AbstractShip> summonShip(const InitializerFunc<T> & = [](T &) {}) noexcept;
 	template<BulletConcept BulletT>
-	StatePtr<AbstractBullet>
-	summonBullet(const std::function<void(BulletT &)> &init, const AbstractWeapon *gun) noexcept;
+	StatePtr<AbstractBullet> summonBullet(const InitializerFunc<BulletT> & = [](BulletT &) {}) noexcept;
 	template<AsteroidConcept AsteroidT>
-	StatePtr<AbstractAsteroid> summonAsteroid(const rn::Vec2f &summon_position = {}, const rn::Vec2f &velocity = {});
-	StatePtrType push_back(AbstractShip *ship);
-	StatePtrType push_back(AbstractBullet *bullet, const AbstractWeapon *const &gun = nullptr);
-	StatePtrType
-	push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_position = {}, const rn::Vec2f &velocity = {});
+	StatePtr<AbstractAsteroid> summonAsteroid(const InitializerFunc<AsteroidT> & = [](AsteroidT &) {});
+	StatePtrType push_back(SpaceFieldObject *raw_object);
 	void destroy(const SpaceFieldObject *object);
 	virtual void onObjectSummon(GameObject *object) const;
 	virtual void onObjectDestroy(GameObject *object) const;
@@ -87,47 +85,40 @@ private:
 
 template<class T, class... Args>
 	requires(ShipConcept<T, Args...>)
-SpaceField::StatePtr<AbstractShip> SpaceField::summonShip(const Args &...args) noexcept
+SpaceField::StatePtr<AbstractShip> SpaceField::summonShip(const InitializerFunc<T> &init) noexcept
 {
-	T *ship = new T(args...);
-	ship->start();
+	T *ship = new T;
+	init(*ship);
 	return this->casted_push<AbstractShip>(ship);
 }
 
 template<BulletConcept BulletT>
-SpaceField::StatePtr<AbstractBullet>
-SpaceField::summonBullet(const std::function<void(BulletT &)> &init, const AbstractWeapon *gun) noexcept
+SpaceField::StatePtr<AbstractBullet> SpaceField::summonBullet(const InitializerFunc<BulletT> &init) noexcept
 {
 	BulletT *bullet = new BulletT;
 	init(*bullet);
-	bullet->author = gun;
-	bullet->start();
-	bullet->onSummon();
-
 	return this->casted_push<AbstractBullet>(bullet);
 }
 
 template<AsteroidConcept AsteroidT>
-SpaceField::StatePtr<AbstractAsteroid>
-SpaceField::summonAsteroid(const rn::Vec2f &summon_position, const rn::Vec2f &velocity)
+SpaceField::StatePtr<AbstractAsteroid> SpaceField::summonAsteroid(const InitializerFunc<AsteroidT> &init)
 {
 	AsteroidT *asteroid = new AsteroidT;
-	asteroid->setPosition(summon_position);
-	asteroid->setVelocity(static_cast<float>(rn::math::length(velocity)));
-	asteroid->setDirection(rn::math::norm(velocity));
-	asteroid->start();
-
+	init(*asteroid);
 	return this->casted_push<AbstractAsteroid>(asteroid);
 }
 
 template<SpaceFieldObjectConcept T>
 SpaceField::StatePtr<T> SpaceField::casted_push(T *ptr)
 {
-	std::shared_ptr<T> shared{ ptr };
-	if (auto space_field_obj = std::dynamic_pointer_cast<SpaceFieldObject>(shared))
-		m_objects.push_back(space_field_obj);
-	else
-		throw std::bad_cast();
-	this->onObjectSummon(ptr);
-	return shared;
+	State<T> object{ ptr };
+	if (auto obj = std::dynamic_pointer_cast<SpaceFieldObject>(object))
+	{
+		m_objects.push_back(obj);
+		object->start();
+		object->onSummon();
+		this->onObjectSummon(ptr);
+		return object;
+	}
+	return {};
 }

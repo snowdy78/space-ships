@@ -9,7 +9,6 @@ class AbstractWeapon : public sf::Transformable, public rn::LogicalObject, publi
 	bool has_rollback = false;
 
 protected:
-
 	friend class AbstractBullet;
 	void startRollback();
 
@@ -19,7 +18,7 @@ public:
 	~AbstractWeapon() override = 0;
 	virtual void shoot();
 	void fire();
-	virtual AbstractWeapon *copy() const				= 0;
+	virtual AbstractWeapon *copy() const	= 0;
 	virtual rn::Vec2f getTrajectory() const = 0;
 	bool hasRollback() const;
 	void update() override;
@@ -28,7 +27,7 @@ public:
 protected:
 	/**
 	 * @brief should return the id of a bullet
-	 * @return 
+	 * @return
 	 */
 	virtual size_t bullet() const = 0;
 	virtual void onShoot()

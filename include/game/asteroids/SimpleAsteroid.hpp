@@ -2,9 +2,9 @@
 
 #include "components/FileLoader.hpp"
 #include "game/AbstractAsteroid.hpp"
-#include "game/SpaceField.hpp"
+#include "game/GameObjectBase.hpp"
 
-class SimpleAsteroid final : public AbstractAsteroid
+class SimpleAsteroid final : public AbstractAsteroid, public GameObjectBase<SimpleAsteroid>
 {
 public:
 	SimpleAsteroid();

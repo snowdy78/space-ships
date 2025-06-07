@@ -4,7 +4,6 @@
 #include "Hittable.hpp"
 #include "RigitBody2d.hpp"
 #include "SoundDisperseEntity.hpp"
-#include "SpaceFieldObject.hpp"
 #include "components/AnimatedSprite.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"

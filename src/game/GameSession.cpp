@@ -22,6 +22,10 @@ void GameSession::start()
 
 void GameSession::update()
 {
+	if (!player.expired())
+	{
+		const auto p = player.lock();
+	}
 	action_manager.update();
 	field.update();
 }
@@ -33,7 +37,7 @@ void GameSession::onEvent(sf::Event &event)
 
 void GameSession::createPlayer()
 {
-	player = field.summonShip<PlayerShip>(&camera);
+	player = field.summonShip<PlayerShip>();
 }
 
 void GameSession::afterLoad()

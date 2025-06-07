@@ -23,18 +23,19 @@ const PlayerControls PlayerShip::basic_controls = {
 };
 
 
-PlayerShip::PlayerShip(Camera2d *camera)
-	: AbstractShip(*texture),
-	  camera(camera)
+PlayerShip::PlayerShip()
+	: AbstractShip(*texture)
 {
 }
 
 void PlayerShip::rotation()
 {
-	rn::Vec2f camera_pos = camera->getPosition();
+	if (!GameManager::exist())
+		return;
+	rn::Vec2f camera_pos = GameManager::session()->camera.getPosition();
 	Direction dir{ rn::Vec2f(rn::mouse_position) - getPosition() + camera_pos };
 	setDirection(dir.x, dir.y);
-	setRotation(rn::math::rot(getDirection()));
+	setRotation(static_cast<float>(rn::math::rot(getDirection())));
 }
 
 void PlayerShip::movement()
@@ -60,8 +61,11 @@ void PlayerShip::onMove()
 		std::cout << "position is nan '" << to_json(getPosition()).dump() << "'\n";
 		return;
 	}
-	if (camera)
-		camera->setPosition(getPosition() - camera->getViewSize() / 2.f);
+	if (GameManager::exist())
+	{
+		auto &camera = GameManager::session()->camera;
+		camera.setPosition(getPosition() - camera.getViewSize() / 2.f);
+	}
 	sf::Listener::setPosition(getPosition().x, getPosition().y, 0);
 	rn::Vec2f perp = rn::math::nor(getPosition());
 	sf::Listener::setUpVector(perp.x, perp.y, 0.f);
@@ -87,6 +91,7 @@ rn::Vec2f PlayerShip::countMove() const
 {
 	return getVelocity() * getMoveDirection();
 }
+
 void PlayerShip::onRotation()
 {
 	sf::Listener::setDirection({ getDirection().x, getDirection().y, 0.f });

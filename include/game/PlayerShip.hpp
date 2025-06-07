@@ -51,7 +51,6 @@ class PlayerShip final : public AbstractShip, public ConvertedTransfer<PlayerShi
 	inline static loading<sf::Texture> texture		= FileLoader::Instance().addTextureToUpload("img/ship.png").get();
 	constexpr static float shift_acceleration = 1.5f;
 	static const PlayerControls basic_controls;
-	Camera2d *camera = nullptr;
 
 public:
 	/**
@@ -59,7 +58,7 @@ public:
 	 *
 	 * Construct a Ship object with the image set to the contents of Ship::texture
 	 */
-	PlayerShip(Camera2d * = nullptr);
+	PlayerShip();
 	~PlayerShip() override = default;
 
 	void rotation() override;

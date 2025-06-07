@@ -1,7 +1,6 @@
 #pragma once
 
 #include "decl.hpp"
-#include "game/AbstractAsteroid.hpp"
 #include "game/GameManager.hpp"
 
 template<class T>
@@ -83,7 +82,7 @@ void randomlySummonAsteroidOutsideArea(const sf::FloatRect &view_area, float vel
 	using rn::math::degrees, rn::math::radians;
 	using rn::math::sgn;
 
-	auto asteroid = GameManager::session()->field.summonAsteroid<T>(rn::Vec2f{}, rn::Vec2f{}).lock();
+	auto asteroid = GameManager::session()->field.summonAsteroid<T>().lock();
 	auto asize				   = asteroid->getSize();
 	int random_side			   = rn::random::integer(0, 3);
 	float k					   = rn::random::real<float>(0, 1);

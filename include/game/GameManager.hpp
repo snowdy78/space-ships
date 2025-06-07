@@ -3,7 +3,6 @@
 #include "components/SoundManager.hpp"
 #include "decl.hpp"
 #include "components/EffectManager.hpp"
-#include "SpaceField.hpp"
 #include "coop/TcpRouter.hpp"
 #include "coop/UdpRouter.hpp"
 #include "GameSession.hpp"

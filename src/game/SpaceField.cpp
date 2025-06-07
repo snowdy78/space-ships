@@ -75,40 +75,12 @@ void SpaceField::clear()
 	m_objects.clear();
 }
 
-SpaceField::StatePtrType SpaceField::push_back(AbstractShip *ship)
+SpaceField::StatePtrType SpaceField::push_back(SpaceFieldObject *raw_object)
 {
-	if (!ship)
+	if (!raw_object)
 		throw std::runtime_error("Error: Cannot summon null on field");
-	ship->start();
-	return casted_push<AbstractShip>(ship);
+	return casted_push<SpaceFieldObject>(raw_object);
 }
-
-SpaceField::StatePtrType SpaceField::push_back(AbstractBullet *bullet, const AbstractWeapon *const &gun)
-{
-	if (!bullet)
-		throw std::runtime_error("Error: Cannot summon null on field");
-	if (gun)
-		bullet->author = gun;
-	bullet->start();
-	bullet->onSummon();
-	return casted_push<AbstractBullet>(bullet);
-}
-
-SpaceField::StatePtrType
-SpaceField::push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_position, const rn::Vec2f &velocity)
-{
-	if (!asteroid)
-		throw std::runtime_error("Error: Cannot summon null on field");
-	asteroid->setPosition(summon_position);
-	asteroid->setVelocity(static_cast<float>(rn::math::length(velocity)));
-	asteroid->setDirection(rn::math::norm(velocity));
-	asteroid->start();
-	SmartPtrType<AbstractAsteroid> ptr{ asteroid };
-	m_objects.push_back(ptr);
-	onObjectSummon(asteroid);
-	return casted_push<AbstractAsteroid>(asteroid);
-}
-
 void SpaceField::destroy(const SpaceFieldObject *object)
 {
 	auto it = std::ranges::find_if(m_objects, [object](const StateType &value) {

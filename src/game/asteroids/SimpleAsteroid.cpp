@@ -1,4 +1,5 @@
 #include "game/asteroids/SimpleAsteroid.hpp"
+#include "game/SpaceField.hpp"
 
 SimpleAsteroid::SimpleAsteroid(): AbstractAsteroid(*texture)
 {
@@ -6,7 +7,13 @@ SimpleAsteroid::SimpleAsteroid(): AbstractAsteroid(*texture)
 
 void SimpleAsteroid::summonCopy(SpaceField &field) const
 {
-	field.summonAsteroid<SimpleAsteroid>(getPosition(), countMove());
+	field.summonAsteroid<SimpleAsteroid>([this](SimpleAsteroid &asteroid) {
+		asteroid.setPosition(getPosition());
+		asteroid.setDirection(getDirection());
+		asteroid.setVelocity(getVelocity());
+		asteroid.setMass(getMass());
+		asteroid.setAcceleration(getAcceleration());
+	});
 }
 
 void SimpleAsteroid::updateCollider()
