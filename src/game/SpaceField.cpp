@@ -1,7 +1,7 @@
 #include "game/SpaceField.hpp"
-#include "game/AbstractShip.hpp"
-#include "game/AbstractBullet.hpp"
 #include "game/AbstractAsteroid.hpp"
+#include "game/AbstractBullet.hpp"
+#include "game/AbstractShip.hpp"
 
 SpaceField::SpaceField(const Camera2d *camera)
 	: m_camera(camera)
@@ -75,16 +75,15 @@ void SpaceField::clear()
 	m_objects.clear();
 }
 
-void SpaceField::push_back(AbstractShip *ship)
+SpaceField::StatePtrType SpaceField::push_back(AbstractShip *ship)
 {
 	if (!ship)
 		throw std::runtime_error("Error: Cannot summon null on field");
 	ship->start();
-	m_objects.emplace_back(ship);
-	onObjectSummon(ship);
+	return casted_push<AbstractShip>(ship);
 }
 
-void SpaceField::push_back(AbstractBullet *bullet, const AbstractWeapon * const &gun)
+SpaceField::StatePtrType SpaceField::push_back(AbstractBullet *bullet, const AbstractWeapon *const &gun)
 {
 	if (!bullet)
 		throw std::runtime_error("Error: Cannot summon null on field");
@@ -92,11 +91,11 @@ void SpaceField::push_back(AbstractBullet *bullet, const AbstractWeapon * const 
 		bullet->author = gun;
 	bullet->start();
 	bullet->onSummon();
-	m_objects.emplace_back(bullet);
-	onObjectSummon(bullet);
+	return casted_push<AbstractBullet>(bullet);
 }
 
-void SpaceField::push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_position, const rn::Vec2f &velocity)
+SpaceField::StatePtrType
+SpaceField::push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_position, const rn::Vec2f &velocity)
 {
 	if (!asteroid)
 		throw std::runtime_error("Error: Cannot summon null on field");
@@ -104,8 +103,10 @@ void SpaceField::push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_p
 	asteroid->setVelocity(static_cast<float>(rn::math::length(velocity)));
 	asteroid->setDirection(rn::math::norm(velocity));
 	asteroid->start();
-	m_objects.emplace_back(asteroid);
+	SmartPtrType<AbstractAsteroid> ptr{ asteroid };
+	m_objects.push_back(ptr);
 	onObjectSummon(asteroid);
+	return casted_push<AbstractAsteroid>(asteroid);
 }
 
 void SpaceField::destroy(const SpaceFieldObject *object)

@@ -2,8 +2,9 @@
 
 AbstractLevelFactory::~AbstractLevelFactory() = default;
 
-AbstractLevel::AbstractLevel(const Difficulty &difficulty)
-	: m_difficulty()
+AbstractLevel::AbstractLevel(SpaceField &field, const Difficulty &difficulty)
+	: m_difficulty(difficulty),
+	  m_field(field)
 {
 }
 
@@ -16,20 +17,86 @@ AbstractLevel::Difficulty AbstractLevel::getDifficulty() const
 
 rn::Json AbstractLevel::toJson() const
 {
-	return
-	{
-		{ "factory_id", factory_id() },
+	return {
+		{ "factory_id", factory_id()								 },
 		{ "difficulty", static_cast<std::uint8_t>(getDifficulty()) }
 	};
 }
 
-void level_become_next(std::unique_ptr<AbstractLevel> &level)
+void AbstractLevel::clear()
 {
-	if (!level)
-		throw std::runtime_error("cannot move nullptr to next level");
-	auto next_factory = level->next();
-	auto next_level	  = next_factory->create();
-	next_level->field.swap(level->field);
-	next_level->action_manager.swap(level->action_manager);
-	level.swap(next_level);
+	entities.clear();
+}
+
+AbstractLevel::PoolEntities::PoolEntities(const std::initializer_list<size_t> &lst)
+	: m_pool(lst.begin(), lst.end())
+{
+}
+
+AbstractLevel::PoolEntities::ConstIterator AbstractLevel::PoolEntities::begin() const
+{
+	return m_pool.begin();
+}
+
+AbstractLevel::PoolEntities::ConstIterator AbstractLevel::PoolEntities::end() const
+{
+	return m_pool.end();
+}
+
+AbstractLevel::Entities::Entities(SpaceField &field)
+	: field(field)
+{
+}
+
+void AbstractLevel::Entities::clear()
+{
+	for (auto it = begin(); it != end(); it = destroy(it))
+	{
+	}
+}
+
+auto AbstractLevel::Entities::destroy(Iterator it)
+{
+	if (it->expired())
+		return m_entities.erase(it);
+
+	const auto obj = it->lock();
+	obj->destroy();
+	return m_entities.erase(it);
+}
+
+
+void AbstractLevel::Entities::summon(PoolEntities::ConstIterator it)
+{
+	m_entities.push_back(field.push_back());
+}
+
+auto AbstractLevel::Entities::cend() const
+{
+	return m_entities.cend();
+}
+
+auto AbstractLevel::Entities::end() const
+{
+	return m_entities.end();
+}
+
+auto AbstractLevel::Entities::end()
+{
+	return m_entities.end();
+}
+
+auto AbstractLevel::Entities::cbegin() const
+{
+	return m_entities.cbegin();
+}
+
+auto AbstractLevel::Entities::begin() const
+{
+	return m_entities.begin();
+}
+
+auto AbstractLevel::Entities::begin()
+{
+	return m_entities.begin();
 }

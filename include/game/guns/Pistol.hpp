@@ -6,7 +6,7 @@
 #include "game/AbstractWeapon.hpp"
 #include "game/GameObjectBase.hpp"
 
-class Pistol : public AbstractWeapon, public GameObjectBase<Pistol>
+class Pistol final : public AbstractWeapon, public GameObjectBase<Pistol>
 {
 	inline static loading<sf::SoundBuffer> sound_buffer = FileLoader::Instance().addSoundToUpload("shoot.ogg").get();
 

@@ -12,6 +12,9 @@ bool SpaceFieldObject::willBeDestroyed() const
 
 void SpaceFieldObject::destroy()
 {
-	need_destroy = true;
-    onDestroy();
+	if (!willBeDestroyed())
+	{
+		onDestroy();
+		need_destroy = true;
+	}
 }

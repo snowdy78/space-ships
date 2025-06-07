@@ -10,12 +10,13 @@
 template<class T>
 concept SpaceFieldObjectConcept = std::is_base_of_v<SpaceFieldObject, T>;
 template<class T, class... Args>
-concept ShipConcept
-	= std::is_base_of_v<AbstractShip, T> && SpaceFieldObjectConcept<T> && !std::is_abstract_v<T> && requires(Args const &...args) { T(args...); };
+concept ShipConcept = std::is_base_of_v<AbstractShip, T> && SpaceFieldObjectConcept<T> && !std::is_abstract_v<T>
+					  && requires(Args const &...args) { T(args...); };
 template<class T>
 concept BulletConcept = std::is_base_of_v<AbstractBullet, T> && SpaceFieldObjectConcept<T> && !std::is_abstract_v<T>;
 template<class T>
-concept AsteroidConcept = std::is_base_of_v<AbstractAsteroid, T> && SpaceFieldObjectConcept<T> && !std::is_abstract_v<T>;
+concept AsteroidConcept
+	= std::is_base_of_v<AbstractAsteroid, T> && SpaceFieldObjectConcept<T> && !std::is_abstract_v<T>;
 
 class SpaceField : public sf::Drawable, public rn::LogicalObject
 {
@@ -27,13 +28,13 @@ public:
 	template<class T>
 	using StatePtr = std::weak_ptr<T>;
 	template<class T>
-	using State			 = SmartPtrType<T>;
-	using StateType	 = SmartPtrType<SpaceFieldObject>;
-	using StatePtrType = StatePtr<SpaceFieldObject>;
-	using ObjectsType	 = ContainerType<StateType>;
-	using Iterator		 = ObjectsType::iterator;
+	using State			= SmartPtrType<T>;
+	using StateType		= SmartPtrType<SpaceFieldObject>;
+	using StatePtrType	= StatePtr<SpaceFieldObject>;
+	using ObjectsType	= ContainerType<StateType>;
+	using Iterator		= ObjectsType::iterator;
 	using ConstIterator = ObjectsType::const_iterator;
-	using CallbackType	 = std::function<void(SpaceFieldObject *)>;
+	using CallbackType	= std::function<void(SpaceFieldObject *)>;
 	SpaceField(const Camera2d *camera = nullptr);
 	SpaceField(const SpaceField &field) = delete;
 	~SpaceField() override				= default;
@@ -59,12 +60,14 @@ public:
 		requires(ShipConcept<T, Args...>)
 	StatePtr<AbstractShip> summonShip(const Args &...args) noexcept;
 	template<BulletConcept BulletT>
-	StatePtr<AbstractBullet> summonBullet(const std::function<void(BulletT &)> &init, const AbstractWeapon *gun) noexcept;
+	StatePtr<AbstractBullet>
+	summonBullet(const std::function<void(BulletT &)> &init, const AbstractWeapon *gun) noexcept;
 	template<AsteroidConcept AsteroidT>
 	StatePtr<AbstractAsteroid> summonAsteroid(const rn::Vec2f &summon_position = {}, const rn::Vec2f &velocity = {});
-	void push_back(AbstractShip *ship);
-	void push_back(AbstractBullet *bullet, const AbstractWeapon *const &gun = nullptr);
-	void push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_position = {}, const rn::Vec2f &velocity = {});
+	StatePtrType push_back(AbstractShip *ship);
+	StatePtrType push_back(AbstractBullet *bullet, const AbstractWeapon *const &gun = nullptr);
+	StatePtrType
+	push_back(AbstractAsteroid *asteroid, const rn::Vec2f &summon_position = {}, const rn::Vec2f &velocity = {});
 	void destroy(const SpaceFieldObject *object);
 	virtual void onObjectSummon(GameObject *object) const;
 	virtual void onObjectDestroy(GameObject *object) const;

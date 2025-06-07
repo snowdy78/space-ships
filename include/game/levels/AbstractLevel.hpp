@@ -7,6 +7,9 @@
 class AbstractLevelFactory;
 class AbstractLevel;
 
+template<class T>
+concept IdentifiedSpaceObjectConcept = std::is_base_of_v<SpaceFieldObject, T> && std::is_final_v<T> && requires() { T::identifier; };
+
 class AbstractLevel : public Jsonable, public rn::LogicalObject
 {
 public:
@@ -19,7 +22,7 @@ public:
 		Star5
 	};
 
-	explicit AbstractLevel(const Difficulty &difficulty);
+	explicit AbstractLevel(SpaceField &field, const Difficulty &difficulty);
 	~AbstractLevel() override = 0;
 	Difficulty getDifficulty() const;
 	rn::Json toJson() const final;
@@ -27,56 +30,84 @@ public:
 	virtual std::unique_ptr<AbstractLevelFactory> next() const = 0;
 	virtual size_t factory_id() const						   = 0;
 
-	void clear()
-	{
-		for (auto entity_id : entities)
-		{
-		}
-		entities.clear();
-	}
+	void clear();
 
-protected:
-	struct Entities : std::vector<size_t>
+private:
+	struct PoolEntities
 	{
-		Entities(SpaceField *field = nullptr)
-			: field(field)
-		{
-		}
 		template<class T>
-		void add()
-		{
-			this->emplace_back(T::identifier);
-		}
+		using Container				= std::vector<T>;
+		using PoolEntitiesContainer = Container<size_t>;
+		using Iterator				= PoolEntitiesContainer::iterator;
+		using ConstIterator			= PoolEntitiesContainer::const_iterator;
+		PoolEntities()				= default;
+		PoolEntities(const std::initializer_list<size_t> &lst);
+
+		ConstIterator begin() const;
+		ConstIterator end() const;
+
+		template<SpaceFieldObjectConcept T>
+		void push();
+		template<SpaceFieldObjectConcept T>
+		ConstIterator find() const;
+		template<class T>
+		T *create()
+
+	private:
+		PoolEntitiesContainer m_pool;
+	};
+	struct Entities
+	{
+		template<class T>
+		using Container			= std::vector<T>;
+		using EntitiesContainer = Container<SpaceField::StatePtrType>;
+		using Iterator			= EntitiesContainer::iterator;
+		using ConstIterator		= EntitiesContainer::const_iterator;
+		Entities(SpaceField &field);
+
+		Iterator begin();
+		ConstIterator begin() const;
+		ConstIterator cbegin() const;
+		Iterator end();
+		ConstIterator end() const;
+		ConstIterator cend() const;
+
+		Iterator destroy(Iterator it);
+		void summon(PoolEntities::ConstIterator);
+		void clear();
+
 	private:
 		friend class AbstractLevel;
-		SpaceField *field = nullptr;
+		SpaceField &field;
+		EntitiesContainer m_entities{};
 	};
-
+	
+	const Difficulty m_difficulty;
 	/**
-	 * @brief Any entity produced exists in pool of entities
-	 * 
+	 * @brief pointer on field
 	 */
-	Entities pool_entities;
+	SpaceField &m_field;
 	/**
 	 * @brief all created entities by current level
 	 */
-	Entities entities;
+	Entities entities{ m_field };
 
-private:
-	const Difficulty m_difficulty;
-	/**
-	 * @brief dynamically created field, but when level become next - field is moving to next level
-	 */
-	std::unique_ptr<SpaceField> field = nullptr;
-	/**
-	 * @brief dynamically created action manager, but when level become next - manager is moving to next level
-	 */
-	std::unique_ptr<ActionManager> action_manager = nullptr;
+protected:
+	PoolEntities pool_entities;
 
-	friend void level_become_next(std::unique_ptr<AbstractLevel> &level);
 };
 
-void level_become_next(std::unique_ptr<AbstractLevel> &level);
+template<SpaceFieldObjectConcept T>
+void AbstractLevel::PoolEntities::push()
+{
+	m_pool.push_back(T::identifier);
+}
+
+template<SpaceFieldObjectConcept T>
+AbstractLevel::PoolEntities::ConstIterator AbstractLevel::PoolEntities::find() const
+{
+	return std::find(begin(), end(), T::identifier);
+}
 
 class AbstractLevelFactory
 {

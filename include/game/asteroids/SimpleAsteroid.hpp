@@ -4,7 +4,7 @@
 #include "game/AbstractAsteroid.hpp"
 #include "game/SpaceField.hpp"
 
-class SimpleAsteroid : public AbstractAsteroid
+class SimpleAsteroid final : public AbstractAsteroid
 {
 public:
 	SimpleAsteroid();

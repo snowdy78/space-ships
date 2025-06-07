@@ -46,7 +46,7 @@ using PlayerControls = ControlsScheme<
 	ShootProps
 	>;
 
-class PlayerShip : public AbstractShip, public ConvertedTransfer<PlayerShip, ConnectedPlayerShip>
+class PlayerShip final : public AbstractShip, public ConvertedTransfer<PlayerShip, ConnectedPlayerShip>
 {
 	inline static loading<sf::Texture> texture		= FileLoader::Instance().addTextureToUpload("img/ship.png").get();
 	constexpr static float shift_acceleration = 1.5f;

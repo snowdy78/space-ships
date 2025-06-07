@@ -12,7 +12,7 @@ struct bullet_sound : SoundDisperseEntity
     void start() override;
 };
 
-class BaseBullet : public AbstractBullet, public GameObjectBase<BaseBullet>
+class BaseBullet final : public AbstractBullet, public GameObjectBase<BaseBullet>
 {
 	static constexpr float initial_damage = 25.f;
 	inline static loading<sf::Texture> texture

@@ -6,7 +6,7 @@
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
 
-class EnemyShip : public AbstractShip, public GameObjectBase<EnemyShip>
+class EnemyShip final : public AbstractShip, public GameObjectBase<EnemyShip>
 {
 	using time_digit_type					   = std::chrono::milliseconds;
 	inline static loading<sf::Texture> texture = FileLoader::Instance().addTextureToUpload("img/enemy_ship.png").get();

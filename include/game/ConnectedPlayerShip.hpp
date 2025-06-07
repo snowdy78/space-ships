@@ -4,7 +4,7 @@
 #include "coop/TransferableObject.hpp"
 
 
-class ConnectedPlayerShip : public AbstractShip, public TransferObjectBase<ConnectedPlayerShip>
+class ConnectedPlayerShip final : public AbstractShip, public TransferObjectBase<ConnectedPlayerShip>
 {
 	inline static loading<sf::Texture> texture = FileLoader::Instance().addTextureToUpload("img/friend_ship.png").get();
 
