@@ -24,8 +24,8 @@ SpaceField::StatePtr<AbstractShip> EnemyShip::getTarget() const
 
 void EnemyShip::start()
 {
-	vertical_movement_clock.start();
-	horizontal_movement_clock.start();
+	setVelocity(enemy_velocity);
+	movement_clock.start();
 	shoot_clock.start();
 	AbstractShip::start();
 }
@@ -46,7 +46,7 @@ rn::Vec2f EnemyShip::countMove() const
 		= static_cast<float>(rn::math::sgn(
 			  rn::math::length(ship->getPosition() - getPosition()) - static_cast<number_t>(min_distance_to_target)
 		  ));
-	rn::Vec2f dir{ getMoveDirection() * sign * (*randomly_move == 0 ? 1.f : -1.f) };
+	rn::Vec2f dir{ getMoveDirection() * sign };
 	
 	return getVelocity() * dir;
 }
@@ -56,39 +56,53 @@ void EnemyShip::rotation()
 	if (!m_target.expired())
 	{
 		auto ship = m_target.lock();
-		setDirection(ship->getPosition() - getPosition());
-		setRotation(rn::math::rot(getDirection()));
+		setDirection(rn::math::norm(ship->getPosition() - getPosition()));
+		setRotation(static_cast<float>(rn::math::rot(getDirection())));
 	}
 }
 void EnemyShip::movement()
 {
 	using namespace std::chrono;
+	using rn::math::rot, rn::math::norm, rn::math::nor;
+
 	AbstractShip::movement();
 	if (m_target.expired() || !GameManager::exist())
 		return;
-	if (timeStep(vertical_movement_clock, time_vertical_movement))
-	{
-		if (!randomly_move.has_value())
-			randomly_move = rn::random::integer(0, 1);
-		setMoveDirection(getDirection());
-		GameManager::session()->action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ this });
-	}
-	else
-	{
-		randomly_move = std::nullopt;
-	}
-	if (timeStep(horizontal_movement_clock, time_horizontal_movement))
-	{
-		if (!randomly_move.has_value())
-			randomly_move = rn::random::integer(0, 1);
-		setMoveDirection(rn::math::nor(getDirection()));
-		GameManager::session()->action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ this });
-	}
-	else
-	{
-		randomly_move = std::nullopt;
-	}
 
+	if (timeStep(movement_clock, time_vertical_movement))
+	{
+		if (!vertical)
+		{
+			vertical.moving(getDirection());
+			setMoveDirection(norm(getMoveDirection() + vertical.moving()));
+		}
+	}
+	else if (vertical)
+	{
+		auto a1 = rot(vertical.moving());
+		auto a2 = rot(getMoveDirection());
+		setMoveDirection(direction(a2 - a1));
+		vertical.reset();
+	}
+	if (timeStep(movement_clock, time_horizontal_movement))
+	{
+		if (!horizontal)
+		{
+			horizontal.moving(nor(getDirection()));
+			setMoveDirection(norm(getMoveDirection() + horizontal.moving()));
+		}
+	}
+	else if (horizontal)
+	{
+		auto a1 = rot(horizontal.moving());
+		auto a2 = rot(getMoveDirection());
+		setMoveDirection(direction(a2 - a1));
+		horizontal.reset();
+	}
+	if (vertical || horizontal)
+	{
+		GameManager::session()->action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ this });
+	}
 }
 
 void EnemyShip::update()

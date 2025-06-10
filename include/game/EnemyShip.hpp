@@ -10,15 +10,40 @@ class EnemyShip final : public AbstractShip, public GameObjectBase<EnemyShip>
 {
 	using time_digit_type					   = std::chrono::milliseconds;
 	inline static loading<sf::Texture> texture = FileLoader::Instance().addTextureToUpload("img/enemy_ship.png").get();
-	static constexpr float min_distance_to_target = 100.f;
-	constexpr static time_digit_type time_vertical_movement{ 1500 };
-	constexpr static time_digit_type time_horizontal_movement{ 1500 };
+	constexpr static float enemy_velocity{ 5.f };
+	constexpr static float min_distance_to_target = 100.f;
+	constexpr static time_digit_type time_vertical_movement{ 660 };
+	constexpr static time_digit_type time_horizontal_movement{ 1600 };
 	constexpr static time_digit_type shoot_timing{ 2000 };
-	rn::Stopwatch vertical_movement_clock;
-	rn::Stopwatch horizontal_movement_clock;
+	rn::Stopwatch movement_clock;
 	rn::Stopwatch shoot_clock;
 	SpaceField::StatePtr<AbstractShip> m_target;
-	mutable std::optional<int> randomly_move = std::nullopt;
+	class random_move
+	{
+	public:
+		random_move() = default;
+		void moving(const rn::Vec2f &direction)
+		{
+			m_direction = direction * (rn::random::chance(0.5) ? -1.f : 1.f);
+		}
+		void reset()
+		{
+			m_direction = std::nullopt;
+		}
+		rn::Vec2f moving() const
+		{
+			return *m_direction;
+		}
+		operator bool() const
+		{
+			return m_direction.has_value();
+		}
+
+	private:
+		std::optional<rn::Vec2f> m_direction = std::nullopt;
+	};
+	random_move vertical;
+	random_move horizontal;
 
 public:
 	using destroy_target_callback_type = std::function<void()>;
