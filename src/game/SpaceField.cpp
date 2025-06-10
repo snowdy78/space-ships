@@ -89,15 +89,15 @@ void SpaceField::destroy(const SpaceFieldObject *object)
 	if (it != end())
 	{
 		it->get()->need_destroy = true;
-		onObjectDestroy(it->get());
+		onObjectDestroy(*it);
 	}
 }
 
-void SpaceField::onObjectSummon(GameObject *object) const
+void SpaceField::onObjectSummon(const StatePtrType &state_ptr) const
 {
 }
 
-void SpaceField::onObjectDestroy(GameObject *object) const
+void SpaceField::onObjectDestroy(const StatePtrType &state_ptr) const
 {
 }
 

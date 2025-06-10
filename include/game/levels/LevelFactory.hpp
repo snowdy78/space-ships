@@ -3,13 +3,13 @@
 #include "AbstractLevel.hpp"
 
 
-template<class Derived>
+template<class Derived, class CreateType>
 class BasicLevelFactory : public AbstractLevelFactory
 {
 public:
 	static size_t identifier;
 	BasicLevelFactory() = default;
-	level_ptr create() const final;
+	level_ptr create(SpaceField &field) const final;
 };
 
 class LevelFactory
@@ -25,7 +25,7 @@ public:
 	template<class T>
 	static size_t identify();
 	static LevelFactory &instance();
-	static level_ptr create(key_type key);
+	static level_ptr create(key_type key, SpaceField &space);
 
 	template<class T>
 	size_t push();
@@ -37,13 +37,13 @@ private:
 	container_type<key_type, value_type> generators;
 };
 
-template<class Derived>
-size_t BasicLevelFactory<Derived>::identifier = LevelFactory::identify<Derived>();
+template<class Derived, class CreateType>
+size_t BasicLevelFactory<Derived, CreateType>::identifier = LevelFactory::identify<Derived>();
 
-template<class Derived>
-AbstractLevelFactory::level_ptr BasicLevelFactory<Derived>::create() const
+template<class Derived, class CreateType>
+AbstractLevelFactory::level_ptr BasicLevelFactory<Derived, CreateType>::create(SpaceField &field) const
 {
-	return std::make_unique<Derived>();
+	return std::make_unique<CreateType>(field);
 }
 
 template<class T>
@@ -55,7 +55,7 @@ size_t LevelFactory::identify()
 template<class T>
 size_t LevelFactory::push()
 {
-	generators.insert({ generators.size(), std::make_unique<T>() });
+	generators.emplace(generators.size(), std::move(std::make_unique<T>()));
 	return generators.size() - 1;
 }
 

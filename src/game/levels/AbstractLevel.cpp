@@ -1,5 +1,7 @@
 #include "game/levels/AbstractLevel.hpp"
 
+#include "Helpers.hpp"
+
 AbstractLevelFactory::~AbstractLevelFactory() = default;
 
 AbstractLevel::AbstractLevel(SpaceField &field, const Difficulty &difficulty)
@@ -10,9 +12,19 @@ AbstractLevel::AbstractLevel(SpaceField &field, const Difficulty &difficulty)
 
 AbstractLevel::~AbstractLevel() = default;
 
-AbstractLevel::Difficulty AbstractLevel::getDifficulty() const
+AbstractLevel::Difficulty AbstractLevel::getDifficultyType() const
 {
 	return m_difficulty_type;
+}
+
+float AbstractLevel::getDifficultyFactor() const
+{
+	return m_difficulty_factor;
+}
+
+float AbstractLevel::getDifficulty() const
+{
+	return m_difficulty;
 }
 
 rn::Json AbstractLevel::toJson() const
@@ -23,14 +35,82 @@ rn::Json AbstractLevel::toJson() const
 	};
 }
 
-void AbstractLevel::clear()
+AbstractLevel::PoolEntities::ConstIterator AbstractLevel::pool_begin() const
 {
-	entities.clear();
+	return m_pool.begin();
 }
 
-AbstractLevel::PoolEntities::PoolEntities(const std::initializer_list<size_t> &lst)
-	: m_pool(lst.begin(), lst.end())
+AbstractLevel::PoolEntities::ConstIterator AbstractLevel::pool_end() const
 {
+	return m_pool.end();
+}
+
+AbstractLevel::Entities::ConstIterator AbstractLevel::begin() const
+{
+	return m_entities.begin();
+}
+
+AbstractLevel::Entities::Iterator AbstractLevel::begin()
+{
+	return m_entities.begin();
+}
+
+AbstractLevel::Entities::ConstIterator AbstractLevel::end() const
+{
+	return m_entities.end();
+}
+
+AbstractLevel::Entities::Iterator AbstractLevel::end()
+{
+	return m_entities.end();
+}
+
+
+void AbstractLevel::start()
+{
+	LogicalObject::start();
+	clock.start();
+}
+
+void AbstractLevel::update()
+{
+	if (everyTime(clock, period_summon))
+	{
+		summon();
+		clock.reset();
+	}
+}
+
+void AbstractLevel::summon(size_t count)
+{
+	while (count-- != 0)
+		m_entities.summon(nextSummon());
+}
+
+void AbstractLevel::erase(const Entities::ConstIterator &it)
+{
+	m_entities.destroy(it);
+}
+
+void AbstractLevel::clear()
+{
+	m_entities.clear();
+}
+
+AbstractLevel::PoolEntities::ObjectPtr AbstractLevel::PoolEntities::create(const ConstIterator iterator) const
+{
+	if (iterator == end())
+		throw std::out_of_range("(std::out_of_range): object not found in entities pool\n");
+	std::unique_ptr<GameObject> object = GameObjectFactory::create(iterator->entity_id());
+	if (auto t_ptr = dynamic_unique_cast<SpaceFieldObject>(std::move(object)))
+	{
+		iterator->assign(t_ptr.get());
+		if (!iterator->init_possible())
+			throw std::runtime_error("Impossible to initialize the object");
+		iterator->init();
+		return t_ptr;
+	}
+	return nullptr;
 }
 
 AbstractLevel::PoolEntities::ConstIterator AbstractLevel::PoolEntities::begin() const
@@ -56,8 +136,10 @@ void AbstractLevel::Entities::clear()
 	}
 }
 
-auto AbstractLevel::Entities::destroy(Iterator it)
+AbstractLevel::Entities::Iterator AbstractLevel::Entities::destroy(ConstIterator it)
 {
+	if (it == end())
+		throw std::out_of_range("cannot destroy end of array");
 	if (it->expired())
 		return m_entities.erase(it);
 
@@ -66,32 +148,47 @@ auto AbstractLevel::Entities::destroy(Iterator it)
 	return m_entities.erase(it);
 }
 
-auto AbstractLevel::Entities::cend() const
+AbstractLevel::Entities::ConstIterator AbstractLevel::Entities::cend() const
 {
 	return m_entities.cend();
 }
 
-auto AbstractLevel::Entities::end() const
+AbstractLevel::Entities::ConstIterator AbstractLevel::Entities::end() const
 {
 	return m_entities.end();
 }
 
-auto AbstractLevel::Entities::end()
+AbstractLevel::Entities::Iterator AbstractLevel::Entities::end()
 {
 	return m_entities.end();
 }
 
-auto AbstractLevel::Entities::cbegin() const
+AbstractLevel::Entities::ConstIterator AbstractLevel::Entities::cbegin() const
 {
 	return m_entities.cbegin();
 }
 
-auto AbstractLevel::Entities::begin() const
+AbstractLevel::Entities::ConstIterator AbstractLevel::Entities::begin() const
 {
 	return m_entities.begin();
 }
 
-auto AbstractLevel::Entities::begin()
+AbstractLevel::Entities::Iterator AbstractLevel::Entities::begin()
 {
 	return m_entities.begin();
+}
+
+void AbstractLevel::Entities::summon(PoolEntities::ConstIterator it)
+{
+	auto object = m_pool.create(it);
+	auto raw	= object.release();
+	try
+	{
+		m_entities.push_back(m_field.push_back(raw));
+	}
+	catch (std::exception &err)
+	{
+		delete raw;
+		throw err;
+	}
 }

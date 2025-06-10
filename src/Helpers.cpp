@@ -98,6 +98,43 @@ rn::Vec2f randomAreaPoint(const sf::FloatRect &area)
 	return { rn::random::real(area.getPosition().x, area.getPosition().x + area.getSize().x),
 			 rn::random::real(area.getPosition().y, area.getPosition().y + area.getSize().y) };
 }
+rn::Vec2f randomPointOutsideArea(const sf::FloatRect &area, const float distance_from_area)
+{
+	auto asize		= rn::Vec2f(distance_from_area, distance_from_area);
+	int random_side = rn::random::integer(0, 3);
+	float k			= rn::random::real<float>(0, 1);
+	rn::math::rectangle view_rect(area);
+	rn::math::rectangle rect(area.getPosition() - asize, area.getSize() + asize * 2.f);
+	// random position by random point on random side
+	return rect.side(random_side).lerp(k);
+}
+void randomBodyDirectionalOnAreaOutsideArea(
+	const sf::FloatRect &view_area, RigitBody2d &body, const float velocity, rn::Vec2f body_size
+)
+{
+	using rn::math::coordinates2d;
+	using rn::math::degrees, rn::math::radians;
+	using rn::math::sgn;
+	int random_side = rn::random::integer(0, 3);
+	float k			= rn::random::real<float>(0, 1);
+	rn::math::rectangle view_rect(view_area);
+	rn::math::rectangle rect(view_area.getPosition() - body_size, view_area.getSize() + body_size * 2.f);
+	// random position by random point on random side
+	rn::Vec2f position = rect.side(random_side).lerp(k);
+
+	rn::Vec2f direction_point1 = view_rect.point(random_side == 0 ? rect.point_count() - 1 : random_side - 1);
+	rn::Vec2f direction_point2 = view_rect.point(random_side == 3 ? 0 : random_side + 1);
+	// finding random direction by two neighbour points of random side first point
+	degrees random_angle  = rn::random::real<float>(0, 1);
+	degrees base_angle	  = rn::math::rot(direction_point2 - position);
+	degrees max_add_angle = rn::math::angle_of(direction_point1, position, direction_point2);
+	base_angle -= max_add_angle * random_angle;
+	rn::Vec2f dir = direction(base_angle);
+
+	body.setDirection(rn::math::norm(dir));
+	body.setVelocity(velocity);
+	body.setPosition(position);
+}
 bool everyTime(const rn::Stopwatch &clock, const std::chrono::milliseconds &t)
 {
 	if (clock.is_stopped())

@@ -7,7 +7,8 @@ LevelFactory &LevelFactory::instance()
 	return factory;
 }
 
-LevelFactory::level_ptr LevelFactory::create(key_type key)
+LevelFactory::level_ptr LevelFactory::create(key_type key, SpaceField &space)
 {
-	return instance().generators.at(key)->create();
+	return instance().generators.at(key)->create(space);
 }
+ 

@@ -50,7 +50,6 @@ void Gameplay::start()
 		space->start();
 		GameManager::instance().effect_manager.start();
 		GameManager::instance().sound_manager.start();
-		GameManager::session()->action_manager.start();
 	}
 	background.start();
 	fps_clock.start();

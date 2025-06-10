@@ -44,7 +44,7 @@ class RigitBody2d : public SpaceFieldObject
 	PullForce pull_force;
 	float m_mass{1.0};
 	float m_acceleration{0.0f};
-	float m_velocity = 5.f;
+	float m_velocity = m_static_velocity;
 
 public:
 	using Transformable::getPosition;

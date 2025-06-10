@@ -7,6 +7,7 @@
 class SimpleAsteroid final : public AbstractAsteroid, public GameObjectBase<SimpleAsteroid>
 {
 public:
+	constexpr static float default_velocity{10.f};
 	SimpleAsteroid();
 	void summonCopy(SpaceField &field) const override;
 	void updateCollider() override;

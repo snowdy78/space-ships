@@ -67,8 +67,8 @@ public:
 	StatePtr<AbstractAsteroid> summonAsteroid(const InitializerFunc<AsteroidT> & = [](AsteroidT &) {});
 	StatePtrType push_back(SpaceFieldObject *raw_object);
 	void destroy(const SpaceFieldObject *object);
-	virtual void onObjectSummon(GameObject *object) const;
-	virtual void onObjectDestroy(GameObject *object) const;
+	virtual void onObjectSummon(const StatePtrType &state_ptr) const;
+	virtual void onObjectDestroy(const StatePtrType &state_ptr) const;
 
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 	SpaceField &operator=(const SpaceField &other) = delete;
@@ -117,7 +117,7 @@ SpaceField::StatePtr<T> SpaceField::casted_push(T *ptr)
 		m_objects.push_back(obj);
 		object->start();
 		object->onSummon();
-		this->onObjectSummon(ptr);
+		this->onObjectSummon(object);
 		return object;
 	}
 	return {};
