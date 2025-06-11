@@ -1,7 +1,9 @@
 #include "game/AbstractBullet.hpp"
+
+#include "Helpers.hpp"
 #include "game/AbstractShip.hpp"
-#include "game/GameManager.hpp"
 #include "game/AbstractWeapon.hpp"
+#include "game/GameManager.hpp"
 #include "game/actions/DealDamageAction.hpp"
 #include "game/actions/DestroySpaceFieldObjectAction.hpp"
 
@@ -61,11 +63,13 @@ const sf::Sprite &AbstractBullet::getSprite() const
 }
 void AbstractBullet::onCollisionEnter(Collidable *obstacle)
 {
-	if (auto hittable = dynamic_cast<Hittable *>(obstacle); GameManager::exist() && existOnField() && hittable->existOnField())
+	if (auto hittable = dynamic_cast<Hittable *>(obstacle);
+		GameManager::exist() && existOnField() && hittable->existOnField())
 	{
 		GameManager::session()->action_manager.emplaceToTop<DestroySpaceFieldObjectAction>(TransferableActionProps{
 			self() });
-		GameManager::session()->action_manager.emplaceToTop<DealDamageAction>(TransferableActionProps{ self(), hittable->self() });
+		GameManager::session()->action_manager.emplaceToTop<DealDamageAction>(TransferableActionProps{
+			self(), hittable->self() });
 	}
 }
 void AbstractBullet::setTexture(const sf::Texture &texture)
@@ -97,6 +101,18 @@ void AbstractBullet::onMove()
 	updateCollider();
 	if (checkOutside())
 	{
+		if (out_of_view_timer.is_stopped())
+			out_of_view_timer.start();
+	}
+	else if (!out_of_view_timer.is_stopped())
+	{
+		out_of_view_timer.stop();
+		out_of_view_timer.reset();
+	}
+	if (everyTime(out_of_view_timer, destroy_after))
+	{
 		destroy();
+		out_of_view_timer.stop();
+		out_of_view_timer.reset();
 	}
 }

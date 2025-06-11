@@ -21,6 +21,6 @@ public:
 	}
 	bool isOutOfViewArea(const sf::FloatRect &object_bounds) const
 	{
-		return rn::math::rectangle(m_view_area).collide(rn::math::rectangle(object_bounds));
+		return !rn::math::rectangle(m_view_area).collide(rn::math::rectangle(object_bounds));
 	}
 };
