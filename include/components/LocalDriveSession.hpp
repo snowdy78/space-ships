@@ -2,9 +2,19 @@
 
 #include <filesystem>
 #include "Session.hpp"
+#include "EncryptionBase.hpp"
+
+class LocalDriveSessionEncryption : public EncryptionBase<std::string>
+{
+public:
+	std::string encrypt(const std::string &value, size_t key) const override;
+	std::string decrypt(const std::string &value, size_t key) const override;
+};
 
 class LocalDriveSession : public Session
 {
+	constexpr static size_t encryption_key = 200;
+
 protected:
 	virtual void beforeSave()
 	{
@@ -24,7 +34,7 @@ public:
 	const rn::Json &at(const KeyT &key) const noexcept;
 	template<class KeyT>
 	void erase(const KeyT &key) noexcept;
-	const rn::Json &toJson() const override;
+	const rn::Json &json() const override;
 
 	template<class KeyT>
 	rn::Json &operator[](const KeyT &key) noexcept;
@@ -32,7 +42,7 @@ public:
 	template<class KeyT>
 	const rn::Json &operator[](const KeyT &key) const noexcept;
 private:
-	rn::Json m_data;
+	rn::Json m_data{  };
 	std::filesystem::path m_file_path;
 };
 

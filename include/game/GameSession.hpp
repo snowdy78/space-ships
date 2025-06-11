@@ -11,7 +11,7 @@ concept LevelConcept = std::is_base_of_v<AbstractLevel, T> && std::is_final_v<T>
 
 class GameSession : protected LocalDriveSession, public rn::LogicalObject
 {
-	constexpr static const char *s_file_path = "src/game_session_data.json";
+	constexpr static const char *s_file_path = "src/game_session_data.enc";
 
 	void createPlayer();
 protected:
