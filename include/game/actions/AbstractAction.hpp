@@ -8,5 +8,6 @@ public:
     AbstractAction() = default;
     virtual ~AbstractAction() = 0;
     virtual void play() = 0;
+	virtual bool playable() const;
     virtual AbstractAction *copy() const = 0;
 };

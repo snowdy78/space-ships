@@ -1,9 +1,9 @@
 #pragma once
 
 #include "decl.hpp"
-#include "game/GameObject.hpp"
+#include "game/SpaceItem.hpp"
 
-class AbstractWeapon : public sf::Transformable, public rn::LogicalObject, public virtual GameObject
+class AbstractWeapon : public SpaceItem, public rn::LogicalObject, public sf::Transformable
 {
 	rn::Stopwatch clock;
 	bool has_rollback = false;
@@ -13,7 +13,6 @@ protected:
 	void startRollback();
 
 public:
-	const AbstractShip *user = nullptr;
 	AbstractWeapon();
 	~AbstractWeapon() override = 0;
 	virtual void shoot();

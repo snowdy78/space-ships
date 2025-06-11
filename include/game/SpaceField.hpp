@@ -1,10 +1,8 @@
 #pragma once
 
-#include "AbstractAsteroid.hpp"
-#include "AbstractBullet.hpp"
-#include "AbstractShip.hpp"
 #include "Camera2d.hpp"
 #include "SpaceFieldObject.hpp"
+#include "SpaceItem.hpp"
 #include "decl.hpp"
 
 template<class T>
@@ -18,6 +16,11 @@ template<class T>
 concept AsteroidConcept
 	= std::is_base_of_v<AbstractAsteroid, T> && SpaceFieldObjectConcept<T> && !std::is_abstract_v<T>;
 
+template<class T>
+concept SpaceItemConcept = std::is_base_of_v<SpaceItem, T>;
+template<class W>
+concept WeaponConcept = std::is_base_of_v<AbstractWeapon, W> && std::is_final_v<W> && SpaceItemConcept<W>;
+
 class SpaceField : public sf::Drawable, public rn::LogicalObject
 {
 public:
@@ -30,13 +33,18 @@ public:
 	template<class T>
 	using State = SmartPtrType<T>;
 	template<class T>
-	using InitializerFunc = std::function<void(T &)>;
-	using StateType		  = SmartPtrType<SpaceFieldObject>;
-	using StatePtrType	  = StatePtr<SpaceFieldObject>;
-	using ObjectsType	  = ContainerType<StateType>;
-	using Iterator		  = ObjectsType::iterator;
-	using ConstIterator	  = ObjectsType::const_iterator;
-	using CallbackType	  = std::function<void(SpaceFieldObject *)>;
+	using InitializerFunc	  = std::function<void(T &)>;
+	using ItemType			  = SmartPtrType<SpaceItem>;
+	using StateType			  = SmartPtrType<SpaceFieldObject>;
+	using StatePtrType		  = StatePtr<SpaceFieldObject>;
+	using ValueType			  = StateType;
+	using ObjectContainerType = ContainerType<StateType>;
+	using ItemContainerType	  = ContainerType<ItemType>;
+	using Iterator			  = ObjectContainerType::iterator;
+	using ConstIterator		  = ObjectContainerType::const_iterator;
+	using CallbackType		  = std::function<void(SpaceFieldObject *)>;
+	using ItemIterator		  = ItemContainerType::iterator;
+	using ItemConstIterator = ItemContainerType::const_iterator;
 	SpaceField(const Camera2d *camera = nullptr);
 	SpaceField(const SpaceField &field) = delete;
 	~SpaceField() override				= default;
@@ -57,18 +65,24 @@ public:
 
 	size_t size() const;
 	void clear();
-
+	const ItemContainerType &items() const;
+	template<class T, class ...Args>
+	StatePtr<SpaceItem> emplaceItem(Args &&...args);
+	State<SpaceItem> take(const ItemConstIterator &iterator);
+	ItemConstIterator find(const StatePtr<SpaceItem> &ptr) const;
 	template<class T, class... Args>
 		requires(ShipConcept<T, Args...>)
 	StatePtr<AbstractShip> summonShip(const InitializerFunc<T> & = [](T &) {}) noexcept;
 	template<BulletConcept BulletT>
 	StatePtr<AbstractBullet> summonBullet(const InitializerFunc<BulletT> & = [](BulletT &) {}) noexcept;
 	template<AsteroidConcept AsteroidT>
-	StatePtr<AbstractAsteroid> summonAsteroid(const InitializerFunc<AsteroidT> & = [](AsteroidT &) {});
+	StatePtr<AbstractAsteroid> summonAsteroid(const InitializerFunc<AsteroidT> & = [](AsteroidT &) {}) noexcept;
 	StatePtrType push_back(SpaceFieldObject *raw_object);
 	void destroy(const SpaceFieldObject *object);
 	virtual void onObjectSummon(const StatePtrType &state_ptr) const;
 	virtual void onObjectDestroy(const StatePtrType &state_ptr) const;
+	template<class T>
+	ConstIterator find(const T *object) const;
 
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 	SpaceField &operator=(const SpaceField &other) = delete;
@@ -76,12 +90,20 @@ public:
 private:
 	void clearGarbage();
 	template<SpaceFieldObjectConcept T>
-	StatePtr<T> casted_push(T *ptr);
-
-private:
+	StatePtr<T> casted_push(T *ptr) noexcept;
 	const Camera2d *m_camera{ nullptr };
-	ObjectsType m_objects{};
+	ObjectContainerType m_objects{};
+	ItemContainerType m_items;
 };
+
+template<class T, class ... Args>
+SpaceField::StatePtr<SpaceItem> SpaceField::emplaceItem(Args &&...args)
+{
+	auto ptr = std::make_shared<T>(std::forward<Args>(args)...);
+	m_items.push_back(ptr);
+	ptr->m_self = ptr;
+	return ptr;
+}
 
 template<class T, class... Args>
 	requires(ShipConcept<T, Args...>)
@@ -101,20 +123,30 @@ SpaceField::StatePtr<AbstractBullet> SpaceField::summonBullet(const InitializerF
 }
 
 template<AsteroidConcept AsteroidT>
-SpaceField::StatePtr<AbstractAsteroid> SpaceField::summonAsteroid(const InitializerFunc<AsteroidT> &init)
+SpaceField::StatePtr<AbstractAsteroid> SpaceField::summonAsteroid(const InitializerFunc<AsteroidT> &init) noexcept
 {
 	AsteroidT *asteroid = new AsteroidT;
 	init(*asteroid);
 	return this->casted_push<AbstractAsteroid>(asteroid);
 }
 
+template<class T>
+SpaceField::ConstIterator SpaceField::find(const T *object) const
+{
+	return std::find_if(begin(), end(), [object](const ValueType &state) {
+		return dynamic_cast<const T *>(state.get()) == object;
+	});
+}
+
 template<SpaceFieldObjectConcept T>
-SpaceField::StatePtr<T> SpaceField::casted_push(T *ptr)
+SpaceField::StatePtr<T> SpaceField::casted_push(T *ptr) noexcept
 {
 	State<T> object{ ptr };
+
 	if (auto obj = std::dynamic_pointer_cast<SpaceFieldObject>(object))
 	{
 		m_objects.push_back(obj);
+		object->m_self = obj;
 		object->start();
 		object->onSummon();
 		this->onObjectSummon(object);

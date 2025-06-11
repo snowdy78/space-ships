@@ -2,9 +2,9 @@
 
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
-#include "GameObject.hpp"
+#include "SpaceFieldObject.hpp"
 
-class Hittable : public virtual GameObject
+class Hittable : public virtual SpaceFieldObject
 {
 	float health	 = 100.f;
 	float max_health = 100.f;

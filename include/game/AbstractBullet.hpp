@@ -7,6 +7,7 @@
 #include "decl.hpp"
 #include <optional>
 #include "ObjectWatcher.hpp"
+#include "SpaceField.hpp"
 
 class AbstractBullet : public RigitBody2d, public Collidable, public DamageDealer
 {
@@ -26,7 +27,7 @@ protected:
 
 public:
 	const sf::Texture &getTexture() const;
-	const AbstractWeapon *author = nullptr;
+	SpaceField::StatePtr<AbstractWeapon> author_ptr;
 	AbstractBullet();
 	~AbstractBullet() override = 0;
 

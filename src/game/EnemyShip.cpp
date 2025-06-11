@@ -99,9 +99,9 @@ void EnemyShip::movement()
 		setMoveDirection(direction(a2 - a1));
 		horizontal.reset();
 	}
-	if (vertical || horizontal)
+	if (vertical || horizontal && existOnField())
 	{
-		GameManager::session()->action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ this });
+		GameManager::session()->action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ self() });
 	}
 }
 

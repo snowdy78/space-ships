@@ -6,10 +6,11 @@
 #include "game/AbstractShip.hpp"
 #include "game/AbstractAsteroid.hpp"
 #include "game/AbstractBullet.hpp"
+// FIX THIS REALIZATION !!!!!
+// TODO SUMMONING NOT WORKING CORRECTLY ON MULTIPLAYER GAME
 
 template<class T>
 concept SummonActionSummonType = requires(SpaceField field, T *t) { field.push_back(t); };
-
 
 template<SummonActionSummonType SummonType, class Action>
 class AbstractSummonAction : public TransferActionBase<Action>
@@ -82,8 +83,8 @@ public:
 		std::optional<size_t> id, init_func initializing_function = [](ST &) {}
 	)
 		: base(
-			  TransferableActionProps{ nullptr,
-									   nullptr,
+			  TransferableActionProps{ std::nullopt,
+									   std::nullopt,
 									   { { base::id_key, id.has_value() ? rn::Json(*id) : rn::Json(nullptr) } } }
 		  ),
 		  m_init_f(std::move(initializing_function))

@@ -50,7 +50,7 @@ void PlayerShip::movement()
 			md = rn::math::norm(md + props.move_dir);
 			setMoveDirection(md);
 		},
-		{ this, nullptr }
+		{ self() }
 	);
 }
 
@@ -80,10 +80,10 @@ void PlayerShip::onEvent(sf::Event &event)
 	if (classification.oneOf<ShootProps, MButton>(rn::isKeydown))
 		shoot();
 	classification.pushActionIfOneOf<AccelerationProps, Key>(
-		rn::isKeydown, { this, nullptr, rn::Json{ { AccelerateShipAction::acceleration, shift_acceleration } } }
+		rn::isKeydown, { self(), std::nullopt, rn::Json{ { AccelerateShipAction::acceleration, shift_acceleration } } }
 	);
 	classification.pushActionIfOneOf<AccelerationProps, Key>(
-		rn::isKeyup, { this, nullptr, rn::Json{ { AccelerateShipAction::acceleration, 1 } } }
+		rn::isKeyup, { self(), std::nullopt, rn::Json{ { AccelerateShipAction::acceleration, 1 } } }
 	);
 }
 

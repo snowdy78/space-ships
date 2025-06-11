@@ -11,7 +11,14 @@ void ActionManager::realizeActions()
 	{
 		m_start_loop = true;
 		for (auto iaction = m_actions.begin(); iaction != m_actions.end(); iaction = m_actions.erase(iaction))
-			(*iaction)->play();
+		{
+			if ((*iaction)->playable())
+				(*iaction)->play();
+#ifdef SPACE_SHIP_DEBUG
+			else
+				std::cerr << "skipping... (action not played)\n";
+#endif
+		}
 		m_start_loop = false;
 		m_actions.swap(m_stack);
 		m_stack.clear();

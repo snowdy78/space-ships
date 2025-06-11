@@ -1,6 +1,7 @@
 #pragma once
 
 #include "coop/TransferableAction.hpp"
+#include "game/SpaceField.hpp"
 #include "game/GameObject.hpp"
 
 class AccelerateShipAction : public TransferActionBase<AccelerateShipAction>
@@ -12,6 +13,6 @@ public:
     void play() override;
     rn::Json toJson() const override;
 private:
-    AbstractShip *m_ship{nullptr}; // author
+    SpaceField::StatePtr<AbstractShip> m_ship_ptr{}; // author
     float m_acceleration{};
 };

@@ -60,12 +60,14 @@ sf::Socket::Status BasicRouter<RespT>::send(const TransferableAction *action)
 		return sf::Socket::Status::Error;
 	Transferable::TransferJson send_data = action->requestData();
 	send_data[BasicRouterResponse::type_key]  = BasicRouterResponse::action_key;
-	if (action->m_author_id)
-		send_data[BasicRouterResponse::author_id_key] = *action->m_author_id;
+	const auto author_id							 = action->getAuthorId();
+	const auto contributor_id						  = action->getContributorId();
+	if (author_id.has_value())
+		send_data[BasicRouterResponse::author_id_key] = *author_id;
 	else
 		send_data[BasicRouterResponse::author_id_key] = nullptr;
-	if (action->m_contributor_id)
-		send_data[BasicRouterResponse::author_id_key] = *action->m_contributor_id;
+	if (contributor_id.has_value())
+		send_data[BasicRouterResponse::contributor_id_key] = *contributor_id;
 	else
 		send_data[BasicRouterResponse::contributor_id_key] = nullptr;
 	return sendJson(send_data);

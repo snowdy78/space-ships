@@ -1,9 +1,9 @@
 #pragma once
 
+#include "SpaceFieldObject.hpp"
 #include "decl.hpp"
-#include "game/GameObject.hpp"
 
-class DamageDealer : public virtual GameObject
+class DamageDealer : public virtual SpaceFieldObject
 {
 	float damage;
 

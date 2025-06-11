@@ -5,27 +5,24 @@
 TakeDamageAction::TakeDamageAction(const TransferableActionProps &props)
 	: TransferActionBase(props)
 {
-	if (auto hittable = dynamic_cast<Hittable *>(getAuthor()))
-		m_hittable = hittable;
-	if (auto dealer = dynamic_cast<DamageDealer *>(getContributor()))
-		m_dealer = dealer;
+	if (props.authorExist())
+		m_hittable = *props.castAuthor<Hittable>();
+	if (props.authorExist())
+		m_dealer = *props.castContributor<DamageDealer>();
 }
 
 void TakeDamageAction::play()
 {
-	if (!m_dealer && !m_hittable)
+	if (m_dealer.expired() && m_hittable.expired())
 		return;
-	m_hittable->takeDamage(m_dealer->getDamage());
-	if (m_hittable->isDead())
+	auto dealer = m_dealer.lock();
+	auto target = m_hittable.lock();
+	target->takeDamage(dealer->getDamage());
+	if (target->isDead())
 	{
-		if (auto space_field_obj = dynamic_cast<SpaceFieldObject *>(m_hittable))
+		if (auto space_field_obj = std::dynamic_pointer_cast<SpaceFieldObject>(target))
 		{
 			space_field_obj->destroy();
 		}
 	}
-}
-
-rn::Json TakeDamageAction::toJson() const
-{
-	return { };
 }

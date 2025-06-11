@@ -67,7 +67,7 @@ bool BasicRouterResponse::is_object() const
 	return m_response_data->at(type_key) == object_key;
 }
 
-std::unique_ptr<TransferableAction> BasicRouterResponse::action() const
+std::unique_ptr<TransferableAction> BasicRouterResponse::action(const SpaceField &field) const
 {
 	if (!is_action())
 		throw std::bad_cast();
@@ -84,7 +84,20 @@ std::unique_ptr<TransferableAction> BasicRouterResponse::action() const
 			contributor = GameObjectFactory::instance().get(contributor_id);
 		else
 			contributor = nullptr;
-		return TransferableActionFabric::instance().get(*id())(TransferableActionProps{ author, contributor, *data() });
+		auto field_author						  = field.find(author);
+		auto field_contributor					  = field.find(contributor);
+		using optional_game_object_state_ptr	  = std::optional<SpaceField::StatePtr<GameObject>>;
+		optional_game_object_state_ptr author_ptr;
+		if (field_author == field.end())
+			author_ptr = std::nullopt;
+		else
+			author_ptr = *field_author;
+		optional_game_object_state_ptr contributor_ptr;
+		if (field_contributor == field.end())
+			contributor_ptr = std::nullopt;
+		else
+			contributor_ptr = *field_contributor;
+		return TransferableActionFabric::instance().get(*id())(ActionProps{ author_ptr, contributor_ptr, *data() });
 	}
 	catch (rn::Json::out_of_range &err)
 	{

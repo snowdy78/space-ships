@@ -20,7 +20,9 @@ void AbstractWeapon::shoot()
 	{
 		auto direction{ getTrajectory() };
 		GameManager::session()->action_manager.emplaceToTop<ShootAction>(TransferableActionProps{
-			this, nullptr, rn::Json{ { "direction", { { "x", direction.x }, { "y", direction.y } } } } });
+			self(),
+			std::nullopt,
+			rn::Json{ { "direction", { { "x", direction.x }, { "y", direction.y } } } } });
 	}
 }
 
@@ -30,7 +32,7 @@ void AbstractWeapon::fire()
 	{
 		GameManager::session()->action_manager.emplaceToTop<SummonBulletAction>(
 			bullet(), [this](AbstractBullet &bullet) {
-				bullet.author = this;
+				bullet.author_ptr = dynamic_state_ptr_cast<AbstractWeapon>(self());
 				bullet.setPosition(getPosition());
 				bullet.setDirection(getTrajectory());
 			}

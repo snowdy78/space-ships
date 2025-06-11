@@ -13,7 +13,6 @@
 AbstractShip::AbstractShip(const sf::Texture &texture)
 	: sprite(texture)
 {
-	setGun<Pistol>();
 }
 bool AbstractShip::isFriend(const AbstractShip *other_ship) const
 {
@@ -35,14 +34,9 @@ rn::Vec2f AbstractShip::getSize() const
 {
 	return rn::Vec2f(sprite.getTexture()->getSize());
 }
-const AbstractWeapon &AbstractShip::getGun() const
+SpaceField::StatePtr<AbstractWeapon> AbstractShip::getGun() const
 {
-	return *gun;
-}
-void AbstractShip::setGun(const AbstractWeapon &gun)
-{
-	this->gun.reset(gun.copy());
-	updateGunPosition();
+	return gun;
 }
 void AbstractShip::shoot()
 {
@@ -99,14 +93,14 @@ size_t AbstractShip::generateTeamHash(const sf::String &name)
 bool AbstractShip::resolve(const Collidable *collidable) const
 {
 	auto bullet = dynamic_cast<const AbstractBullet *>(collidable);
-	bool state	= bullet;
-	state		= state && bullet->author->user != this;
+	bool state	= bullet && (bullet->author_ptr.expired() || bullet->author_ptr.lock() != gun);
 	return state;
 }
 void AbstractShip::onCollisionEnter(Collidable *collidable)
 {
-	if (auto dd = dynamic_cast<DamageDealer *>(collidable); GameManager::exist())
-		GameManager::session()->action_manager.emplaceToTop<TakeDamageAction>(TransferableActionProps{ this, dd });
+	if (auto dd = dynamic_cast<DamageDealer *>(collidable); GameManager::exist() && existOnField() && dd->existOnField())
+		GameManager::session()->action_manager.emplaceToTop<TakeDamageAction>(TransferableActionProps{ self(),
+																									   dd->self() });
 }
 void AbstractShip::onHit()
 {
@@ -155,6 +149,7 @@ const rn::Vec2f &AbstractShip::getMoveDirection() const
 void AbstractShip::start()
 {
 	RigitBody2d::start();
+	assignGameWeaponToPlayer<Pistol>(*this);
 	setOrigin(getSize() / 2.f);
 	m_engine_effect.setOrigin(m_engine_effect.getSize().x / 2.f, -getSize().y / 8.f);
 	onMove();

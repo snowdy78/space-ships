@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Collidable.hpp"
+#include "GameManager.hpp"
 #include "Hittable.hpp"
 #include "RigitBody2d.hpp"
 #include "SoundDisperseEntity.hpp"
+#include "SpaceField.hpp"
 #include "components/AnimatedSprite.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
@@ -33,8 +35,7 @@ public:
 	void setTeam(const sf::String &team_name);
 	void resetTeamName();
 	const size_t &getTeam() const;
-	void setGun(const AbstractWeapon &gun);
-	const AbstractWeapon &getGun() const;
+	SpaceField::StatePtr<AbstractWeapon> getGun() const;
 	rn::Vec2f getSize() const;
 	/**
 	 * \brief Shoot a bullet in the ship direction.
@@ -51,8 +52,6 @@ public:
 	sf::FloatRect getGlobalBounds() const;
 	const sf::Sprite &getSprite() const;
 	const Collider *getCollider() const override;
-	template<GunConcept T>
-	void setGun();
 	void onRotation() override;
 	void onMove() override;
 	void onHit() override;
@@ -61,6 +60,8 @@ public:
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 protected:
+	template<WeaponConcept T, class... Args>
+	friend void assignGameWeaponToPlayer(AbstractShip &ship, Args &&...);
 	inline static loading<AnimatedSprite> destroy_animation
 		= FileLoader::Instance().addAnimatedSpriteToUpload("./img/animation/Explosion4", ".png").get();
 	inline static loading<sf::SoundBuffer> hit_buffer = FileLoader::Instance().addSoundToUpload("hit.ogg").get();
@@ -68,9 +69,9 @@ protected:
 		FileLoader::Instance().addSoundToUpload("./assets/explosion.wav").get()
 	};
 	sf::Sprite sprite;
-	std::unique_ptr<AbstractWeapon> gun;
 
 private:
+	SpaceField::State<AbstractWeapon> gun{ nullptr };
 	ShipEngineFlame m_engine_effect;
 	EllipseCollider collider;
 
@@ -81,10 +82,26 @@ private:
 	rn::Vec2f m_move_dir{};
 };
 
-template<GunConcept GunT>
-void AbstractShip::setGun()
+template<WeaponConcept T, class... Args>
+void assignGameWeaponToPlayer(AbstractShip &ship, Args &&...args)
 {
-	AbstractWeapon *gun_  = new GunT;
-	gun_->user = this;
-	gun.reset(gun_);
+	if (GameManager::exist())
+	{
+		auto &field = GameManager::session()->field;
+		auto ptr	= field.emplaceItem<T>(std::forward<Args>(args)...);
+		auto it		= field.find(ptr);
+		if (it != field.items().end())
+		{
+			ship.gun = std::dynamic_pointer_cast<AbstractWeapon>(field.take(it));
+			if (!ship.existOnField())
+				std::cerr << "ship not exist on field yet\n";
+			ship.gun->assignOwner(ship.self());
+		}
+		else
+			std::cerr << "cannot assign gun to ship. Item not found.\n";
+	}
+	else
+	{
+		std::cerr << "cannot assign gun to ship. Game session does not exist!\n";
+	}
 }

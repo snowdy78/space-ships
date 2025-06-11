@@ -123,6 +123,9 @@ void ConnectToGameBranch::receivePackets() const
 			}
 		}
 		if (response.is_action())
-			GameManager::session()->action_manager.receiveToTop(response.action());
+		{
+			auto action = response.action(GameManager::session()->field);
+			GameManager::session()->action_manager.receiveToTop(std::move(action));
+		}
 	}
 }

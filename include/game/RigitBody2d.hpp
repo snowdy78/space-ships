@@ -28,7 +28,7 @@ public:
 		return *this;
 	}
 };
-class RigitBody2d : public SpaceFieldObject
+class RigitBody2d : public virtual SpaceFieldObject
 {
 	/**
 	 * @brief not accelerating velocity

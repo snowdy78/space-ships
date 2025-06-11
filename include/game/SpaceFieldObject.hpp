@@ -1,20 +1,16 @@
 #pragma once
 
-#include "decl.hpp"
 #include "GameObject.hpp"
+#include "SpaceFieldStatement.hpp"
+#include "decl.hpp"
 
-class SpaceFieldObject : public virtual GameObject, public virtual rn::LogicalObject, public virtual sf::Drawable, public virtual sf::Transformable
+class SpaceFieldObject : public virtual GameObject,
+						 public rn::LogicalObject,
+						 public sf::Drawable,
+						 public sf::Transformable,
+						 public SpaceFieldStatement
 {
 	friend class SpaceField;
-	bool need_destroy = false;
-
-protected:
-	virtual void onDestroy()
-	{
-	}
-	virtual void onSummon() const
-	{
-	}
 
 public:
 	SpaceFieldObject();
@@ -26,4 +22,15 @@ public:
 	 *
 	 */
 	void destroy();
+
+protected:
+	virtual void onDestroy()
+	{
+	}
+	virtual void onSummon() const
+	{
+	}
+
+private:
+	bool need_destroy = false;
 };

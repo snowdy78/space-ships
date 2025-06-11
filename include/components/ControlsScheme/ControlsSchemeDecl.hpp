@@ -23,7 +23,7 @@ public:
 	class binding;
 	class binding_pointer;
 	using action_t = TransferableAction;
-	using action_props = TransferableActionProps;
+	using action_props = ActionProps;
 	using string_t = sf::String;
 	template<class T>
 	using container = std::vector<T>;

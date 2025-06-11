@@ -6,21 +6,26 @@
 MoveShipAction::MoveShipAction(const TransferableActionProps &props)
 	: TransferActionBase(props)
 {
-	if (auto ship = dynamic_cast<AbstractShip *>(getAuthor()))
-		m_ship = ship;
+	if (props.authorExist())
+		m_ship = *props.castAuthor<AbstractShip>();
 }
 
 void MoveShipAction::play()
 {
-	if (!m_ship)
+	if (m_ship.expired())
 		return;
-	m_ship->move(m_ship->countMove());
+
+	auto ship = m_ship.lock();
+	ship->move(ship->countMove());
 }
 
 rn::Json MoveShipAction::toJson() const
 {
+	if (m_ship.expired())
+		return nullptr;
+	auto ship = m_ship.lock();
 	return {
-		{ md, to_json(m_ship ? m_ship->getDirection() : rn::Vec2f{}) }
+		{ md, to_json(ship->getDirection()) }
 	};
 }
 

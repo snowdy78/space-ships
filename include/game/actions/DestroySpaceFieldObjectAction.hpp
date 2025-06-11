@@ -1,6 +1,7 @@
 #pragma once
 
 #include "coop/TransferableAction.hpp"
+#include "game/SpaceField.hpp"
 #include "game/SpaceFieldObject.hpp"
 
 class DestroySpaceFieldObjectAction : public TransferActionBase<DestroySpaceFieldObjectAction>
@@ -11,5 +12,5 @@ public:
 	void play() override;
 
 private:
-	SpaceFieldObject *m_what_destroy;
+	SpaceField::StatePtrType m_what_destroy;
 };

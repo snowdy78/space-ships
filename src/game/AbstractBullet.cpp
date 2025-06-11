@@ -53,7 +53,7 @@ const Collider *AbstractBullet::getCollider() const
 bool AbstractBullet::resolve(const Collidable *collidable) const
 {
 	return dynamic_cast<const Hittable *>(collidable)
-		   && (!author || dynamic_cast<const AbstractShip *>(collidable) != author->user);
+		   && (author_ptr.expired() || !author_ptr.lock()->hasSameOwner(collidable));
 }
 const sf::Sprite &AbstractBullet::getSprite() const
 {
@@ -61,10 +61,11 @@ const sf::Sprite &AbstractBullet::getSprite() const
 }
 void AbstractBullet::onCollisionEnter(Collidable *obstacle)
 {
-	if (auto hittable = dynamic_cast<Hittable *>(obstacle); GameManager::exist())
+	if (auto hittable = dynamic_cast<Hittable *>(obstacle); GameManager::exist() && existOnField() && hittable->existOnField())
 	{
-		GameManager::session()->action_manager.emplaceToTop<DestroySpaceFieldObjectAction>(TransferableActionProps{this});
-		GameManager::session()->action_manager.emplaceToTop<DealDamageAction>(TransferableActionProps{this, hittable});
+		GameManager::session()->action_manager.emplaceToTop<DestroySpaceFieldObjectAction>(TransferableActionProps{
+			self() });
+		GameManager::session()->action_manager.emplaceToTop<DealDamageAction>(TransferableActionProps{ self(), hittable->self() });
 	}
 }
 void AbstractBullet::setTexture(const sf::Texture &texture)

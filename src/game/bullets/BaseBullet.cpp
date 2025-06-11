@@ -34,7 +34,7 @@ void BaseBullet::onMove()
 void BaseBullet::summonCopy(SpaceField &field) const
 {
 	field.summonBullet<BaseBullet>([this](BaseBullet &bullet) {
-		bullet.author = author;
+		bullet.author_ptr = author_ptr;
 		bullet.setDirection(getDirection());
 	});
 }

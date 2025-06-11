@@ -31,7 +31,18 @@ std::chrono::milliseconds Pistol::getRollback() const
 }
 rn::Vec2f Pistol::getTrajectory() const
 {
-	auto angle
-		= rn::math::rot(user->getDirection()) + rn::math::degrees(rn::random::real(-1.f, 1.f) * disperse_angle / 2.f);
+	if (!hasOwner())
+	{
+		std::cerr << "cannot shoot gun owner not exist\n";
+		return { 1, 0 };
+	}
+	auto owner_ptr = getOwner<RigitBody2d>();
+	if (!owner_ptr)
+	{
+		std::cerr << "cannot shoot gun owner not a rigitbody2d\n";
+		return { 1, 0 };
+	}
+	auto angle = rn::math::rot(owner_ptr->getDirection())
+				 + rn::math::degrees(rn::random::real(-1.f, 1.f) * disperse_angle / 2.f);
 	return direction(angle);
 }

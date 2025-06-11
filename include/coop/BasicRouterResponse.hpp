@@ -29,6 +29,6 @@ public:
 	bool is_action() const;
 	bool is_object() const;
 	std::unique_ptr<TransferableObject> object() const;
-	std::unique_ptr<TransferableAction> action() const;
+	std::unique_ptr<TransferableAction> action(const SpaceField &) const;
 	const rn::Json &json() const;
 };

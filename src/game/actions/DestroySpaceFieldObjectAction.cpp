@@ -3,17 +3,19 @@
 DestroySpaceFieldObjectAction::DestroySpaceFieldObjectAction(const TransferableActionProps &props)
 	: TransferActionBase(props)
 {
-	if (auto obj = dynamic_cast<SpaceFieldObject *>(props.author))
+	if (props.authorExist())
 	{
-		m_what_destroy = obj;
+		m_what_destroy = *props.castAuthor<SpaceFieldObject>();
 	}
 }
 
 void DestroySpaceFieldObjectAction::play()
 {
-	if (!m_what_destroy || m_what_destroy->willBeDestroyed())
+	if (m_what_destroy.expired())
 		return;
-
-	m_what_destroy->destroy();
+	if (auto destroyable = m_what_destroy.lock(); !destroyable->willBeDestroyed())
+	{
+		destroyable->destroy();
+	}
 }
 

@@ -7,33 +7,63 @@
 class TransferableActionProps
 {
 public:
-	GameObject *author;
-	GameObject *contributor;
-	rn::Json props;
-	TransferableActionProps(GameObject *author = nullptr, GameObject *contributor = nullptr, rn::Json props = {});
+	template<class T>
+	using SmartPtr	 = std::weak_ptr<T>;
+	template<class T>
+	using Optional = std::optional<T>;
+	template<class T>
+	using OptionalPtr = Optional<SmartPtr<T>>;
+	using ObjectPtr	 = SmartPtr<GameObject>;
+	using OptionalObjectPtr = Optional<ObjectPtr>;
+	using OptionalId = Optional<size_t>;
+	using JsonType	 = rn::Json;
+	OptionalObjectPtr author;
+	OptionalObjectPtr contributor;
+	JsonType props;
+	TransferableActionProps(OptionalObjectPtr author = std::nullopt, OptionalObjectPtr contributor = std::nullopt, JsonType props = {});
+	/**
+	 * return true if author has value and author not expired
+	 * @return 
+	 */
+	bool authorExist() const;
+	/**
+	 * return true if contributor has value and contributor not expired
+	 * @return
+	 */
+	bool contributorExist() const;
+	template<class T>
+	OptionalPtr<T> castAuthor() const;
+	template<class T>
+	OptionalPtr<T> castContributor() const;
 };
-
+using ActionProps = TransferableActionProps;
 class TransferableAction : public AbstractAction, public Transferable
 {
-	template<class T>
-	friend class BasicRouter;
 protected:
 	template<class T>
 	static size_t identify();
 
 public:
+	template<class T>
+	using SmartPtr	 = std::weak_ptr<T>;
+	template<class T>
+	using Optional = std::optional<T>;
+	template<class T>
+	using OptionalPtr = Optional<SmartPtr<T>>;
+	using ObjectPtr	 = SmartPtr<GameObject>;
+	using OptionalObjectPtr = Optional<ObjectPtr>;
+	using OptionalId = Optional<size_t>;
 	TransferableAction(const TransferableActionProps &props = {});
-	GameObject *getAuthor() const;
-	GameObject *getContributor() const;
+	OptionalObjectPtr getAuthor() const;
+	OptionalObjectPtr getContributor() const;
+	OptionalId getAuthorId() const;
+	OptionalId getContributorId() const;
+	bool playable() const override;
 
 private:
-	GameObject *m_author_ptr;
-	GameObject *m_contributor_ptr;
-	std::optional<size_t> m_author_id{std::nullopt};
-	std::optional<size_t> m_contributor_id{std::nullopt};
+	OptionalObjectPtr m_author_ptr{ std::nullopt };
+	OptionalObjectPtr m_contributor_ptr{ std::nullopt };
 };
-
-
 
 template<class T>
 struct TransferActionBase : TransferableAction
@@ -51,14 +81,10 @@ private:
 
 class TransferableActionFabric
 {
-	using create_action_func = std::function<
-		std::unique_ptr<TransferableAction>(const TransferableActionProps &)>;
-
-	std::unordered_map<size_t, create_action_func> transfer_actions{};
-	size_t id_encounter		   = 0;
 	TransferableActionFabric() = default;
-
 public:
+	using create_action_func = std::function<std::unique_ptr<TransferableAction>(const TransferableActionProps &)>;
+
 	static TransferableActionFabric &instance();
 
 	const create_action_func &get(size_t id);
@@ -66,18 +92,36 @@ public:
 	size_t push();
 	void erase(size_t id);
 	void clear();
+private:
+	std::unordered_map<size_t, create_action_func> transfer_actions{};
+	size_t id_encounter		   = 0;
 };
 
 template<class T>
 size_t TransferableActionFabric::push()
 {
 	transfer_actions.emplace(
-		id_encounter,
-		[](const TransferableActionProps &props) -> std::unique_ptr<TransferableAction> {
+		id_encounter, [](const TransferableActionProps &props) -> std::unique_ptr<TransferableAction> {
 			return std::unique_ptr<TransferableAction>{ new T(props) };
 		}
 	);
 	return id_encounter++;
+}
+
+template<class T>
+TransferableActionProps::OptionalPtr<T> TransferableActionProps::castAuthor() const
+{
+	if (authorExist())
+		return std::dynamic_pointer_cast<T>(author->lock());
+	return std::nullopt;
+}
+
+template<class T>
+TransferableActionProps::OptionalPtr<T> TransferableActionProps::castContributor() const
+{
+	if (contributorExist())
+		return std::dynamic_pointer_cast<T>(contributor->lock());
+	return std::nullopt;
 }
 
 template<class T>
@@ -90,7 +134,6 @@ template<class T>
 TransferActionBase<T>::TransferActionBase(const TransferableActionProps &attrs)
 	: TransferableAction(attrs)
 {
-
 }
 
 template<class T>
@@ -109,7 +152,7 @@ Transferable::TransferJson TransferActionBase<T>::requestData() const
 }
 
 template<class T>
-AbstractAction * TransferActionBase<T>::copy() const
+AbstractAction *TransferActionBase<T>::copy() const
 {
 	return new T({ getAuthor(), getContributor(), toJson() });
 }

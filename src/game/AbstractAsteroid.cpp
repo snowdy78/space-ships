@@ -64,7 +64,7 @@ void AbstractAsteroid::update()
 	RigitBody2d::update();
 	m_transition.setMoving(getPosition(), getPosition() + countMove());
 	m_transition.update();
-	onMove();	
+	onMove();
 }
 
 
@@ -75,10 +75,10 @@ const Collider *AbstractAsteroid::getCollider() const
 
 void AbstractAsteroid::onCollisionEnter(Collidable *obstacle)
 {
-	if (GameManager::exist())
+	if (GameManager::exist() && existOnField())
 	{
 		GameManager::session()->action_manager.emplaceToTop<DestroySpaceFieldObjectAction>(TransferableActionProps{
-			this });
+			self() });
 	}
 }
 

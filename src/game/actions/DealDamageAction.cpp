@@ -3,20 +3,17 @@
 DealDamageAction::DealDamageAction(const TransferableActionProps &props)
 	: TransferActionBase(props)
 {
-	if (auto dealer = dynamic_cast<DamageDealer *>(props.author))
-		m_dealer = dealer;
-	if (auto hittable = dynamic_cast<Hittable *>(props.contributor))
-		m_hittable = hittable;
+	if (props.authorExist())
+		m_dealer = *props.castAuthor<DamageDealer>();
+	if (props.contributorExist())
+		m_hittable = *props.castContributor<Hittable>();
 }
 
 void DealDamageAction::play()
 {
-	if (!m_dealer && !m_hittable)
+	if (m_dealer.expired() || m_hittable.expired())
 		return;
-	m_dealer->dealDamage(m_hittable);
-}
-
-rn::Json DealDamageAction::toJson() const
-{
-	return { };
+	auto dealer = m_dealer.lock();
+	auto hittable_target = m_hittable.lock();
+	dealer->dealDamage(hittable_target.get());
 }
