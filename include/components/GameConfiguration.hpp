@@ -1,45 +1,58 @@
 #pragma once
 
+#include <filesystem>
+#include <list>
+#include <string>
 #include "decl.hpp"
 
 class GameConfiguration
 {
 	GameConfiguration() = default;
+	static bool load();
 
 public:
-	static GameConfiguration &instance()
+	template<class T>
+	using container_type = std::list<T>;
+	class ItemPointer
 	{
-		static GameConfiguration config;
-		return config;
-	}
-	static bool load()
-	{
-		rn::JsonFile file;
-		if (!file.load("src/config.json"))
-			return false;
-		instance().m_data = file.json;
-		return true;
-	}
-	auto get(const std::string &key)
-	{
-#ifdef SPACE_SHIP_DEBUG
-		try
-		{
-#endif
-			return m_data.at(key);
-#ifdef SPACE_SHIP_DEBUG
-		}
-		catch (std::out_of_range &error)
-		{
-			std::cerr << error.what() << "\n";
-			std::cerr << "game configuration error occurs! (unknown key: '" << key << "')\n";
-			throw error;
-		}
-#endif
-	}
+		template<class T>
+		friend class std::list;
+		friend class GameConfiguration;
 
+		explicit ItemPointer(std::string &&string);
+		explicit ItemPointer(const ItemPointer *config, std::string &&string);
+		void initJson() const;
+
+	public:
+		rn::Json &operator*();
+		const rn::Json &operator*() const;
+		rn::Json *operator->();
+		const rn::Json *operator->() const;
+		ItemPointer &get(std::string &&key) const;
+		ItemPointer &set_default(rn::Json &&default_value);
+
+	private:
+		template<class T>
+		using pointer_type = std::unique_ptr<T>;
+		using string_type = std::string;
+		using container_type = std::list<string_type>;
+
+		const ItemPointer *m_before = nullptr;
+		std::unique_ptr<rn::Json> m_default{nullptr}; 
+		string_type m_key;
+		pointer_type<pointer_type<rn::Json>> json = std::make_unique<pointer_type<rn::Json>>(nullptr);
+	};
+	
+	using value_type = std::unique_ptr<ItemPointer>;
+	using items_type = container_type<value_type>;
+	using item = ItemPointer;
+	static GameConfiguration &instance();
+
+	ItemPointer &get(std::string &&key);
+	ItemPointer &get(const ItemPointer &config_item, std::string &&key);
 private:
 	rn::Json m_data;
+	items_type m_config_items;
 };
 
-using config = GameConfiguration;
+using config		  = GameConfiguration;

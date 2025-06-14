@@ -7,7 +7,7 @@ const sf::Texture &BaseBullet::initTexture() const
 }
 void BaseBullet::start()
 {
-	setDamage(initial_damage);
+	setDamage(*initial_damage);
 
 	float mass		   = 0.100f;
 	float velocity	   = 15.f;
@@ -17,6 +17,7 @@ void BaseBullet::start()
 	setMass(mass);
 	setAcceleration(acceleration);
 	AbstractBullet::start();
+
 	fly_sound.start();
 }
 void BaseBullet::update()

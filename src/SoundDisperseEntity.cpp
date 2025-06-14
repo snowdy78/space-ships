@@ -1,4 +1,5 @@
 #include "SoundDisperseEntity.hpp"
+#include "game/settings/AudioSettings.hpp"
 
 SoundDisperseEntity::SoundDisperseEntity(
 	float clear_sound_distance, float disperse_force, const sf::SoundBuffer *buffer
@@ -8,19 +9,14 @@ SoundDisperseEntity::SoundDisperseEntity(
 {
 	setRelativeToListener(true);
 	if (buffer)
-	{
 		setBuffer(*buffer);
-	}
 }
-SoundDisperseEntity::SoundDisperseEntity(
-		SoundDisperseTraits traits, const sf::SoundBuffer *buffer)
+SoundDisperseEntity::SoundDisperseEntity(SoundDisperseTraits traits, const sf::SoundBuffer *buffer)
 	: clear_dist(traits.clear_sound_distance),
 	  disperse_radius(traits.disperse_force)
 {
 	if (buffer)
-	{
 		setBuffer(*buffer);
-	}
 }
 void SoundDisperseEntity::setClearSoundDistance(float distance)
 {
@@ -63,19 +59,17 @@ void SoundDisperseEntity::update()
 		setVolume(0);
 		return;
 	}
-	using namespace rn::math;
-
 	rn::Vec3f pdist = sf::Listener::getPosition() - getPosition();
-	float dist		= length(pdist);
-	float volume = (1.0f - std::clamp((clear_dist + dist) / disperse_radius, 0.f, 1.f)) * 100.f;
-	setVolume(volume);
+	float dist		= rn::math::length(pdist);
+	float volume	= 1.0f - std::clamp((clear_dist + dist) / disperse_radius, 0.f, 1.f);
+	setVolume(volume * sfx_volume_percentage());
 }
 const rn::Vec3f &SoundDisperseEntity::getPosition() const
 {
 	return position;
 }
 
-void SoundDisperseEntity::setPosition(const rn::Vec3f &position) 
+void SoundDisperseEntity::setPosition(const rn::Vec3f &position)
 {
-	this->position = position; 
+	this->position = position;
 }
