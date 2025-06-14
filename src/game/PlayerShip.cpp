@@ -80,7 +80,7 @@ void PlayerShip::onEvent(sf::Event &event)
 	if (classification.oneOf<ShootProps, MButton>(rn::isKeydown))
 		shoot();
 	classification.pushActionIfOneOf<AccelerationProps, Key>(
-		rn::isKeydown, { self(), std::nullopt, rn::Json{ { AccelerateShipAction::acceleration, shift_acceleration } } }
+		rn::isKeydown, { self(), std::nullopt, rn::Json{ { AccelerateShipAction::acceleration, *shift_acceleration } } }
 	);
 	classification.pushActionIfOneOf<AccelerationProps, Key>(
 		rn::isKeyup, { self(), std::nullopt, rn::Json{ { AccelerateShipAction::acceleration, 1 } } }

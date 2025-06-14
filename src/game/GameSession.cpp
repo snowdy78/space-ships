@@ -48,7 +48,7 @@ void GameSession::createPlayer()
 void GameSession::afterLoad()
 {
 	LocalDriveSession::afterLoad();
-	m_game_objects = toJson()["game_objects"];
+	m_game_objects = json()["game_objects"];
 }
 
 void GameSession::beforeSave()

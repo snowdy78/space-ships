@@ -6,5 +6,5 @@ class Session
 {
 public:
 	virtual ~Session()					   = 0;
-	virtual const rn::Json &toJson() const = 0;
+	virtual const rn::Json &json() const = 0;
 };

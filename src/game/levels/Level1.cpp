@@ -23,7 +23,7 @@ Level1::Level1(SpaceField &field)
 		},
 		[](SimpleAsteroid &asteroid) {
 			randomBodyDirectionalOnAreaOutsideArea(
-				GameManager::session()->camera.getView().getViewport(), asteroid, SimpleAsteroid::default_velocity,
+				GameManager::session()->camera.getView().getViewport(), asteroid, *SimpleAsteroid::velocity,
 				asteroid.getSize()
 			);
 		}

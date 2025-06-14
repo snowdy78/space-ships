@@ -9,6 +9,7 @@
 #include "components/AnimatedSprite.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
+#include "components/GameConfiguration.hpp"
 #include "game/AbstractWeapon.hpp"
 #include "game/colliders/EllipseCollider.hpp"
 #include "components/effects/ShipEngineFlame.hpp"
@@ -71,12 +72,17 @@ protected:
 	sf::Sprite sprite;
 
 private:
+	inline static auto &self_config				 = config::instance().get("AbstractShip");
+	inline static auto &clear_hit_sound_distance = self_config.get("clear_hit_sound_distance");
+	inline static auto &clear_destroy_sound_distance = self_config.get("clear_destroy_sound_distance");
+	inline static auto &hit_sound_disperse_force = self_config.get("hit_sound_disperse_force");
+	inline static auto &destroy_sound_disperse_force = self_config.get("destroy_sound_disperse_force");
+
 	SpaceField::State<AbstractWeapon> gun{ nullptr };
 	ShipEngineFlame m_engine_effect;
 	EllipseCollider collider;
-
-	SoundDisperseTraits hit_sound_traits{ 100, 300 };
-	SoundDisperseTraits destroy_sound_traits{ 200, 1000 };
+	SoundDisperseTraits hit_sound_traits{ *clear_hit_sound_distance, *hit_sound_disperse_force };
+	SoundDisperseTraits destroy_sound_traits{ *clear_destroy_sound_distance, *destroy_sound_disperse_force };
 
 	size_t m_team_hash = 0;
 	rn::Vec2f m_move_dir{};

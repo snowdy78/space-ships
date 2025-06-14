@@ -1,0 +1,34 @@
+{
+  "BaseBullet": {
+    "damage": 25,
+    "velocity": 28,
+    "clear_sound_distance": 300,
+    "disperse_force": 150
+  },
+  "AbstractShip": {
+    "velocity": 20,
+    "clear_hit_sound_distance": 1000,
+    "hit_sound_disperse_force": 1000,
+    "clear_destroy_sound_distance": 1000,
+    "destroy_sound_disperse_force": 1000
+  },
+  "Pistol": {
+    "clear_shoot_sound_distance": 1000,
+    "shoot_disperse_force": 1000,
+    "disperse_angle": 5,
+    "rollback": 500 
+  },
+  "PlayerShip": {
+    "shift_acceleration": 1.5
+  },
+  "EnemyShip": {
+    "velocity": 5,
+    "min_target_distance": 100,
+    "time_vertical_movement": 660,
+    "time_horizontal_movement": 1600,
+    "shoot_time": 2000
+  },
+  "SimpleAsteroid": {
+    "velocity": 20
+  }
+}

@@ -3,6 +3,7 @@
 #include "MainMenu.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
+#include "components/GameConfiguration.hpp"
 
 
 void loadGame(sf::RenderWindow &window);
@@ -36,6 +37,8 @@ int main()
 }
 void loadGame(sf::RenderWindow &window)
 {
+	config::preload();
+
 	sf::Color background_color{ sf::Color::Black };
 	sf::Color progress_bar_outline_color{ sf::Color::White };
 	sf::Color progress_bar_progress_color{ sf::Color::White };

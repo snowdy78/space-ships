@@ -82,7 +82,7 @@ bool AbstractBullet::checkOutside()
 {
 	if (!GameManager::exist() || !getSize().has_value())
 		return false;
-	watcher.setViewArea(GameManager::session()->camera.getView().getViewport());
+	watcher.setViewArea({ GameManager::session()->camera.getPosition(), GameManager::session()->camera.getViewSize() });
 	return watcher.isOutOfViewArea(getTransform().transformRect({ {}, *getSize() }));
 }
 

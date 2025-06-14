@@ -4,8 +4,8 @@
 #include "ConnectedPlayerShip.hpp"
 #include "components/ControlsScheme/ControlsScheme.hpp"
 #include "components/FileLoader.hpp"
-#include "decl.hpp"
 #include "coop/TransferDataConverter.hpp"
+#include "decl.hpp"
 
 enum class PlayerControlsTypeSep
 {
@@ -39,17 +39,15 @@ struct ShootProps
 };
 
 using PlayerControls = ControlsScheme<
-	PlayerControlsTypeSep, size_t,
-	type_list<sf::Keyboard::Key, sf::Mouse::Button>,
-	MovementProps,
-	AccelerationProps,
-	ShootProps
-	>;
+	PlayerControlsTypeSep, size_t, type_list<sf::Keyboard::Key, sf::Mouse::Button>, MovementProps, AccelerationProps,
+	ShootProps>;
 
 class PlayerShip final : public AbstractShip, public ConvertedTransfer<PlayerShip, ConnectedPlayerShip>
 {
-	inline static loading<sf::Texture> texture		= FileLoader::Instance().addTextureToUpload("img/ship.png").get();
-	constexpr static float shift_acceleration = 1.5f;
+	inline static loading<sf::Texture> texture = FileLoader::Instance().addTextureToUpload("img/ship.png").get();
+
+	inline static auto &self_config = config::instance().get("PlayerShip");
+	G_CONFIG_PROP_DEFINE(self_config, shift_acceleration);
 	static const PlayerControls basic_controls;
 
 public:

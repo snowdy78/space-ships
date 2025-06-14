@@ -24,7 +24,7 @@ SpaceField::StatePtr<AbstractShip> EnemyShip::getTarget() const
 
 void EnemyShip::start()
 {
-	setVelocity(enemy_velocity);
+	setVelocity(*velocity);
 	movement_clock.start();
 	shoot_clock.start();
 	AbstractShip::start();
@@ -44,7 +44,7 @@ rn::Vec2f EnemyShip::countMove() const
 	auto ship  = m_target.lock();
 	float sign
 		= static_cast<float>(rn::math::sgn(
-			  rn::math::length(ship->getPosition() - getPosition()) - static_cast<number_t>(min_distance_to_target)
+			  rn::math::length(ship->getPosition() - getPosition()) - static_cast<number_t>(*min_target_distance)
 		  ));
 	rn::Vec2f dir{ getMoveDirection() * sign };
 	
@@ -69,7 +69,7 @@ void EnemyShip::movement()
 	if (m_target.expired() || !GameManager::exist())
 		return;
 
-	if (timeStep(movement_clock, time_vertical_movement))
+	if (timeStep(movement_clock, time_digit_type(*time_vertical_movement)))
 	{
 		if (!vertical)
 		{
@@ -84,7 +84,7 @@ void EnemyShip::movement()
 		setMoveDirection(direction(a2 - a1));
 		vertical.reset();
 	}
-	if (timeStep(movement_clock, time_horizontal_movement))
+	if (timeStep(movement_clock, time_digit_type(*time_horizontal_movement)))
 	{
 		if (!horizontal)
 		{
@@ -108,7 +108,7 @@ void EnemyShip::movement()
 void EnemyShip::update()
 {
 	AbstractShip::update();
-	if (everyTime(shoot_clock, shoot_timing))
+	if (everyTime(shoot_clock, time_digit_type(*shoot_time)))
 	{
 		shoot();
 		shoot_clock.reset();

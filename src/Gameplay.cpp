@@ -6,7 +6,6 @@
 #include "game/EnemyShip.hpp"
 #include "game/asteroids/SimpleAsteroid.hpp"
 
-
 Gameplay::Gameplay(sf::RenderWindow &window)
 	: MenuBranch(window)
 {
