@@ -47,6 +47,7 @@ public:
 	using items_type = container_type<value_type>;
 	using item = ItemPointer;
 	static GameConfiguration &instance();
+	static void preload();
 
 	ItemPointer &get(std::string &&key);
 	ItemPointer &get(const ItemPointer &config_item, std::string &&key);

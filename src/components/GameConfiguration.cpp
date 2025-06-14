@@ -28,6 +28,9 @@ GameConfiguration::ItemPointer::ItemPointer(const ItemPointer *config, std::stri
 
 void GameConfiguration::ItemPointer::initJson() const
 {
+	static auto loaded = load();
+	if (!loaded)
+		throw std::runtime_error("game configuration was not load!");
 	const rn::Json *json_ptr = m_before ? &**m_before : &instance().m_data;
 	if (!json_ptr->contains(m_key))
 	{
@@ -46,7 +49,6 @@ void GameConfiguration::ItemPointer::initJson() const
 		std::cerr << "game configuration error occurs! (unknown key: '" << m_key << "')\n";
 		throw error;
 	}
-	std::cout << "initialized '" << m_key << "': " << **json << "\n"; // TODO REMOVE !!!
 }
 
 rn::Json &GameConfiguration::ItemPointer::operator*()
@@ -94,11 +96,16 @@ GameConfiguration &GameConfiguration::instance()
 	return config;
 }
 
+void GameConfiguration::preload()
+{
+	for (auto &item : instance().m_config_items)
+	{
+		**item;
+	}
+}
+
 GameConfiguration::ItemPointer &GameConfiguration::get(std::string &&key)
 {
-	static const bool loaded = load();
-	if (!loaded)
-		throw std::out_of_range("ERROR: exception on load configuration: unable to load\n");
 	m_config_items.emplace_back(new ItemPointer(std::move(key)));
 	return *m_config_items.back();
 }
