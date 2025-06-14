@@ -10,11 +10,12 @@ class EnemyShip final : public AbstractShip, public GameObjectBase<EnemyShip>
 {
 	using time_digit_type					   = std::chrono::milliseconds;
 	inline static loading<sf::Texture> texture = FileLoader::Instance().addTextureToUpload("img/enemy_ship.png").get();
-	constexpr static float enemy_velocity{ 5.f };
-	constexpr static float min_distance_to_target = 100.f;
-	constexpr static time_digit_type time_vertical_movement{ 660 };
-	constexpr static time_digit_type time_horizontal_movement{ 1600 };
-	constexpr static time_digit_type shoot_timing{ 2000 };
+	inline static auto &self_config			   = config::instance().get("EnemyShip");
+	G_CONFIG_PROP_DEFINE(self_config, velocity);
+	G_CONFIG_PROP_DEFINE(self_config, min_target_distance);
+	G_CONFIG_PROP_DEFINE(self_config, time_vertical_movement);
+	G_CONFIG_PROP_DEFINE(self_config, time_horizontal_movement);
+	G_CONFIG_PROP_DEFINE(self_config, shoot_time);
 	rn::Stopwatch movement_clock;
 	rn::Stopwatch shoot_clock;
 	SpaceField::StatePtr<AbstractShip> m_target;

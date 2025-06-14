@@ -5,6 +5,12 @@ SimpleAsteroid::SimpleAsteroid(): AbstractAsteroid(*texture)
 {
 }
 
+void SimpleAsteroid::start()
+{
+	AbstractAsteroid::start();
+	setVelocity(*velocity);
+}
+
 void SimpleAsteroid::summonCopy(SpaceField &field) const
 {
 	field.summonAsteroid<SimpleAsteroid>([this](SimpleAsteroid &asteroid) {

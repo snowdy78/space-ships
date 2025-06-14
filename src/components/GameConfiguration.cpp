@@ -32,22 +32,24 @@ void GameConfiguration::ItemPointer::initJson() const
 	if (!loaded)
 		throw std::runtime_error("game configuration was not load!");
 	const rn::Json *json_ptr = m_before ? &**m_before : &instance().m_data;
-	if (!json_ptr->contains(m_key))
-	{
-		if (!m_default)
-			auto exc = json_ptr->at(m_key);
-		json->reset(new rn::Json(*m_default));
-		return;
-	}
 	try
 	{
-		json->reset(new rn::Json(json_ptr->at(m_key)));
+		if (!json_ptr->contains(m_key))
+		{
+			if (!m_default)
+				auto exc = json_ptr->at(m_key);
+			json->reset(new rn::Json(*m_default));
+			return;
+		}
+		auto i = json_ptr->at(m_key);
+		json->reset(new rn::Json(std::move(i)));
 	}
 	catch (rn::Json::out_of_range &error)
 	{
 		std::cerr << error.what() << "\n";
-		std::cerr << "game configuration error occurs! (unknown key: '" << m_key << "')\n";
-		throw error;
+		std::cerr << "game configuration error occurs! (maybe unknown key: '" << m_key << "')"
+				  << (m_before ? " from '" + m_before->m_key + "'" : "") << "\n";
+		throw;
 	}
 }
 
@@ -98,10 +100,8 @@ GameConfiguration &GameConfiguration::instance()
 
 void GameConfiguration::preload()
 {
-	for (auto &item : instance().m_config_items)
-	{
+	for (auto &item: instance().m_config_items)
 		**item;
-	}
 }
 
 GameConfiguration::ItemPointer &GameConfiguration::get(std::string &&key)

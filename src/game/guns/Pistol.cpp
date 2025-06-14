@@ -27,7 +27,7 @@ void Pistol::onShoot()
 }
 std::chrono::milliseconds Pistol::getRollback() const
 {
-	return std::chrono::milliseconds{500};
+	return std::chrono::milliseconds{*props::rollback};
 }
 rn::Vec2f Pistol::getTrajectory() const
 {

@@ -4,6 +4,10 @@
 #include <list>
 #include <string>
 #include "decl.hpp"
+#ifndef G_CONFIG_PROP_DEFINE
+#define G_CONFIG_PROP_DEFINE(current_instance, prop_name) \
+	inline static auto &prop_name = (current_instance).get(#prop_name)
+#endif
 
 class GameConfiguration
 {

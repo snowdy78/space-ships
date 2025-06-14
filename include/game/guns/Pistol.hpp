@@ -5,13 +5,22 @@
 #include "game/GameObject.hpp"
 #include "game/AbstractWeapon.hpp"
 #include "game/GameObjectBase.hpp"
+#include "components/GameConfiguration.hpp"
 
 class Pistol final : public AbstractWeapon, public GameObjectBase<Pistol>
 {
 	inline static loading<sf::SoundBuffer> sound_buffer = FileLoader::Instance().addSoundToUpload("shoot.ogg").get();
+	struct props
+	{
+		inline static auto &self_config = config::instance().get("Pistol");
+		G_CONFIG_PROP_DEFINE(self_config, disperse_angle);
+		G_CONFIG_PROP_DEFINE(self_config, clear_shoot_sound_distance);
+		G_CONFIG_PROP_DEFINE(self_config, shoot_disperse_force);
+		G_CONFIG_PROP_DEFINE(self_config, rollback);
+	};
 
-	float disperse_angle = 5.f;
-	SoundDisperseTraits shoot_sound_traits{ 150.f, 500.f };
+	float disperse_angle = *props::disperse_angle;
+	SoundDisperseTraits shoot_sound_traits{ *props::clear_shoot_sound_distance, *props::shoot_disperse_force };
 
 public:
 	using AbstractWeapon::AbstractWeapon;
