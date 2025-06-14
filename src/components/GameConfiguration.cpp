@@ -5,7 +5,7 @@ bool GameConfiguration::load()
 	rn::JsonFile file;
 	try
 	{
-		file.load("src/config.json");
+		file.load(config_path);
 	}
 	catch (std::exception &)
 	{

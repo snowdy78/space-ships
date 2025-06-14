@@ -56,6 +56,7 @@ public:
 	ItemPointer &get(std::string &&key);
 	ItemPointer &get(const ItemPointer &config_item, std::string &&key);
 private:
+	constexpr static const char *config_path = "./config.json";
 	rn::Json m_data;
 	items_type m_config_items;
 };
