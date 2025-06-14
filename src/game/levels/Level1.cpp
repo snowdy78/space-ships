@@ -33,6 +33,7 @@ Level1::Level1(SpaceField &field)
 void Level1::start()
 {
 	AbstractLevel::start();
+	summon_clock.start();
 }
 
 void Level1::update()
@@ -52,10 +53,31 @@ size_t Level1::factory_id() const
 	return Level1Factory::identifier;
 }
 
+void Level1::onSummon()
+{
+	enemy_remaining--;
+	summon_clock.reset();
+}
+
+bool Level1::nextLevelCondition() const
+{
+	return enemy_remaining == 0;
+}
+
+bool Level1::summonCondition() const
+{
+	return everyTime(clock, std::chrono::milliseconds(*props::summon_time));
+}
+
 AbstractLevel::PoolEntities::ConstIterator Level1::nextSummon() const
 {
-	if (rn::random::chance(0.35))
+	if (rn::random::chance(*props::summon_chance))
 		return pool_find<SimpleAsteroid>();
 	return pool_find<EnemyShip>();
+}
+
+std::string Level1::getDescription() const
+{
+	return std::string("Destroy ") + std::to_string(enemy_remaining);
 }
 

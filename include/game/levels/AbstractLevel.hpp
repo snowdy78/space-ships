@@ -169,6 +169,12 @@ public:
 	Difficulty getDifficultyType() const;
 	float getDifficulty() const;
 	float getDifficultyFactor() const;
+	virtual void onSummon()
+	{
+	}
+	virtual bool nextLevelCondition() const					   = 0;
+	virtual bool summonCondition() const					   = 0;
+	virtual std::string getDescription() const				   = 0;
 	virtual std::unique_ptr<AbstractLevelFactory> next() const = 0;
 	virtual size_t factory_id() const						   = 0;
 	virtual PoolEntities::ConstIterator nextSummon() const	   = 0;
@@ -184,8 +190,6 @@ private:
 	const Difficulty m_difficulty_type;
 	const float m_difficulty_factor = 1.f;
 	const float m_difficulty		= m_difficulty_factor * static_cast<float>(m_difficulty_type);
-	constexpr static TimeDigitType period_summon{ 10000 };
-	rn::Stopwatch clock;
 	/**
 	 * @brief field reference
 	 */

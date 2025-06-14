@@ -30,5 +30,10 @@
   },
   "SimpleAsteroid": {
     "velocity": 20
+  },
+  "Level1": {
+    "summon_chance": 0.35,
+    "summon_time": 20000,
+    "enemy_count": 10
   }
 }

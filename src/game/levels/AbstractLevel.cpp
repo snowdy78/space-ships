@@ -69,22 +69,23 @@ AbstractLevel::Entities::Iterator AbstractLevel::end()
 void AbstractLevel::start()
 {
 	LogicalObject::start();
-	clock.start();
 }
 
 void AbstractLevel::update()
 {
-	if (everyTime(clock, period_summon))
+	if (summonCondition())
 	{
 		summon();
-		clock.reset();
 	}
 }
 
 void AbstractLevel::summon(size_t count)
 {
 	while (count-- != 0)
+	{
 		m_entities.summon(nextSummon());
+		onSummon();
+	}
 }
 
 void AbstractLevel::erase(const Entities::ConstIterator &it)
