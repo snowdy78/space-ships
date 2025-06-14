@@ -9,7 +9,7 @@
 
 class Pistol final : public AbstractWeapon, public GameObjectBase<Pistol>
 {
-	inline static loading<sf::SoundBuffer> sound_buffer = FileLoader::Instance().addSoundToUpload("shoot.ogg").get();
+	inline static loading<sf::SoundBuffer> sound_buffer = SoundLoader::instance().addToUpload("shoot.ogg").get();
 	struct props
 	{
 		inline static auto &self_config = config::instance().get("Pistol");

@@ -4,6 +4,7 @@
 #include "components/Background.hpp"
 #include "game/GameManager.hpp"
 #include "coop/TcpRouter.hpp"
+#include "Font.hpp"
 
 class HostGameBranch : public rn::MenuBranch 
 {

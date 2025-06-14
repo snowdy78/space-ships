@@ -43,16 +43,12 @@ private:
 	struct PrivKeyframe;
 	using keyframe_vector = std::vector<std::unique_ptr<PrivKeyframe>>;
 
-	struct PrivKeyframe : public Keyframe
+	struct PrivKeyframe : Keyframe
 	{
 		friend class AnimatedSprite;
 		using Keyframe::Keyframe;
-		PrivKeyframe(const PrivKeyframe &)	   = default;
-		PrivKeyframe(PrivKeyframe &&) noexcept = default;
 		using Keyframe::setDuration;
 		using Keyframe::setTexture;
-		PrivKeyframe &operator=(const PrivKeyframe &)	 = default;
-		PrivKeyframe &operator=(PrivKeyframe &) noexcept = default;
 	};
 
 public:

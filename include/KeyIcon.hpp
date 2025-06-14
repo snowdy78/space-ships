@@ -1,13 +1,12 @@
 #pragma once
 
-#include <RuneEngine/Engine.hpp>
-#include "components/FileLoader.hpp"
+#include "decl.hpp"
 
 class KeyIcon : public rn::MonoBehaviour
 {
     using scancode_e = sf::Keyboard::Scancode;
 public:
-    using map_key_texture = std::map<scancode_e, const sf::Texture* const*>;
+    using map_key_texture = std::map<scancode_e, loading_ptr<sf::Texture>>;
     using map_key_char = std::map<scancode_e, char>;
 private:
     static map_key_char key_map;
@@ -16,20 +15,14 @@ private:
 
     static sf::Color color;
     static map_key_texture key_textures;
-    scancode_e key;
-    sf::Sprite sprite;
-    sf::Text *key_text;
+    scancode_e m_key;
+    sf::Sprite m_sprite;
+    std::unique_ptr<sf::Text> m_key_text;
 public:
     KeyIcon(scancode_e key);
-    KeyIcon(const KeyIcon &icon);
-    KeyIcon(KeyIcon &&icon);
-
 	bool isIntersected(const rn::Vec2f &point) const override;
-
-	~KeyIcon();
-
+	scancode_e getScancode() const;
+    ~KeyIcon() override = default;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
-	KeyIcon &operator=(const KeyIcon &icon);
-    KeyIcon &operator=(KeyIcon &&icon) noexcept;
 };

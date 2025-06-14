@@ -1,10 +1,10 @@
 #pragma once
 
-#include <RuneEngine/Engine.hpp>
+#include "decl.hpp"
 
 class Font
 {
 public:
-	static const sf::Font * const &Default;
-	static const sf::Font * const &Jersey10;
+	static loading<sf::Font> Default;
+	static loading<sf::Font> Jersey10;
 };

@@ -5,7 +5,6 @@
 #include <SFML/System.hpp>
 #include <concepts>
 
-#include "Font.hpp"
 #include "components/GameInfo.hpp"
 #include "exceptions/exceptions.hpp"
 
@@ -107,6 +106,17 @@ class SoundManager;
 template<template<class T> class Container, class Ty>
 class AbstractManager;
 class ActionManager;
+
+template<class T>
+using loading = const T *const &;
+template<class T>
+using loading_ptr = const T *const *;
+template<class T>
+class LoadFunction;
+template<class T>
+concept LoaderConcept = requires(const sf::String &path, T &value) { LoadFunction<T>::load(path, value); };
+
+template<LoaderConcept T>
 class FileLoader;
 class GameManager;
 

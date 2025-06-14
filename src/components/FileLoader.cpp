@@ -1,155 +1,84 @@
 #include "components/FileLoader.hpp"
 
-FileLoader &FileLoader::Instance()
+sf::String LoadingContentBase::filename(const sf::String &delims) const
 {
-	// согласно стандарту, этот код ленивый и потокобезопасный
-	static FileLoader s;
-	return s;
+	std::filesystem::path p(path());
+	return std::filesystem::path(path()).filename().c_str();
+}
+sf::String LoadingContentBase::stem() const
+{
+	std::filesystem::path p(path());
+	return std::filesystem::path(path()).stem().c_str();
 }
 
-void FileLoader::loadTextures(
-	std::function<void(LoadingTexture &)> before_every_load, std::function<void(LoadingTexture &)> after_every_load
-)
+sf::String LoadingContentBase::extension() const
 {
-	loadContent(textures, before_every_load, after_every_load);
+	return std::filesystem::path(path()).extension().c_str();
 }
 
-void FileLoader::loadFonts(
-	std::function<void(LoadingFont &)> before_every_load, std::function<void(LoadingFont &)> after_every_load
-)
+LoaderContainer::loaders_type &LoaderContainer::loaders()
 {
-	loadContent(fonts, before_every_load, after_every_load);
+	static loaders_type ls;
+	return ls;
 }
 
-void FileLoader::loadSounds(
-	std::function<void(LoadingSound &)> before_every_load, std::function<void(LoadingSound &)> after_every_load
-)
+size_t LoaderContainer::encountLoads()
 {
-	loadContent(sound_buffers, before_every_load, after_every_load);
+	size_t total = 0;
+	for (auto &loader: loaders())
+		total += loader->size();
+	return total;
 }
 
-void FileLoader::loadAnimatedSprites(
-		std::function<void(LoadingAnimatedSprite &)> before_every_load,
-		std::function<void(LoadingAnimatedSprite &)> after_every_load) 
+bool LoaderContainer::isAllLoad()
 {
-	loadContent(anim_sprites, before_every_load, after_every_load);
-}
-
-size_t FileLoader::getTextureCount() const
-{
-	return textures.size();
-}
-
-size_t FileLoader::getSoundCount() const
-{
-	return sound_buffers.size();
-}
-
-size_t FileLoader::getFontCount() const
-{
-	return fonts.size();
-}
-
-const FileLoader::LoadingSound &FileLoader::addSoundToUpload(const char *path)
-{
-	return addToUpload(sound_buffers, path, [](const sf::String &path, sf::SoundBuffer &content) {
-		if (!content.loadFromFile(path))
-		{
-			throw std::out_of_range("File not found: '" + path + "'");
-		}
+	return !std::ranges::any_of(loaders(), [](value_type const &loader) {
+		return !loader->isLoad();
 	});
 }
 
-const FileLoader::LoadingFont &FileLoader::addFontToUpload(const char *path)
-{
-	return addToUpload(fonts, path, [](const sf::String &path, sf::Font &content) {
-		if (!content.loadFromFile(path))
-		{
-			throw std::out_of_range("File not found: '" + path + "'");
-		}
-	});
-}
-
-const FileLoader::LoadingTexture &FileLoader::addTextureToUpload(const char *path)
-{
-	return addToUpload(textures, path, [](const sf::String &path, sf::Texture &content) {
-		if (!content.loadFromFile(path))
-		{
-			throw std::out_of_range("File not found: '" + path + "'");
-		}
-	});
-}
-
-const FileLoader::LoadingAnimatedSprite &FileLoader::addAnimatedSpriteToUpload(const char *path, const std::filesystem::path &file_extention)
-{
-	return addToUpload(anim_sprites, path, [file_extention](const sf::String &path, AnimatedSprite &content) {
-		if (!content.load({path, file_extention}))
-		{
-			throw std::out_of_range("File not found: '" + path + "'");
-		}
-	});
-}
-
-void FileLoader::clearSoundLoadingContent()
-{
-	clearLoadingContent(sound_buffers);
-}
-
-void FileLoader::clearFontLoadingContent()
-{
-	clearLoadingContent(fonts);
-}
-
-void FileLoader::clearTextureLoadingContent()
-{
-	clearLoadingContent(textures);
-}
-
-void FileLoader::clearAnimSpriteLoadingContent() 
-{
-	clearLoadingContent(anim_sprites);
-}
-
-template<class T>
-const FileLoader::LoadingContent<T> &FileLoader::addToUpload(
-	std::vector<LoadingContent<T> *> &upload_container, const char *path,
-	const LoadingContent<T>::load_func_t &load_function
+void LoaderContainer::loadAll(
+	const std::function<void(LoadingContentBase &)> &before_load,
+	const std::function<void(LoadingContentBase &)> &after_load
 )
 {
-	upload_container.emplace_back(new LoadingContent<T>(path, load_function));
-	return *upload_container.back();
+	for (auto &loader: loaders())
+		if(!loader->isLoad())
+			loader->load(before_load, after_load);
 }
 
-template<class T>
-void FileLoader::loadContent(
-	std::vector<LoadingContent<T> *> &upload_container, std::function<void(LoadingContent<T> &)> before_every_load,
-	std::function<void(LoadingContent<T> &)> after_every_load
-)
+void LoadFunction<sf::Texture>::load(const sf::String &path, sf::Texture &loading_value)
 {
-	for (auto &content: upload_container)
+	loading_value.setRepeated(true);
+	if (!loading_value.loadFromFile(path))
+		throw std::out_of_range("texture at path: '" + path + "' was not load!");
+}
+
+void LoadFunction<sf::SoundBuffer>::load(const sf::String &path, sf::SoundBuffer &loading_value)
+{
+	if (!loading_value.loadFromFile(path))
+		throw std::out_of_range("sound at path: '" + path + "' was not load!");
+}
+
+void LoadFunction<sf::Font>::load(const sf::String &path, sf::Font &loading_value)
+{
+	if (!loading_value.loadFromFile(path))
+		throw std::out_of_range("font at path: '" + path + "' was not load!");
+}
+
+void LoadFunction<AnimatedSprite>::load(const sf::String &path, AnimatedSprite &sprite)
+{
+	std::filesystem::path p{ path };
+	auto t					= path.toAnsiString().find_last_of('.');
+	auto ext				= path.substring(t).toAnsiString();
+	std::string parent_path = p.parent_path().string();
+	if (!sprite.load({ parent_path, ext }))
 	{
-		before_every_load(*content);
-		content->load();
-		after_every_load(*content);
+		using namespace std::string_literals;
+		throw std::out_of_range(
+			"animation with path: '"s + parent_path + "' and extension '" + ext + "' was not load!"
+		);
 	}
 }
 
-template<class T>
-void FileLoader::clearLoadingContent(std::vector<LoadingContent<T> *> &upload_container)
-{
-	for (auto &content: upload_container)
-	{
-		delete content;
-	}
-	upload_container.clear();
-}
-
-FileLoader::FileLoader() {}
-
-FileLoader::~FileLoader()
-{
-	clearSoundLoadingContent();
-	clearFontLoadingContent();
-	clearTextureLoadingContent();
-	clearAnimSpriteLoadingContent();
-}
+LoadingContentBase::~LoadingContentBase() = default;

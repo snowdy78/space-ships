@@ -44,7 +44,7 @@ using PlayerControls = ControlsScheme<
 
 class PlayerShip final : public AbstractShip, public ConvertedTransfer<PlayerShip, ConnectedPlayerShip>
 {
-	inline static loading<sf::Texture> texture = FileLoader::Instance().addTextureToUpload("img/ship.png").get();
+	inline static loading<sf::Texture> texture = TextureLoader::instance().addToUpload("img/ship.png").get();
 
 	inline static auto &self_config = config::instance().get("PlayerShip");
 	G_CONFIG_PROP_DEFINE(self_config, shift_acceleration);

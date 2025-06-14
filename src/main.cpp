@@ -1,4 +1,6 @@
 #include <thread>
+
+#include "Font.hpp"
 #include "Gameplay.hpp"
 #include "MainMenu.hpp"
 #include "components/FileLoader.hpp"
@@ -46,8 +48,8 @@ void loadGame(sf::RenderWindow &window)
 	sf::Color progress_pointer_color{ sf::Color::White };
 	sf::Color text_color{ sf::Color::White };
 
-	FileLoader::Instance().loadFonts();
-	size_t count		= FileLoader::Instance().getTextureCount() + FileLoader::Instance().getSoundCount();
+	FileLoader<sf::Font>::instance().load();
+	size_t count		= LoaderContainer::encountLoads();
 	size_t count_loaded = 0;
 	rn::Vec2f screen_size{ rn::VideoSettings::getResolution() };
 	sf::Text load_content_path;
@@ -129,42 +131,14 @@ void loadGame(sf::RenderWindow &window)
 		);
 	};
 	sf::Thread thread([&]() {
-		FileLoader::Instance().loadTextures(
-			[&](FileLoader::LoadingTexture &texture) {
+		LoaderContainer::loadAll(
+			[&](const LoadingContentBase &preload_data) {
 				mutex.lock();
-				load_content_path.setString("loading texture: " + texture.getLoadPath());
+				load_content_path.setString("loading path: " + preload_data.path());
 				beforeLoad();
 				mutex.unlock();
 			},
-			[&](FileLoader::LoadingTexture &texture) {
-				mutex.lock();
-
-				afterLoad();
-				mutex.unlock();
-			}
-		);
-		FileLoader::Instance().loadAnimatedSprites(
-			[&](FileLoader::LoadingAnimatedSprite &texture) {
-				mutex.lock();
-				load_content_path.setString("loading animation: " + texture.getLoadPath());
-				beforeLoad();
-				mutex.unlock();
-			},
-			[&](FileLoader::LoadingAnimatedSprite &texture) {
-				mutex.lock();
-
-				afterLoad();
-				mutex.unlock();
-			}
-		);
-		FileLoader::Instance().loadSounds(
-			[&](FileLoader::LoadingSound &sound) {
-				mutex.lock();
-				load_content_path.setString("loading sound: " + sound.getLoadPath());
-				beforeLoad();
-				mutex.unlock();
-			},
-			[&](FileLoader::LoadingSound &sound) {
+			[&](LoadingContentBase &) {
 				mutex.lock();
 				afterLoad();
 				mutex.unlock();

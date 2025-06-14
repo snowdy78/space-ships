@@ -14,7 +14,8 @@ class AbstractBullet : public RigitBody2d, public Collidable, public DamageDeale
 	sf::Sprite sprite;
 
 	ObjectWatcher watcher;
-	rn::Stopwatch out_of_view_timer; 
+	rn::Stopwatch out_of_view_timer;
+	// TODO destroy after placed in config
 	constexpr static std::chrono::milliseconds destroy_after{1000};
 	EllipseCollider collider;
 	std::optional<rn::Vec2f> size; // defined when texture is set

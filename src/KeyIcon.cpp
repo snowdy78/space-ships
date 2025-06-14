@@ -1,6 +1,6 @@
 #include "KeyIcon.hpp"
 #include "Font.hpp"
-
+#include "components/FileLoader.hpp"
 
 KeyIcon::map_key_char KeyIcon::key_map = {
 	{ scancode_e::A,				 'A'	 },
@@ -60,124 +60,88 @@ KeyIcon::map_key_char KeyIcon::key_map = {
 sf::Color KeyIcon::color{ 68, 0, 255 };
 
 loading<sf::Texture> KeyIcon::key_sample_texture
-	= FileLoader::Instance().addTextureToUpload("img/icons/0key-icon.png").get();
+	= TextureLoader::instance().addToUpload("img/icons/0key-icon.png").get();
 KeyIcon::map_key_texture KeyIcon::key_textures = {
-	{ scancode_e::Space,		 FileLoader::Instance().addTextureToUpload("img/icons/space-key.png").ptr()		},
-	{ scancode_e::Enter,		 FileLoader::Instance().addTextureToUpload("img/icons/enter-key.png").ptr()		},
-	{ scancode_e::Escape,	  FileLoader::Instance().addTextureToUpload("img/icons/escape-key.png").ptr()		  },
-	{ scancode_e::Backspace,	 FileLoader::Instance().addTextureToUpload("img/icons/backspace-key.png").ptr()	},
-	{ scancode_e::Left,		FileLoader::Instance().addTextureToUpload("img/icons/arrow-left-key.png").ptr()	},
-	{ scancode_e::Right,		 FileLoader::Instance().addTextureToUpload("img/icons/arrow-right-key.png").ptr()  },
-	{ scancode_e::Up,		  FileLoader::Instance().addTextureToUpload("img/icons/arrow-up-key.png").ptr()		},
-	{ scancode_e::Down,		FileLoader::Instance().addTextureToUpload("img/icons/arrow-down-key.png").ptr()	},
-	{ scancode_e::Tab,		   FileLoader::Instance().addTextureToUpload("img/icons/tab-key.png").ptr()			},
-	{ scancode_e::LControl,	FileLoader::Instance().addTextureToUpload("img/icons/lctrl-key.png").ptr()		   },
-	{ scancode_e::RControl,	FileLoader::Instance().addTextureToUpload("img/icons/rctrl-key.png").ptr()		   },
-	{ scancode_e::LShift,	  FileLoader::Instance().addTextureToUpload("img/icons/lshift-key.png").ptr()		  },
-	{ scancode_e::RShift,	  FileLoader::Instance().addTextureToUpload("img/icons/rshift-key.png").ptr()		  },
-	{ scancode_e::LAlt,		FileLoader::Instance().addTextureToUpload("img/icons/lalt-key.png").ptr()		  },
-	{ scancode_e::RAlt,		FileLoader::Instance().addTextureToUpload("img/icons/ralt-key.png").ptr()		  },
-	{ scancode_e::Menu,		FileLoader::Instance().addTextureToUpload("img/icons/menu-key.png").ptr()		  },
-	{ scancode_e::Pause,		 FileLoader::Instance().addTextureToUpload("img/icons/pause-key.png").ptr()		},
-	{ scancode_e::Insert,	  FileLoader::Instance().addTextureToUpload("img/icons/insert-key.png").ptr()		  },
-	{ scancode_e::Delete,	  FileLoader::Instance().addTextureToUpload("img/icons/delete-key.png").ptr()		  },
-	{ scancode_e::PageUp,	  FileLoader::Instance().addTextureToUpload("img/icons/pageup-key.png").ptr()		  },
-	{ scancode_e::PageDown,	FileLoader::Instance().addTextureToUpload("img/icons/pagedown-key.png").ptr()	  },
-	{ scancode_e::Home,		FileLoader::Instance().addTextureToUpload("img/icons/home-key.png").ptr()		  },
-	{ scancode_e::End,		   FileLoader::Instance().addTextureToUpload("img/icons/end-key.png").ptr()			},
-	{ scancode_e::Numpad0,	   FileLoader::Instance().addTextureToUpload("img/icons/numpad0-key.png").ptr()		},
-	{ scancode_e::Numpad1,	   FileLoader::Instance().addTextureToUpload("img/icons/numpad1-key.png").ptr()		},
-	{ scancode_e::Numpad2,	   FileLoader::Instance().addTextureToUpload("img/icons/numpad2-key.png").ptr()		},
-	{ scancode_e::Numpad3,	   FileLoader::Instance().addTextureToUpload("img/icons/numpad3-key.png").ptr()		},
-	{ scancode_e::Numpad4,	   FileLoader::Instance().addTextureToUpload("img/icons/numpad4-key.png").ptr()		},
-	{ scancode_e::Numpad5,	   FileLoader::Instance().addTextureToUpload("img/icons/numpad5-key.png").ptr()		},
-	{ scancode_e::Numpad6,	   FileLoader::Instance().addTextureToUpload("img/icons/numpad6-key.png").ptr()		},
-	{ scancode_e::Numpad7,	   FileLoader::Instance().addTextureToUpload("img/icons/numpad7-key.png").ptr()		},
-	{ scancode_e::Numpad8,	   FileLoader::Instance().addTextureToUpload("img/icons/numpad8-key.png").ptr()		},
-	{ scancode_e::Numpad9,	   FileLoader::Instance().addTextureToUpload("img/icons/numpad9-key.png").ptr()		},
-	{ scancode_e::F1,		  FileLoader::Instance().addTextureToUpload("img/icons/f1-key.png").ptr()			  },
-	{ scancode_e::F2,		  FileLoader::Instance().addTextureToUpload("img/icons/f2-key.png").ptr()			  },
-	{ scancode_e::F3,		  FileLoader::Instance().addTextureToUpload("img/icons/f3-key.png").ptr()			  },
-	{ scancode_e::F4,		  FileLoader::Instance().addTextureToUpload("img/icons/f4-key.png").ptr()			  },
-	{ scancode_e::F5,		  FileLoader::Instance().addTextureToUpload("img/icons/f5-key.png").ptr()			  },
-	{ scancode_e::F6,		  FileLoader::Instance().addTextureToUpload("img/icons/f6-key.png").ptr()			  },
-	{ scancode_e::F7,		  FileLoader::Instance().addTextureToUpload("img/icons/f7-key.png").ptr()			  },
-	{ scancode_e::F8,		  FileLoader::Instance().addTextureToUpload("img/icons/f8-key.png").ptr()			  },
-	{ scancode_e::F9,		  FileLoader::Instance().addTextureToUpload("img/icons/f9-key.png").ptr()			  },
-	{ scancode_e::F10,		   FileLoader::Instance().addTextureToUpload("img/icons/f10-key.png").ptr()			},
-	{ scancode_e::F11,		   FileLoader::Instance().addTextureToUpload("img/icons/f11-key.png").ptr()			},
-	{ scancode_e::F12,		   FileLoader::Instance().addTextureToUpload("img/icons/f12-key.png").ptr()			},
-	{ scancode_e::CapsLock,	FileLoader::Instance().addTextureToUpload("img/icons/capslock-key.png").ptr()	  },
-	{ scancode_e::NumLock,	   FileLoader::Instance().addTextureToUpload("img/icons/numlock-key.png").ptr()		},
-	{ scancode_e::ScrollLock,  FileLoader::Instance().addTextureToUpload("img/icons/scrolllock-key.png").ptr()	  },
-	{ scancode_e::PrintScreen, FileLoader::Instance().addTextureToUpload("img/icons/printscreen-key.png").ptr()	},
-	{ scancode_e::NumpadEnter, FileLoader::Instance().addTextureToUpload("img/icons/numpad-enter-key.png").ptr() },
+	{ scancode_e::Space,		 TextureLoader::instance().addToUpload("img/icons/space-key.png").ptr()		},
+	{ scancode_e::Enter,		 TextureLoader::instance().addToUpload("img/icons/enter-key.png").ptr()		},
+	{ scancode_e::Escape,	  TextureLoader::instance().addToUpload("img/icons/escape-key.png").ptr()		  },
+	{ scancode_e::Backspace,	 TextureLoader::instance().addToUpload("img/icons/backspace-key.png").ptr()	},
+	{ scancode_e::Left,		TextureLoader::instance().addToUpload("img/icons/arrow-left-key.png").ptr()	},
+	{ scancode_e::Right,		 TextureLoader::instance().addToUpload("img/icons/arrow-right-key.png").ptr()  },
+	{ scancode_e::Up,		  TextureLoader::instance().addToUpload("img/icons/arrow-up-key.png").ptr()		},
+	{ scancode_e::Down,		TextureLoader::instance().addToUpload("img/icons/arrow-down-key.png").ptr()	},
+	{ scancode_e::Tab,		   TextureLoader::instance().addToUpload("img/icons/tab-key.png").ptr()			},
+	{ scancode_e::LControl,	TextureLoader::instance().addToUpload("img/icons/lctrl-key.png").ptr()		   },
+	{ scancode_e::RControl,	TextureLoader::instance().addToUpload("img/icons/rctrl-key.png").ptr()		   },
+	{ scancode_e::LShift,	  TextureLoader::instance().addToUpload("img/icons/lshift-key.png").ptr()		  },
+	{ scancode_e::RShift,	  TextureLoader::instance().addToUpload("img/icons/rshift-key.png").ptr()		  },
+	{ scancode_e::LAlt,		TextureLoader::instance().addToUpload("img/icons/lalt-key.png").ptr()		  },
+	{ scancode_e::RAlt,		TextureLoader::instance().addToUpload("img/icons/ralt-key.png").ptr()		  },
+	{ scancode_e::Menu,		TextureLoader::instance().addToUpload("img/icons/menu-key.png").ptr()		  },
+	{ scancode_e::Pause,		 TextureLoader::instance().addToUpload("img/icons/pause-key.png").ptr()		},
+	{ scancode_e::Insert,	  TextureLoader::instance().addToUpload("img/icons/insert-key.png").ptr()		  },
+	{ scancode_e::Delete,	  TextureLoader::instance().addToUpload("img/icons/delete-key.png").ptr()		  },
+	{ scancode_e::PageUp,	  TextureLoader::instance().addToUpload("img/icons/pageup-key.png").ptr()		  },
+	{ scancode_e::PageDown,	TextureLoader::instance().addToUpload("img/icons/pagedown-key.png").ptr()	  },
+	{ scancode_e::Home,		TextureLoader::instance().addToUpload("img/icons/home-key.png").ptr()		  },
+	{ scancode_e::End,		   TextureLoader::instance().addToUpload("img/icons/end-key.png").ptr()			},
+	{ scancode_e::Numpad0,	   TextureLoader::instance().addToUpload("img/icons/numpad0-key.png").ptr()		},
+	{ scancode_e::Numpad1,	   TextureLoader::instance().addToUpload("img/icons/numpad1-key.png").ptr()		},
+	{ scancode_e::Numpad2,	   TextureLoader::instance().addToUpload("img/icons/numpad2-key.png").ptr()		},
+	{ scancode_e::Numpad3,	   TextureLoader::instance().addToUpload("img/icons/numpad3-key.png").ptr()		},
+	{ scancode_e::Numpad4,	   TextureLoader::instance().addToUpload("img/icons/numpad4-key.png").ptr()		},
+	{ scancode_e::Numpad5,	   TextureLoader::instance().addToUpload("img/icons/numpad5-key.png").ptr()		},
+	{ scancode_e::Numpad6,	   TextureLoader::instance().addToUpload("img/icons/numpad6-key.png").ptr()		},
+	{ scancode_e::Numpad7,	   TextureLoader::instance().addToUpload("img/icons/numpad7-key.png").ptr()		},
+	{ scancode_e::Numpad8,	   TextureLoader::instance().addToUpload("img/icons/numpad8-key.png").ptr()		},
+	{ scancode_e::Numpad9,	   TextureLoader::instance().addToUpload("img/icons/numpad9-key.png").ptr()		},
+	{ scancode_e::F1,		  TextureLoader::instance().addToUpload("img/icons/f1-key.png").ptr()			  },
+	{ scancode_e::F2,		  TextureLoader::instance().addToUpload("img/icons/f2-key.png").ptr()			  },
+	{ scancode_e::F3,		  TextureLoader::instance().addToUpload("img/icons/f3-key.png").ptr()			  },
+	{ scancode_e::F4,		  TextureLoader::instance().addToUpload("img/icons/f4-key.png").ptr()			  },
+	{ scancode_e::F5,		  TextureLoader::instance().addToUpload("img/icons/f5-key.png").ptr()			  },
+	{ scancode_e::F6,		  TextureLoader::instance().addToUpload("img/icons/f6-key.png").ptr()			  },
+	{ scancode_e::F7,		  TextureLoader::instance().addToUpload("img/icons/f7-key.png").ptr()			  },
+	{ scancode_e::F8,		  TextureLoader::instance().addToUpload("img/icons/f8-key.png").ptr()			  },
+	{ scancode_e::F9,		  TextureLoader::instance().addToUpload("img/icons/f9-key.png").ptr()			  },
+	{ scancode_e::F10,		   TextureLoader::instance().addToUpload("img/icons/f10-key.png").ptr()			},
+	{ scancode_e::F11,		   TextureLoader::instance().addToUpload("img/icons/f11-key.png").ptr()			},
+	{ scancode_e::F12,		   TextureLoader::instance().addToUpload("img/icons/f12-key.png").ptr()			},
+	{ scancode_e::CapsLock,	TextureLoader::instance().addToUpload("img/icons/capslock-key.png").ptr()	  },
+	{ scancode_e::NumLock,	   TextureLoader::instance().addToUpload("img/icons/numlock-key.png").ptr()		},
+	{ scancode_e::ScrollLock,  TextureLoader::instance().addToUpload("img/icons/scrolllock-key.png").ptr()	  },
+	{ scancode_e::PrintScreen, TextureLoader::instance().addToUpload("img/icons/printscreen-key.png").ptr()	},
+	{ scancode_e::NumpadEnter, TextureLoader::instance().addToUpload("img/icons/numpad-enter-key.png").ptr() },
 };
 
 KeyIcon::KeyIcon(scancode_e key)
-	: key_text(nullptr)
+	: m_key(sf::Keyboard::Scancode::Unknown),
+	  m_key_text(nullptr)
 {
-	if (key_map.find(key) != key_map.end())
+	if (key_map.contains(key))
 	{
-		key_text = new sf::Text(sf::String(key_map[key]), *Font::Jersey10);
-		sprite.setTexture(*key_sample_texture);
+		m_key_text.reset(new sf::Text(sf::String(key_map[key]), *Font::Jersey10));
+		m_sprite.setTexture(*key_sample_texture);
 	}
-	else if (key_textures.find(key) != key_textures.end())
+	else if (key_textures.contains(key))
 	{
-		sprite.setTexture(**key_textures.at(key));
+		m_sprite.setTexture(**key_textures.at(key));
 	}
-}
-KeyIcon::KeyIcon(const KeyIcon &other)
-	: sprite(other.sprite),
-	  key(other.key)
-{
-	key_text = other.key_text ? new sf::Text(*other.key_text) : nullptr;
-}
-KeyIcon::KeyIcon(KeyIcon &&other)
-	: sprite(std::move(other.sprite)),
-	  key(std::move(other.key))
-{
-	key_text = other.key_text ? new sf::Text(*other.key_text) : nullptr;
-	delete other.key_text;
-	other.key_text = nullptr;
-}
-KeyIcon::~KeyIcon()
-{
-	delete key_text;
-}
-
-KeyIcon &KeyIcon::operator=(const KeyIcon &other)
-{
-	if (this != &other)
-	{
-		sprite = other.sprite;
-		key	   = other.key;
-		delete key_text;
-		key_text = other.key_text ? new sf::Text(*other.key_text) : nullptr;
-	}
-	return *this;
-}
-KeyIcon &KeyIcon::operator=(KeyIcon &&other) noexcept
-{
-	if (this != &other)
-	{
-		sprite = std::move(other.sprite);
-		key	   = std::move(other.key);
-		delete key_text;
-		key_text = other.key_text;
-		delete other.key_text;
-		other.key_text = nullptr;
-	}
-	return *this;
 }
 bool KeyIcon::isIntersected(const rn::Vec2f &point) const
 {
-	return sprite.getGlobalBounds().contains(point);
+	return m_sprite.getGlobalBounds().contains(point);
 }
+
+KeyIcon::scancode_e KeyIcon::getScancode() const
+{
+	return m_key;
+}
+
 void KeyIcon::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
 	states.transform *= getTransform();
-	target.draw(sprite, states);
-	if (key_text)
-		target.draw(*key_text, states);
+	target.draw(m_sprite, states);
+	if (m_key_text)
+		target.draw(*m_key_text, states);
 }

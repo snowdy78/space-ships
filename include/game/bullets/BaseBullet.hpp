@@ -20,9 +20,9 @@ class BaseBullet final : public AbstractBullet, public GameObjectBase<BaseBullet
 	inline static auto &clear_sound_distance = self_init.get("clear_sound_distance");
 	inline static auto &disperse_force		 = self_init.get("disperse_force");
 	inline static loading<sf::Texture> texture
-		= FileLoader::Instance().addTextureToUpload("img/bullet_shoot.png").get();
+		= TextureLoader::instance().addToUpload("img/bullet_shoot.png").get();
 	inline static loading<sf::SoundBuffer> fly_buf
-		= FileLoader::Instance().addSoundToUpload("./assets/bullet_fly.wav").get();
+		= SoundLoader::instance().addToUpload("./assets/bullet_fly.wav").get();
 	bullet_sound fly_sound{ *clear_sound_distance, *disperse_force, fly_buf };
 
 public:

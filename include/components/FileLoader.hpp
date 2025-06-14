@@ -1,223 +1,303 @@
 #pragma once
 
+#include <list>
 #include "components/AnimatedSprite.hpp"
+#include "decl.hpp"
 
 template<class T>
-using loading = const T *const &;
-template<class T>
-using loading_ptr = const T *const *;
-
-class FileLoader
+class LoadFunction
 {
 public:
-	template<class T>
-	struct LoadingContent
+	static void load(const sf::String &, sf::Texture &) = delete;
+};
+
+template<>
+class LoadFunction<sf::Texture>
+{
+public:
+	static void load(const sf::String &path, sf::Texture &loading_value);
+};
+template<>
+class LoadFunction<sf::SoundBuffer>
+{
+public:
+	static void load(const sf::String &path, sf::SoundBuffer &loading_value);
+};
+template<>
+class LoadFunction<sf::Font>
+{
+public:
+	static void load(const sf::String &path, sf::Font &loading_value);
+};
+template<>
+class LoadFunction<AnimatedSprite>
+{
+public:
+	static void load(const sf::String &path, AnimatedSprite &sprite);
+};
+
+struct LoadingContentBase
+{
+	LoadingContentBase() = default;
+	LoadingContentBase(const sf::String &path)
+		: m_path(path)
 	{
-		using load_func_t = std::function<void(const sf::String &path, T &)>;
+	}
+	virtual void load() noexcept  = 0;
+	virtual bool isLoad() const	  = 0;
+	virtual ~LoadingContentBase() = 0;
+	const sf::String &path() const
+	{
+		return m_path;
+	}
+	void path(const sf::String &_path)
+	{
+		m_path = _path;
+	}
+	/**
+	 * @return a name of file
+	 * example: a path `foo/bar/file.png` be `file.png`
+	 *
+	 */
+	sf::String filename(const sf::String &delims = "/\\") const;
+	/**
+	 * @return a name of file without a file extension
+	 * example: a path `foo/bar/file.png` be `file`
+	 *
+	 */
+	sf::String stem() const;
+	/**
+	 * @return a file extension
+	 */
+	sf::String extension() const;
 
+private:
+	sf::String m_path;
+};
+class Loader
+{
+protected:
+	Loader() = default;
+
+public:
+	using handle_load_function_type = std::function<void(LoadingContentBase &)>;
+	virtual ~Loader()				= default;
+	virtual void load(
+		const handle_load_function_type &before_every_load = [](LoadingContentBase &) {},
+		const handle_load_function_type &after_every_load  = [](LoadingContentBase &) {}
+	)							= 0;
+	virtual size_t size() const = 0;
+	virtual bool isLoad() const = 0;
+	virtual void loadBefore()
+	{
+	}
+};
+class LoaderContainer
+{
+	using loaders_type = std::list<Loader *>;
+	using value_type   = loaders_type::value_type;
+	template<LoaderConcept T>
+	friend class FileLoader;
+	static loaders_type &loaders();
+
+public:
+	static size_t encountLoads();
+	static bool isAllLoad();
+	static void loadAll(
+		const std::function<void(LoadingContentBase &)> &before_load,
+		const std::function<void(LoadingContentBase &)> &after_load
+	);
+};
+
+template<LoaderConcept T>
+class FileLoader : public Loader
+{
+	friend class Loader;
+
+public:
+	template<class U>
+	using container_type = std::vector<U>;
+	template<class U>
+	using pointer_type = std::unique_ptr<U>;
+	struct LoadingContent : LoadingContentBase
+	{
 		LoadingContent();
-		LoadingContent(const sf::String &path, load_func_t load_function);
-		LoadingContent(const LoadingContent &other) = delete;
+		LoadingContent(const sf::String &);
+		LoadingContent(const LoadingContent &) = delete;
 		LoadingContent(LoadingContent &&other) noexcept;
-		~LoadingContent();
-		void load();
+		~LoadingContent() override;
+		void load() noexcept override;
 
-		const sf::String &getLoadPath() const;
-		bool isLoaded() const;
+		bool isLoad() const override;
 		loading<T> get() const;
 		loading_ptr<T> ptr() const;
-		sf::String base_name(const sf::String & delims = "/\\");
-		sf::String name_noext();
-
-		void setLoadPath(const sf::String &path);
-		void setLoadFunction(load_func_t load_function);
-
-		LoadingContent &operator=(const LoadingContent &other) = delete;
 		LoadingContent &operator=(LoadingContent &&other) noexcept;
 
 	private:
-		T **texture				  = new T *(nullptr);
-		sf::String path			  = "";
-		load_func_t load_function = [](const sf::String &path, T &) {};
+		std::unique_ptr<T *> m_item;
 	};
+	using before_load_function_type = std::function<void(LoadingContentBase &)>;
+	using after_load_function_type	= std::function<void(LoadingContentBase &)>;
 
-	using LoadingTexture		= LoadingContent<sf::Texture>;
-	using LoadingSound			= LoadingContent<sf::SoundBuffer>;
-	using LoadingFont			= LoadingContent<sf::Font>;
-	using LoadingAnimatedSprite = LoadingContent<AnimatedSprite>;
+	using value_type		  = pointer_type<LoadingContent>;
+	using data_container_type = container_type<value_type>;
 
-	static FileLoader &Instance();
-	void loadTextures(
-		std::function<void(LoadingTexture &)> before_every_load = [](LoadingTexture &) {},
-		std::function<void(LoadingTexture &)> after_every_load	= [](LoadingTexture &) {}
-	);
-	void loadFonts(
-		std::function<void(LoadingFont &)> before_every_load = [](LoadingFont &) {},
-		std::function<void(LoadingFont &)> after_every_load	 = [](LoadingFont &) {}
-	);
-	void loadSounds(
-		std::function<void(LoadingSound &)> before_every_load = [](LoadingSound &) {},
-		std::function<void(LoadingSound &)> after_every_load  = [](LoadingSound &) {}
-	);
-	void loadAnimatedSprites(
-		std::function<void(LoadingAnimatedSprite &)> before_every_load = [](LoadingAnimatedSprite &) {},
-		std::function<void(LoadingAnimatedSprite &)> after_every_load  = [](LoadingAnimatedSprite &) {}
-	);
-	size_t getTextureCount() const;
-	size_t getSoundCount() const;
-	size_t getFontCount() const;
-	size_t getAnimatedSpriteCount() const;
-	const LoadingSound &addSoundToUpload(const char *path);
-	const LoadingFont &addFontToUpload(const char *path);
-	const LoadingTexture &addTextureToUpload(const char *path);
-	const LoadingAnimatedSprite &addAnimatedSpriteToUpload(const char *path, const std::filesystem::path &file_extention);
+	static FileLoader &instance();
+
+	void load(
+		const handle_load_function_type &before_every_load = [](LoadingContentBase &) {},
+		const handle_load_function_type &after_every_load  = [](LoadingContentBase &) {}
+	) override;
+
+	size_t size() const override;
+	bool isLoad() const override;
+
+	LoadingContent &addToUpload(const char *path);
+	FileLoader(const FileLoader &)				  = delete;
+	FileLoader(FileLoader &&) noexcept			  = delete;
+	FileLoader &operator=(const FileLoader &)	  = delete;
+	FileLoader &operator=(FileLoader &&) noexcept = delete;
 
 private:
-	std::vector<LoadingAnimatedSprite *> anim_sprites;
-	std::vector<LoadingSound *> sound_buffers;
-	std::vector<LoadingFont *> fonts;
-	std::vector<LoadingTexture *> textures;
-
-	template<class T>
-	const LoadingContent<T> &addToUpload(
-		std::vector<LoadingContent<T> *> &upload_container, const char *path,
-		const LoadingContent<T>::load_func_t &load_function
-	);
-
-	template<class T>
-	void loadContent(
-		std::vector<LoadingContent<T> *> &upload_container,
-		std::function<void(LoadingContent<T> &)> before_every_load = [](LoadingContent<T> &) {},
-		std::function<void(LoadingContent<T> &)> after_every_load  = [](LoadingContent<T> &) {}
-	);
-	void clearSoundLoadingContent();
-	void clearFontLoadingContent();
-	void clearTextureLoadingContent();
-	void clearAnimSpriteLoadingContent();
-
-	template<class T>
-	void clearLoadingContent(std::vector<LoadingContent<T> *> &upload_container);
-
+	data_container_type m_data;
+	bool is_load = false;
+	void clear();
 	FileLoader();
-	~FileLoader();
-
-	FileLoader(FileLoader const &)			  = delete;
-	FileLoader &operator=(FileLoader const &) = delete;
 };
+
+using TextureLoader	  = FileLoader<sf::Texture>;
+using SoundLoader	  = FileLoader<sf::SoundBuffer>;
+using FontLoader	  = FileLoader<sf::Font>;
+using AnimationLoader = FileLoader<AnimatedSprite>;
+
 ///////////////////////////
 //
 // template implementation
 //
-template<class T>
-inline FileLoader::LoadingContent<T>::LoadingContent()
-	: load_function([](const sf::String &, T &) {})
-{}
-template<class T>
-inline FileLoader::LoadingContent<T>::LoadingContent(
-	const sf::String &path, std::function<void(const sf::String &, T &)> load_function
-)
-	: texture(new T *(nullptr)),
-	  path(path),
-	  load_function(load_function)
-{}
 
-template<class T>
-inline FileLoader::LoadingContent<T>::LoadingContent(LoadingContent &&other) noexcept
-	: texture(other.texture),
-	  path(other.path)
+template<LoaderConcept T>
+FileLoader<T>::LoadingContent::LoadingContent()
+	: m_item(std::make_unique<T *>(nullptr))
 {
-	*other.texture = nullptr;
-	other.texture  = nullptr;
 }
 
-template<class T>
-inline FileLoader::LoadingContent<T>::~LoadingContent()
+template<LoaderConcept T>
+FileLoader<T>::LoadingContent::LoadingContent(const sf::String &path)
+	: LoadingContentBase(path),
+	  m_item(std::make_unique<T *>(nullptr))
 {
-	if (texture)
-		delete *texture;
-	delete texture;
 }
 
-template<class T>
-inline void FileLoader::LoadingContent<T>::load()
+template<LoaderConcept T>
+FileLoader<T>::LoadingContent::LoadingContent(LoadingContent &&other) noexcept: LoadingContentBase(std::move(other)),
+	m_item(std::move(other))
 {
-	delete *texture;
-	*texture = new T;
-	load_function(path, **texture);
+	*other.m_item = nullptr;
 }
 
-template<class T>
-inline const sf::String &FileLoader::LoadingContent<T>::getLoadPath() const
+template<LoaderConcept T>
+FileLoader<T>::LoadingContent::~LoadingContent()
 {
-	return path;
+	if (m_item)
+		delete *m_item;
 }
 
-template<class T>
-inline void FileLoader::LoadingContent<T>::setLoadFunction(std::function<void(const sf::String &, T &)> load_function)
+template<LoaderConcept T>
+void FileLoader<T>::LoadingContent::load() noexcept
 {
-	this->load_function = load_function;
-}
-
-template<class T>
-inline bool FileLoader::LoadingContent<T>::isLoaded() const
-{
-	return texture;
-}
-
-template<class T>
-inline const T *const &FileLoader::LoadingContent<T>::get() const
-{
-	return *texture;
-}
-
-template<class T>
-inline const T *const *FileLoader::LoadingContent<T>::ptr() const
-{
-	return texture;
-}
-
-/**
- * @brief returns a name of file
- * example: a path `foo/bar/myfile.png` be `myfile.png`  
- * 
- */
-template<class T>
-inline sf::String FileLoader::LoadingContent<T>::base_name(const sf::String & delims)
-{
-	std::wstring wpath{path.begin(), path.end()};
-	sf::String result{wpath.substr(wpath.find_last_of(delims) + 1)};
-	return result;
-}
-
-/**
- * @brief returns a name of file
- * example: a path `foo/bar/myfile.png` be `myfile`  
- * 
- */
-template<class T>
-inline sf::String FileLoader::LoadingContent<T>::name_noext()
-{
-	std::wstring base_name{this->base_name()};
-	size_t p(base_name.find_last_of('.'));
-	return {p > 0 && p != sf::String::InvalidPos ? base_name.substr(0, p) : base_name};
-}
-
-template<class T>
-inline void FileLoader::LoadingContent<T>::setLoadPath(const sf::String &path)
-{
-	this->path = path;
-}
-
-template<class T>
-inline FileLoader::LoadingContent<T> &FileLoader::LoadingContent<T>::operator=(LoadingContent &&other) noexcept
-{
-	if (&other != this)
+	if (m_item && *m_item)
 	{
-		delete *texture;
-		*texture	   = *other.texture;
-		*other.texture = nullptr;
-		delete other.texture;
-		other.texture = nullptr;
+#ifdef SPACE_SHIP_DEBUG
+		std::cout << "repeated load: " << path().toAnsiString() << "\n";
+#endif
+		delete *m_item;
+	}
+	*m_item = new T;
+	LoadFunction<T>::load(path(), **m_item);
+}
+
+template<LoaderConcept T>
+bool FileLoader<T>::LoadingContent::isLoad() const
+{
+	return m_item && *m_item;
+}
+
+template<LoaderConcept T>
+loading<T> FileLoader<T>::LoadingContent::get() const
+{
+	return *m_item;
+}
+
+template<LoaderConcept T>
+loading_ptr<T> FileLoader<T>::LoadingContent::ptr() const
+{
+	return m_item.get();
+}
+
+template<LoaderConcept T>
+typename FileLoader<T>::LoadingContent & FileLoader<T>::LoadingContent::operator=(LoadingContent &&other) noexcept
+{
+	if (this != &other)
+	{
+		static_cast<LoadingContentBase &>(*this) = std::move(other);
+		m_item									 = std::move(other.m_item);
+		other.m_item							 = nullptr;
 	}
 	return *this;
 }
+
+template<LoaderConcept T>
+typename FileLoader<T>::LoadingContent &FileLoader<T>::addToUpload(const char *path)
+{
+	m_data.emplace_back(new LoadingContent(path));
+	return *m_data.back();
+}
+
+template<LoaderConcept T>
+void FileLoader<T>::clear()
+{
+	m_data.clear();
+}
+template<LoaderConcept T>
+FileLoader<T> &FileLoader<T>::instance()
+{
+	// согласно стандарту, этот код ленивый и потокобезопасный
+	static bool created = false;
+	static FileLoader s;
+	if (!created)
+	{
+		LoaderContainer::loaders().push_back(&s);
+		created = true;
+	}
+	return s;
+}
+
+template<LoaderConcept T>
+bool FileLoader<T>::isLoad() const
+{
+	return is_load || !std::ranges::any_of(m_data, [](const value_type &value) {
+		return !value->isLoad();
+	});
+}
+
+template<LoaderConcept T>
+void FileLoader<T>::load(
+	const before_load_function_type &before_every_load, const after_load_function_type &after_every_load
+)
+{
+	for (auto &content: m_data)
+	{
+		before_every_load(*content);
+		content->load();
+		after_every_load(*content);
+	}
+	is_load = true;
+}
+template<LoaderConcept T>
+size_t FileLoader<T>::size() const
+{
+	return m_data.size();
+}
+
+template<LoaderConcept T>
+FileLoader<T>::FileLoader() = default;

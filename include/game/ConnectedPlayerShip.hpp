@@ -6,7 +6,7 @@
 
 class ConnectedPlayerShip final : public AbstractShip, public TransferObjectBase<ConnectedPlayerShip>
 {
-	inline static loading<sf::Texture> texture = FileLoader::Instance().addTextureToUpload("img/friend_ship.png").get();
+	inline static loading<sf::Texture> texture = TextureLoader::instance().addToUpload("img/friend_ship.png").get();
 
 public:
 	ConnectedPlayerShip();

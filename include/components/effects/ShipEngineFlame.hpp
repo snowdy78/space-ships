@@ -7,7 +7,7 @@
 class ShipEngineFlame : public rn::MonoBehaviour
 {
 	inline static loading<AnimatedSprite> static_effect
-		= FileLoader::Instance().addAnimatedSpriteToUpload("./img/animation/ship-engine", ".png").get();
+		= AnimationLoader::instance().addToUpload("./img/animation/ship-engine/.png").get();
 
 	friend class AbstractShip;
 

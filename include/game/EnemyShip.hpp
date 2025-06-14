@@ -9,7 +9,7 @@
 class EnemyShip final : public AbstractShip, public GameObjectBase<EnemyShip>
 {
 	using time_digit_type					   = std::chrono::milliseconds;
-	inline static loading<sf::Texture> texture = FileLoader::Instance().addTextureToUpload("img/enemy_ship.png").get();
+	inline static loading<sf::Texture> texture = TextureLoader::instance().addToUpload("img/enemy_ship.png").get();
 	inline static auto &self_config			   = config::instance().get("EnemyShip");
 	G_CONFIG_PROP_DEFINE(self_config, velocity);
 	G_CONFIG_PROP_DEFINE(self_config, min_target_distance);

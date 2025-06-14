@@ -64,10 +64,10 @@ protected:
 	template<WeaponConcept T, class... Args>
 	friend void assignGameWeaponToPlayer(AbstractShip &ship, Args &&...);
 	inline static loading<AnimatedSprite> destroy_animation
-		= FileLoader::Instance().addAnimatedSpriteToUpload("./img/animation/Explosion4", ".png").get();
-	inline static loading<sf::SoundBuffer> hit_buffer = FileLoader::Instance().addSoundToUpload("hit.ogg").get();
+		= AnimationLoader::instance().addToUpload("./img/animation/Explosion4/.png").get();
+	inline static loading<sf::SoundBuffer> hit_buffer = SoundLoader::instance().addToUpload("hit.ogg").get();
 	inline static loading<sf::SoundBuffer> destroy_buffer{
-		FileLoader::Instance().addSoundToUpload("./assets/explosion.wav").get()
+		SoundLoader::instance().addToUpload("./assets/explosion.wav").get()
 	};
 	sf::Sprite sprite;
 
