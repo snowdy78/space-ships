@@ -65,7 +65,7 @@ void Gameplay::update()
 	window.clear();
 	window.draw(background, bg_transform);
 	window.draw(GameManager::instance().effect_manager);
-	window.draw(space->field);
+	window.draw(*space);
 
 	window.draw(info, bg_transform);
 	window.display();

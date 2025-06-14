@@ -83,7 +83,16 @@ void GameSession::GameSessionSpaceField::onObjectDestroy(const StatePtrType &sta
 		return !state_ptr.expired() && !right.expired() && state_ptr.lock() == right.lock();
 	});
 	if (it_entity != level->end())
-	{
 		level->erase(it_entity);
+}
+
+void GameSession::draw(sf::RenderTarget &target, sf::RenderStates states) const
+{
+	if (m_level)
+	{
+		auto rs = states;
+		rs		= states.transform * camera.getTransform();
+		target.draw(*m_level, rs);
 	}
+	target.draw(field, states);
 }
