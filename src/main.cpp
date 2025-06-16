@@ -130,7 +130,7 @@ void loadGame(sf::RenderWindow &window)
 			static_cast<int>(progress_pointer.getPosition().x), static_cast<int>(percentage.getPosition().y)
 		);
 	};
-	sf::Thread thread([&]() {
+	std::thread thread([&]() {
 		LoaderContainer::loadAll(
 			[&](const LoadingContentBase &preload_data) {
 				mutex.lock();
@@ -148,7 +148,6 @@ void loadGame(sf::RenderWindow &window)
 		is_load = true;
 		mutex.unlock();
 	});
-	thread.launch();
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -172,6 +171,6 @@ void loadGame(sf::RenderWindow &window)
 		window.display();
 		mutex.unlock();
 	}
-	thread.wait();
+	thread.join();
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 }
