@@ -6,39 +6,40 @@
 #include "game/asteroids/SimpleAsteroid.hpp"
 
 Level1::Level1(SpaceField &field)
-	: AbstractLevel(field, Difficulty::Star1)
+	: LevelDestroyEnemies(field, Difficulty::Star1, *props::enemy_count)
 {
 	pool<EnemyShip, SimpleAsteroid>(
 		[](EnemyShip &enemy) {
 			if (GameManager::exist())
 			{
 				enemy.setTarget(GameManager::session()->player);
-				enemy.setPosition(
-					randomPointOutsideArea(
-						GameManager::session()->camera.getView().getViewport(),
-						std::max(enemy.getSize().x, enemy.getSize().y)
-					)
-				);
+				auto &camera = GameManager::session()->camera;
+				enemy.setPosition(randomPointOutsideArea(
+					{ camera.getPosition(), camera.getViewSize() }, std::max(enemy.getSize().x, enemy.getSize().y)
+				));
 			}
 		},
 		[](SimpleAsteroid &asteroid) {
-			randomBodyDirectionalOnAreaOutsideArea(
-				GameManager::session()->camera.getView().getViewport(), asteroid, *SimpleAsteroid::velocity,
-				asteroid.getSize()
-			);
+			if (GameManager::exist())
+			{
+				auto &camera = GameManager::session()->camera;
+				randomBodyDirectionalOnAreaOutsideArea(
+					{ camera.getPosition(), camera.getViewSize() }, asteroid, *SimpleAsteroid::velocity, asteroid.getSize()
+				);
+			}
 		}
 	);
 }
 
-void Level1::start()
+void Level1::afterHeaderShow()
 {
-	AbstractLevel::start();
-	summon_clock.start();
+	summon(std::min(remaining(), static_cast<size_t>(5)));
+	m_summon_clock.start();
 }
 
 void Level1::update()
 {
-	AbstractLevel::update();
+	LevelDestroyEnemies::update();
 }
 
 Level1::~Level1() = default;
@@ -48,36 +49,30 @@ std::unique_ptr<AbstractLevelFactory> Level1::next() const
 	return std::make_unique<Level1Factory>();
 }
 
-size_t Level1::factory_id() const
+size_t Level1::factoryId() const
 {
 	return Level1Factory::identifier;
 }
 
 void Level1::onSummon()
 {
-	enemy_remaining--;
-	summon_clock.reset();
-}
-
-bool Level1::nextLevelCondition() const
-{
-	return enemy_remaining == 0;
+	LevelDestroyEnemies::onSummon();
+	m_summon_clock.reset();
 }
 
 bool Level1::summonCondition() const
 {
-	return everyTime(clock, std::chrono::milliseconds(*props::summon_time));
+	return !nextLevelCondition() && everyTime(m_summon_clock, std::chrono::milliseconds(*props::summon_time));
 }
 
 AbstractLevel::PoolEntities::ConstIterator Level1::nextSummon() const
 {
 	if (rn::random::chance(*props::summon_chance))
-		return pool_find<SimpleAsteroid>();
-	return pool_find<EnemyShip>();
+		return poolFind<SimpleAsteroid>();
+	return poolFind<EnemyShip>();
 }
 
-std::string Level1::getDescription() const
+std::string Level1::getHeader() const
 {
-	return std::string("Destroy ") + std::to_string(enemy_remaining);
+	return "Level ";
 }
-
