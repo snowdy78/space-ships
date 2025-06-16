@@ -7,6 +7,7 @@
 
 #include "components/GameInfo.hpp"
 #include "exceptions/exceptions.hpp"
+#include "components/soft_parameter.hpp"
 
 #ifndef SPACE_SHIP_DEBUG
 	#define SPACE_SHIP_DEBUG
@@ -141,5 +142,3 @@ class Hittable;
 class AbstractAction;
 
 class ShootAction;
-
-#include "decl.inl"
