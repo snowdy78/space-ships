@@ -51,6 +51,16 @@ bool AbstractLevel::complete() const
 	return m_complete;
 }
 
+size_t AbstractLevel::getSummonPackSize() const
+{
+	return m_pack_size;
+}
+
+void AbstractLevel::setSummonPackSize(size_t pack_size)
+{
+	m_pack_size = pack_size;
+}
+
 void AbstractLevel::onSummon()
 {
 }
@@ -75,7 +85,6 @@ rn::Json AbstractLevel::toJson() const
 	return {
 		{ "factory_id", factoryId()								},
 		{ "difficulty", static_cast<std::uint8_t>(getDifficulty()) },
-
 	};
 }
 
@@ -126,7 +135,6 @@ void AbstractLevel::showHeader()
 	}
 	else
 		m_header->reset();
-	
 }
 
 void AbstractLevel::start()
@@ -144,11 +152,11 @@ void AbstractLevel::update()
 			afterHeaderShow();
 			m_header = nullptr;
 		}
-		else 
+		else
 			m_header->update();
 	}
 	if (summonCondition())
-		summon();
+		summon(m_pack_size);
 	if (nextLevelCondition())
 		m_complete = true;
 }
@@ -175,9 +183,7 @@ void AbstractLevel::clear()
 void AbstractLevel::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
 	if (!isDescriptionShown())
-	{
 		target.draw(*m_header, states);
-	}
 }
 
 AbstractLevel::PoolEntities::ObjectPtr AbstractLevel::PoolEntities::create(const ConstIterator iterator) const

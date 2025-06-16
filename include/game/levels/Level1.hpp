@@ -17,8 +17,7 @@ class Level1 final : public LevelDestroyEnemies
 
 public:
 	Level1(SpaceField &field);
-	~Level1() override;
-	
+
 	void afterHeaderShow() override;
 	void update() override;
 	std::unique_ptr<AbstractLevelFactory> next() const override;

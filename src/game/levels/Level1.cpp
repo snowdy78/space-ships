@@ -4,6 +4,7 @@
 #include "game/EnemyShip.hpp"
 #include "game/GameManager.hpp"
 #include "game/asteroids/SimpleAsteroid.hpp"
+#include "game/levels/Level2.hpp"
 
 Level1::Level1(SpaceField &field)
 	: LevelDestroyEnemies(field, Difficulty::Star1, *props::enemy_count)
@@ -42,11 +43,9 @@ void Level1::update()
 	LevelDestroyEnemies::update();
 }
 
-Level1::~Level1() = default;
-
 std::unique_ptr<AbstractLevelFactory> Level1::next() const
 {
-	return std::make_unique<Level1Factory>();
+	return std::make_unique<Level2Factory>();
 }
 
 size_t Level1::factoryId() const

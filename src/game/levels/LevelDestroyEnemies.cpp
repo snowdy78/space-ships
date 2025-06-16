@@ -1,14 +1,15 @@
 #include "game/levels/LevelDestroyEnemies.hpp"
+#include "Helpers.hpp"
 
 LevelDestroyEnemies::LevelDestroyEnemies(SpaceField &field, const Difficulty &difficulty, size_t enemy_remaining)
-	: AbstractLevel(field, difficulty), m_enemy_remaining(enemy_remaining)
+	: AbstractLevel(field, difficulty),
+	  m_enemy_remaining(enemy_remaining)
 {
-
 }
 
-void LevelDestroyEnemies::start()
+void LevelDestroyEnemies::afterHeaderShow()
 {
-	AbstractLevel::start();
+	AbstractLevel::afterHeaderShow();
 }
 
 void LevelDestroyEnemies::update()

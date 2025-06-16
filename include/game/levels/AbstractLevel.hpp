@@ -126,6 +126,7 @@ public:
 		template<class T>
 		using Container			= std::vector<T>;
 		using EntitiesContainer = Container<SpaceField::StatePtrType>;
+		using ValueType			= EntitiesContainer::value_type;
 		using Iterator			= EntitiesContainer::iterator;
 		using ConstIterator		= EntitiesContainer::const_iterator;
 		Entities(SpaceField &field, const PoolEntities &pool);
@@ -183,7 +184,9 @@ public:
 	float getDifficultyFactor() const;
 	virtual std::string getName() const;
 	bool complete() const;
+	size_t getSummonPackSize() const;
 
+	void setSummonPackSize(size_t pack_size);
 	virtual void onSummon();
 	virtual std::string getDescription() const;
 	virtual std::string getHeader() const;
@@ -205,7 +208,7 @@ private:
 	const Difficulty m_difficulty_type;
 	const float m_difficulty_factor = 1.f;
 	const float m_difficulty		= m_difficulty_factor * static_cast<float>(m_difficulty_type);
-
+	size_t m_pack_size				= 1;
 	std::unique_ptr<Header> m_header;
 	/**
 	 * @brief field reference
@@ -221,7 +224,7 @@ private:
 	 * @brief all created entities by level
 	 */
 	Entities m_entities{ m_field, m_pool };
-	bool m_complete		 = false;
+	bool m_complete = false;
 };
 
 template<FinalSpaceObjectConcept... Types>

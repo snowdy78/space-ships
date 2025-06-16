@@ -22,7 +22,7 @@
     "clear_shoot_sound_distance": 1000,
     "shoot_disperse_force": 1000,
     "disperse_angle": 5,
-    "rollback": 500 
+    "rollback": 500
   },
   "PlayerShip": {
     "shift_acceleration": 1.5
@@ -41,5 +41,9 @@
     "summon_chance": 0.35,
     "summon_time": 20000,
     "enemy_count": 10
+  },
+  "Level2": {
+    "enemy_count": 10,
+    "summon_count": 5
   }
 }
