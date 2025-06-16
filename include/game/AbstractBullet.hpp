@@ -8,15 +8,19 @@
 #include <optional>
 #include "ObjectWatcher.hpp"
 #include "SpaceField.hpp"
+#include "components/GameConfiguration.hpp"
 
 class AbstractBullet : public RigitBody2d, public Collidable, public DamageDealer
 {
+	struct props
+	{
+		inline static auto &self_config = config::instance().get("AbstractBullet");
+		G_CONFIG_PROP_DEFINE(self_config, destroy_after);
+	};
 	sf::Sprite sprite;
 
 	ObjectWatcher watcher;
-	rn::Stopwatch out_of_view_timer;
-	// TODO destroy after placed in config
-	constexpr static std::chrono::milliseconds destroy_after{1000};
+	rn::Stopwatch m_out_of_view_clock;
 	EllipseCollider collider;
 	std::optional<rn::Vec2f> size; // defined when texture is set
 

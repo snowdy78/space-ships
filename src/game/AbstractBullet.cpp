@@ -101,18 +101,18 @@ void AbstractBullet::onMove()
 	updateCollider();
 	if (checkOutside())
 	{
-		if (out_of_view_timer.is_stopped())
-			out_of_view_timer.start();
+		if (m_out_of_view_clock.is_stopped())
+			m_out_of_view_clock.start();
 	}
-	else if (!out_of_view_timer.is_stopped())
+	else if (!m_out_of_view_clock.is_stopped())
 	{
-		out_of_view_timer.stop();
-		out_of_view_timer.reset();
+		m_out_of_view_clock.stop();
+		m_out_of_view_clock.reset();
 	}
-	if (everyTime(out_of_view_timer, destroy_after))
+	if (everyTime(m_out_of_view_clock, std::chrono::milliseconds(*props::destroy_after)))
 	{
 		destroy();
-		out_of_view_timer.stop();
-		out_of_view_timer.reset();
+		m_out_of_view_clock.stop();
+		m_out_of_view_clock.reset();
 	}
 }

@@ -1,4 +1,6 @@
 #include "game/AbstractAsteroid.hpp"
+
+#include "Helpers.hpp"
 #include "game/GameManager.hpp"
 #include "game/actions/DestroySpaceFieldObjectAction.hpp"
 
@@ -41,6 +43,32 @@ void AbstractAsteroid::onMove()
 {
 	RigitBody2d::onMove();
 	updateCollider();
+	if (checkOutside())
+	{
+		if (m_out_of_view_clock.is_stopped())
+			m_out_of_view_clock.start();
+	}
+	else if (!m_out_of_view_clock.is_stopped())
+	{
+		m_out_of_view_clock.stop();
+		m_out_of_view_clock.reset();
+	}
+	if (everyTime(m_out_of_view_clock, std::chrono::milliseconds(*props::destroy_after)))
+	{
+		destroy();
+		m_out_of_view_clock.stop();
+		m_out_of_view_clock.reset();
+	}
+}
+
+bool AbstractAsteroid::checkOutside()
+{
+	if (!GameManager::exist())
+		return false;
+	m_watcher.setViewArea(
+		{ GameManager::session()->camera.getPosition(), GameManager::session()->camera.getViewSize() }
+	);
+	return m_watcher.isOutOfViewArea(getTransform().transformRect({ {}, *getSize() }));
 }
 
 void AbstractAsteroid::rotation()
