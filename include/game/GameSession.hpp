@@ -55,4 +55,5 @@ template<LevelConcept T>
 void GameSession::up_level()
 {
 	m_level = std::make_unique<T>(field);
+	m_level->start();
 }

@@ -1,6 +1,5 @@
 #include "game/GameManager.hpp"
 #include "game/PlayerShip.hpp"
-#include "game/levels/Level1.hpp"
 
 GameManager::OnlineTraits::OnlineTraits(sf::IpAddress host_ip, uint16_t host_port)
 	: tcp(std::make_shared<TcpRouter>(host_ip, host_port)),
@@ -29,7 +28,6 @@ void GameManager::createClient(OnlineTraits &&traits)
 void GameManager::create(sf::RenderTarget &target, func_update_on_move update_on_move)
 {
 	instance_ptr.reset(new GameManager(target, update_on_move));
-	instance_ptr->m_session.up_level<Level1>();
 }
 
 GameSession *GameManager::session()

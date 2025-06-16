@@ -1,5 +1,6 @@
 #include "game/GameSession.hpp"
 #include "game/PlayerShip.hpp"
+#include "game/levels/Level1.hpp"
 
 GameSession::GameSession(TargetCamera &&camera)
 	: LocalDriveSession(s_file_path),
@@ -21,6 +22,7 @@ void GameSession::start()
 		return;
 	auto player_val = player.lock();
 	player_val->setPosition(res / 2.f);
+	up_level<Level1>();
 }
 
 void GameSession::update()
@@ -88,11 +90,11 @@ void GameSession::GameSessionSpaceField::onObjectDestroy(const StatePtrType &sta
 
 void GameSession::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
+	target.draw(field, states);
 	if (m_level)
 	{
 		auto rs = states;
 		rs		= states.transform * camera.getTransform();
 		target.draw(*m_level, rs);
 	}
-	target.draw(field, states);
 }
