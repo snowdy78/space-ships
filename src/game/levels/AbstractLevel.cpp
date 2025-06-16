@@ -1,11 +1,30 @@
 #include "game/levels/AbstractLevel.hpp"
 
 #include "Helpers.hpp"
+#include "game/actions/LevelCompleteAction.hpp"
+#include "game/levels/AbstractLevel__Header.hpp"
 
 AbstractLevelFactory::~AbstractLevelFactory() = default;
 
+AbstractLevel::StarsSprite::StarsSprite(const Difficulty &difficulty)
+	: m_difficulty(difficulty)
+{
+	setSize(default_size);
+	setTexture(&*star_texture);
+}
+
+void AbstractLevel::StarsSprite::setSize(int size)
+{
+	setSize(
+		rn::Vec2f{
+			rn::Vec2i{ static_cast<int>(m_difficulty) * size, size }
+	 }
+	);
+}
+
 AbstractLevel::AbstractLevel(SpaceField &field, const Difficulty &difficulty)
 	: m_difficulty_type(difficulty),
+	  m_header(nullptr),
 	  m_field(field)
 {
 }
@@ -22,6 +41,30 @@ float AbstractLevel::getDifficultyFactor() const
 	return m_difficulty_factor;
 }
 
+std::string AbstractLevel::getName() const
+{
+	return "Level";
+}
+
+bool AbstractLevel::complete() const
+{
+	return m_complete;
+}
+
+void AbstractLevel::onSummon()
+{
+}
+
+std::string AbstractLevel::getDescription() const
+{
+	return "";
+}
+
+std::string AbstractLevel::getHeader() const
+{
+	return "";
+}
+
 float AbstractLevel::getDifficulty() const
 {
 	return m_difficulty;
@@ -30,17 +73,18 @@ float AbstractLevel::getDifficulty() const
 rn::Json AbstractLevel::toJson() const
 {
 	return {
-		{ "factory_id", factory_id()								 },
-		{ "difficulty", static_cast<std::uint8_t>(getDifficulty()) }
+		{ "factory_id", factoryId()								},
+		{ "difficulty", static_cast<std::uint8_t>(getDifficulty()) },
+
 	};
 }
 
-AbstractLevel::PoolEntities::ConstIterator AbstractLevel::pool_begin() const
+AbstractLevel::PoolEntities::ConstIterator AbstractLevel::poolBegin() const
 {
 	return m_pool.begin();
 }
 
-AbstractLevel::PoolEntities::ConstIterator AbstractLevel::pool_end() const
+AbstractLevel::PoolEntities::ConstIterator AbstractLevel::poolEnd() const
 {
 	return m_pool.end();
 }
@@ -65,18 +109,48 @@ AbstractLevel::Entities::Iterator AbstractLevel::end()
 	return m_entities.end();
 }
 
+bool AbstractLevel::isDescriptionShown() const
+{
+	return !m_header;
+}
+
+void AbstractLevel::showHeader()
+{
+	if (isDescriptionShown())
+	{
+		m_header.reset(new Header(m_difficulty_type));
+		m_header->setString(getHeader());
+		m_header->start();
+		if (auto camera = m_field.getCamera())
+			m_header->setPosition(rn::math::centerPadding(camera->getViewRect(), m_header->getSize()));
+	}
+	else
+		m_header->reset();
+	
+}
 
 void AbstractLevel::start()
 {
 	LogicalObject::start();
+	showHeader();
 }
 
 void AbstractLevel::update()
 {
-	if (summonCondition())
+	if (m_header)
 	{
-		summon();
+		if (m_header->shown())
+		{
+			afterHeaderShow();
+			m_header = nullptr;
+		}
+		else 
+			m_header->update();
 	}
+	if (summonCondition())
+		summon();
+	if (nextLevelCondition())
+		m_complete = true;
 }
 
 void AbstractLevel::summon(size_t count)
@@ -96,6 +170,14 @@ void AbstractLevel::erase(const Entities::ConstIterator &it)
 void AbstractLevel::clear()
 {
 	m_entities.clear();
+}
+
+void AbstractLevel::draw(sf::RenderTarget &target, sf::RenderStates states) const
+{
+	if (!isDescriptionShown())
+	{
+		target.draw(*m_header, states);
+	}
 }
 
 AbstractLevel::PoolEntities::ObjectPtr AbstractLevel::PoolEntities::create(const ConstIterator iterator) const

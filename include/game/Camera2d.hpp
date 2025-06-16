@@ -4,7 +4,7 @@
 
 class Camera2d : public sf::Transformable
 {
-	rn::Vec2f size;
+	rn::Vec2f m_viewsize;
 
 public:
 	Camera2d();
@@ -18,4 +18,5 @@ public:
 
     rn::Vec2f getViewSize() const;    
 	sf::View getView() const;
+	sf::FloatRect getViewRect() const;
 };

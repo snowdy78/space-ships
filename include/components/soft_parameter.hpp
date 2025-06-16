@@ -9,7 +9,10 @@ class soft_parameter : public rn::LogicalObject
 public:
 	using value_type	= T;
 	using duration_type = DurationT;
-	soft_parameter(T initial, T max, const duration_type &time, const duration_type &start_delay = duration_type(0));
+	explicit soft_parameter();
+	explicit soft_parameter(
+		T initial, T max, const duration_type &time, const duration_type &start_delay = duration_type(0)
+	);
 
 	void start() override;
 	bool strict() const;
@@ -26,6 +29,14 @@ private:
 	T m_value;
 	T m_max;
 };
+
+template<class T, class DurationT>
+soft_parameter<T, DurationT>::soft_parameter()
+	: m_time(duration_type(0)),
+	  m_value(0),
+	  m_max(0)
+{
+}
 
 template<class T, class DurationT>
 soft_parameter<T, DurationT>::soft_parameter(

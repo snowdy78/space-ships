@@ -2,4 +2,16 @@
 
 #include "coop/TransferableAction.hpp"
 
-class 
+class LevelCompleteAction : public TransferActionBase<LevelCompleteAction>
+{
+public:
+	LevelCompleteAction(const ActionProps &props)
+		: TransferActionBase(props)
+	{
+		
+	}
+	void play() override
+	{
+		
+	}
+};

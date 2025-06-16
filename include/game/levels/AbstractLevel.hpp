@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Font.hpp"
+#include "components/FileLoader.hpp"
 #include "components/Jsonable.hpp"
 #include "game/SpaceField.hpp"
 
@@ -10,7 +12,7 @@ template<class T>
 concept FinalSpaceObjectConcept
 	= std::is_base_of_v<SpaceFieldObject, T> && std::is_final_v<T> && requires() { T::identifier; };
 
-class AbstractLevel : public Jsonable, public rn::LogicalObject
+class AbstractLevel : public Jsonable, public rn::LogicalObject, public sf::Drawable
 {
 public:
 	struct PoolEntities
@@ -154,42 +156,57 @@ public:
 		Star4,
 		Star5
 	};
-
+	class StarsSprite;
+	class Header;
 	explicit AbstractLevel(SpaceField &field, const Difficulty &difficulty);
 	~AbstractLevel() override = 0;
 	rn::Json toJson() const final;
-	PoolEntities::ConstIterator pool_begin() const;
-	PoolEntities::ConstIterator pool_end() const;
+	PoolEntities::ConstIterator poolBegin() const;
+	PoolEntities::ConstIterator poolEnd() const;
 	Entities::ConstIterator begin() const;
 	Entities::Iterator begin();
 	Entities::ConstIterator end() const;
 	Entities::Iterator end();
+	bool isDescriptionShown() const;
+
+	/**
+	 * @brief calls once after description show
+	 */
+	virtual void afterHeaderShow()
+	{
+	}
+	void showHeader();
 	void start() override;
 	void update() override;
 	Difficulty getDifficultyType() const;
 	float getDifficulty() const;
 	float getDifficultyFactor() const;
-	virtual void onSummon()
-	{
-	}
-	virtual bool nextLevelCondition() const					   = 0;
+	virtual std::string getName() const;
+	bool complete() const;
+
+	virtual void onSummon();
+	virtual std::string getDescription() const;
+	virtual std::string getHeader() const;
+	virtual size_t factoryId() const						   = 0;
 	virtual bool summonCondition() const					   = 0;
-	virtual std::string getDescription() const				   = 0;
-	virtual std::unique_ptr<AbstractLevelFactory> next() const = 0;
-	virtual size_t factory_id() const						   = 0;
+	virtual bool nextLevelCondition() const					   = 0;
 	virtual PoolEntities::ConstIterator nextSummon() const	   = 0;
+	virtual std::unique_ptr<AbstractLevelFactory> next() const = 0;
 	template<FinalSpaceObjectConcept... Types>
 	void pool(PoolEntities::InitializerFunc<Types>... initializers);
 	template<FinalSpaceObjectConcept T>
-	PoolEntities::ConstIterator pool_find() const;
+	PoolEntities::ConstIterator poolFind() const;
 	void summon(size_t count = 1);
 	void erase(const Entities::ConstIterator &it);
 	void clear();
+	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 private:
 	const Difficulty m_difficulty_type;
 	const float m_difficulty_factor = 1.f;
 	const float m_difficulty		= m_difficulty_factor * static_cast<float>(m_difficulty_type);
+
+	std::unique_ptr<Header> m_header;
 	/**
 	 * @brief field reference
 	 */
@@ -204,6 +221,7 @@ private:
 	 * @brief all created entities by level
 	 */
 	Entities m_entities{ m_field, m_pool };
+	bool m_complete		 = false;
 };
 
 template<FinalSpaceObjectConcept... Types>
@@ -241,7 +259,7 @@ void AbstractLevel::pool(PoolEntities::InitializerFunc<Types>... initializers)
 }
 
 template<FinalSpaceObjectConcept T>
-AbstractLevel::PoolEntities::ConstIterator AbstractLevel::pool_find() const
+AbstractLevel::PoolEntities::ConstIterator AbstractLevel::poolFind() const
 {
 	return m_pool.find<T>();
 }

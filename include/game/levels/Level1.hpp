@@ -2,7 +2,7 @@
 
 #include "LevelFactory.hpp"
 #include "components/GameConfiguration.hpp"
-
+#include "Font.hpp"
 
 class Level1 final : public AbstractLevel
 {
@@ -14,16 +14,17 @@ class Level1 final : public AbstractLevel
 		G_CONFIG_PROP_DEFINE(self_config, enemy_count);
 	};
 	rn::Stopwatch summon_clock;
+	sf::Text description{ "", *Font::Default };
 	size_t enemy_remaining = *props::enemy_count;
 
 public:
 	Level1(SpaceField &field);
 	~Level1() override;
-
+	
 	void start() override;
 	void update() override;
 	std::unique_ptr<AbstractLevelFactory> next() const override;
-	size_t factory_id() const override;
+	size_t factoryId() const override;
 	void onSummon() override;
 	bool nextLevelCondition() const override;
 	bool summonCondition() const override;

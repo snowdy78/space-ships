@@ -2,11 +2,16 @@
 
 sf::View Camera2d::getView() const
 {
-	return sf::View(getTransform().transformRect({ {}, size }));
+	return sf::View(getViewRect());
+}
+
+sf::FloatRect Camera2d::getViewRect() const
+{
+	return getTransform().transformRect({ {}, getViewSize() });
 }
 
 Camera2d::Camera2d()
-	: size(rn::VideoSettings::getResolution())
+	: m_viewsize(rn::VideoSettings::getResolution())
 {}
 
 void Camera2d::setPosition(const rn::Vec2f &v)
@@ -36,5 +41,5 @@ void Camera2d::move(float x, float y)
 
 rn::Vec2f Camera2d::getViewSize() const
 {
-	return size;
+	return m_viewsize;
 }
