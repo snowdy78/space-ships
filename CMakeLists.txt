@@ -11,13 +11,12 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 include(FetchContent)
 
 function(target_link_sfml TARGET)
-    
-    target_link_libraries(${PROJECT_NAME} PUBLIC sfml-graphics)
-    target_link_libraries(${PROJECT_NAME} PUBLIC sfml-window)
-    target_link_libraries(${PROJECT_NAME} PUBLIC sfml-audio)
-    target_link_libraries(${PROJECT_NAME} PUBLIC sfml-system)
-    target_link_libraries(${PROJECT_NAME} PUBLIC sfml-network)
-    target_link_libraries(${PROJECT_NAME} PUBLIC sfml-main)
+    target_link_libraries(${TARGET} PUBLIC sfml-graphics)
+    target_link_libraries(${TARGET} PUBLIC sfml-window)
+    target_link_libraries(${TARGET} PUBLIC sfml-audio)
+    target_link_libraries(${TARGET} PUBLIC sfml-system)
+    target_link_libraries(${TARGET} PUBLIC sfml-network)
+    target_link_libraries(${TARGET} PUBLIC sfml-main)
 endfunction()
 
 
@@ -35,7 +34,6 @@ file(GLOB_RECURSE
     PROJECT_INCLUDE_FILES
     ${MY_PROJECT_SOURCE_DIR}/include/*.hpp
 )
-
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES} ${PROJECT_INCLUDE_FILES})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC RuneEngine)
