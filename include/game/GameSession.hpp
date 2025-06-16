@@ -22,6 +22,7 @@ public:
 	void onEvent(sf::Event &event) override;
 	template<LevelConcept T>
 	void up_level();
+	void up_level();
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 protected:

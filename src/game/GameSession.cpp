@@ -31,6 +31,8 @@ void GameSession::update()
 		const auto p = player.lock();
 	action_manager.update();
 	field.update();
+	if (m_level->complete())
+		up_level();
 	if (m_level)
 		m_level->update();
 }
@@ -86,6 +88,12 @@ void GameSession::GameSessionSpaceField::onObjectDestroy(const StatePtrType &sta
 	});
 	if (it_entity != level->end())
 		level->erase(it_entity);
+}
+
+void GameSession::up_level()
+{
+	auto factory = m_level->next();
+	m_level      = std::move(factory->create(field));
 }
 
 void GameSession::draw(sf::RenderTarget &target, sf::RenderStates states) const
