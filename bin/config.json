@@ -4,7 +4,7 @@
   },
   "AbstractAsteroid": {
     "destroy_after":  1500
-  }
+  },
   "BaseBullet": {
     "damage": 25,
     "velocity": 28,

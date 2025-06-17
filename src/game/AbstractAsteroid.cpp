@@ -68,7 +68,7 @@ bool AbstractAsteroid::checkOutside()
 	m_watcher.setViewArea(
 		{ GameManager::session()->camera.getPosition(), GameManager::session()->camera.getViewSize() }
 	);
-	return m_watcher.isOutOfViewArea(getTransform().transformRect({ {}, *getSize() }));
+	return m_watcher.isOutOfViewArea(getTransform().transformRect({ {}, getSize() }));
 }
 
 void AbstractAsteroid::rotation()
