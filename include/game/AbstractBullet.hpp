@@ -41,7 +41,7 @@ public:
 	const std::optional<rn::Vec2f> &getSize() const;
 	void movement() override;
 	void onMove() override;
-	void onCollisionEnter(Collidable *obstacle) override;
+	void onCollisionEnter(const Collidable* obstacle) override;
 	const Collider *getCollider() const override;
 
 	bool resolve(const Collidable *collidable) const override;

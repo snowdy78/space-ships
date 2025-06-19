@@ -15,10 +15,12 @@ AbstractLevel::StarsSprite::StarsSprite(const Difficulty &difficulty)
 
 void AbstractLevel::StarsSprite::setSize(int size)
 {
-	setSize(
-		rn::Vec2f{
-			rn::Vec2i{ static_cast<int>(m_difficulty) * size, size }
-	 }
+	setSize({ static_cast<float>(m_difficulty) * static_cast<float>(size), static_cast<float>(size) });
+	setTextureRect(
+		{
+			{ 0, 0 },
+			rn::Vec2i(star_texture->getSize().x*static_cast<int>(m_difficulty), star_texture->getSize().y)
+	   }
 	);
 }
 

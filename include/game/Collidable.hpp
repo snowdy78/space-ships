@@ -15,45 +15,45 @@ public:
 		Update,
 		End
 	};
-	struct collision_traits
+	struct CollisionTraits
 	{
-		bool before			 = false;
-		bool current		 = false;
-		CollisionState state = None;
-		friend class Collidable;
-
-	public:
-		collision_traits(bool is_collide);
+		CollisionTraits(bool is_collide);
 		void reset();
 		void set(bool is_collide);
 		bool getCurrent() const;
+		CollisionState getState() const;
 		bool getBefore() const;
+	private:
+		bool before			 = false;
+		bool current		 = false;
+		CollisionState state = None;
 	};
 
 private:
 	using thread_array = std::array<std::shared_ptr<sf::Thread>, 6>;
+	using states_map_type = std::map<const Collidable *, CollisionTraits>;
 	inline static std::vector<Collidable *> collidables{};
-	inline static constexpr float min_collision_distance = 25.f;
+	static constexpr float min_collision_distance = 25.f;
 	static thread_array threads;
 
-	std::map<Collidable *, collision_traits> collision_states{};
-	void setCollisionState(Collidable *obstacle, bool value);
+	states_map_type m_collision_states{};
+	void setCollisionState(const Collidable *obstacle, bool value);
 	static bool collideChunk(size_t start);
 	static void collideObjects(Collidable *collidable, Collidable *obstacle);
-	void updateState(Collidable *obstacle);
+	void updateState(const Collidable *obstacle);
 
 public:
 	Collidable();
-	virtual ~Collidable() = 0;
+	~Collidable() override = 0;
 	virtual const Collider *getCollider() const = 0;
 	static void updateCollisionState();
-	virtual void onCollisionEnter(Collidable *collidable) {}
-	virtual void onCollisionUpdate(Collidable *collidable) {}
-	virtual void onCollisionEnd(Collidable *collidable) {}
-	Collidable *getObstacle(size_t index);
-	const Collidable *getObstacle(size_t index) const;
+	virtual void onCollisionEnter(const Collidable* collidable) {}
+	virtual void onCollisionUpdate(const Collidable* collidable) {}
+	virtual void onCollisionEnd(const Collidable* collidable) {}
+	const states_map_type &getCollisionStates() const;
 	size_t getCollisionCount() const;
-	CollisionState getCollisionState(Collidable *obstacle) const;
+	std::optional<CollisionTraits> getCollisionTraits(const Collidable *obstacle) const;
+	CollisionState getCollisionState(const Collidable *obstacle) const;
 	/**
 	 * \brief Resolves a collision between this Bullet and the given Collidable.
 	 *

@@ -4,19 +4,19 @@
 #include "game/colliders/EllipseCollider.hpp"
 #include "game/colliders/PolygonCollider.hpp"
 
-void Collidable::collision_traits::reset()
+void Collidable::CollisionTraits::reset()
 {
 	before	= false;
 	current = false;
 }
-void Collidable::collision_traits::set(bool is_collide)
+void Collidable::CollisionTraits::set(bool is_collide)
 {
 	before	= current;
 	current = is_collide;
 
-	if (current && !before)
+	if ((state == None || state == End) && current && !before)
 		state = Enter;
-	else if (current && before)
+	else if (state != End && state != None && current && before)
 		state = Update;
 	else if (!current && before)
 		state = End;
@@ -24,15 +24,21 @@ void Collidable::collision_traits::set(bool is_collide)
 		state = None;
 }
 
-bool Collidable::collision_traits::getCurrent() const
+bool Collidable::CollisionTraits::getCurrent() const
 {
 	return current;
 }
-bool Collidable::collision_traits::getBefore() const
+bool Collidable::CollisionTraits::getBefore() const
 {
 	return before;
 }
-Collidable::collision_traits::collision_traits(bool is_collide)
+
+Collidable::CollisionState Collidable::CollisionTraits::getState() const
+{
+	return state;
+}
+
+Collidable::CollisionTraits::CollisionTraits(bool is_collide)
 {
 	set(is_collide);
 }
@@ -48,20 +54,18 @@ Collidable::~Collidable()
 	{
 		collidables.erase(i);
 		for (const auto &collidable: collidables)
-		{
-			if (auto it = collidable->collision_states.find(this); it != collidable->collision_states.end())
-				collidable->collision_states.erase(it);
-		}
+			if (auto it = collidable->m_collision_states.find(this); it != collidable->m_collision_states.end())
+				collidable->m_collision_states.erase(it);
 	}
 }
 
-Collidable::CollisionState Collidable::getCollisionState(Collidable *obstacle) const
+Collidable::CollisionState Collidable::getCollisionState(const Collidable *obstacle) const
 {
-	auto it = collision_states.find(obstacle);
-	if (it == collision_states.end())
+	auto it = m_collision_states.find(obstacle);
+	if (it == m_collision_states.end())
 		return None;
 
-	return it->second.state;
+	return it->second.getState();
 }
 
 Collidable::thread_array Collidable::threads = ([]() {
@@ -72,7 +76,9 @@ Collidable::thread_array Collidable::threads = ([]() {
 			size_t ss	= collidables.size();
 			size_t cap	= threads.size() + 1;
 			size_t oddy = collidables.size() % cap;
-			size_t size = static_cast<size_t>(std::floorf((static_cast<float>(ss) - static_cast<float>(oddy)) / static_cast<float>(cap)));
+			size_t size = static_cast<size_t>(
+				std::floorf((static_cast<float>(ss) - static_cast<float>(oddy)) / static_cast<float>(cap))
+			);
 			for (size_t m = i * size; m < (i + 1) * size; m++)
 			{
 				mutex.lock();
@@ -93,34 +99,24 @@ void Collidable::updateCollisionState()
 	if (collidables.empty())
 		return;
 	for (auto &thread: threads)
-	{
 		thread->launch();
-	}
 	size_t ss	= collidables.size();
 	size_t cap	= threads.max_size() + 1;
 	size_t size = static_cast<size_t>(std::floorf(static_cast<float>(ss) / static_cast<float>(cap))) + ss % cap;
 	for (size_t i = 0; i < size; i++)
-	{
 		if (!collideChunk(i))
 			break;
-	}
 	for (auto &thread: threads)
-	{
 		thread->wait();
-	}
 	for (auto &collidable: collidables)
-	{
-		for (auto &state: collidable->collision_states)
-		{
+		for (auto &state: collidable->m_collision_states)
 			collidable->updateState(state.first);
-		}
-	}
 }
 void Collidable::collideObjects(Collidable *collidable, Collidable *obstacle)
 {
-	auto o1 = dynamic_cast<sf::Transformable *>(obstacle);
-	auto o2 = dynamic_cast<sf::Transformable *>(collidable);
-	if (o1 && o2 && rn::math::length(o1->getPosition() - o2->getPosition()) > min_collision_distance)
+	if (collidable && obstacle
+		&& !rn::math::rectangle(obstacle->getCollider()->getBounds())
+			   .collide(rn::math::rectangle(collidable->getCollider()->getBounds())))
 		return;
 
 	auto el = dynamic_cast<const EllipseCollider *>(obstacle->getCollider());
@@ -132,16 +128,11 @@ void Collidable::collideObjects(Collidable *collidable, Collidable *obstacle)
 		is_collide = collidable->getCollider()->collide(*el);
 	else
 		is_collide = collidable->getCollider()->collide(*pl);
-	auto &obstates	 = obstacle->collision_states;
-	auto &collstates = collidable->collision_states;
-	if (!is_collide && !obstates.contains(collidable) && !collstates.contains(obstacle))
-		return;
-
 	collidable->setCollisionState(obstacle, is_collide);
 	if (obstacle->resolve(collidable))
 		obstacle->setCollisionState(collidable, is_collide);
 }
-void Collidable::updateState(Collidable *obstacle)
+void Collidable::updateState(const Collidable *obstacle)
 {
 	auto state = getCollisionState(obstacle);
 	if (state == Enter)
@@ -151,13 +142,16 @@ void Collidable::updateState(Collidable *obstacle)
 	else if (state == End)
 		onCollisionEnd(obstacle);
 }
-void Collidable::setCollisionState(Collidable *obstacle, bool value)
+void Collidable::setCollisionState(const Collidable *obstacle, bool value)
 {
-	const auto it = collision_states.find(obstacle);
-	if (it == collision_states.end())
+	const auto it = m_collision_states.find(obstacle);
+	if (it == m_collision_states.end())
 	{
-		// append collision enter state
-		collision_states.emplace(obstacle, value);
+		if (value)
+		{
+			// append collision enter state
+			m_collision_states.emplace(obstacle, value);
+		}
 		return;
 	}
 	auto &traits = it->second;
@@ -165,9 +159,9 @@ void Collidable::setCollisionState(Collidable *obstacle, bool value)
 	traits.set(value);
 
 	// if no collision remove state
-	if (!traits.current && !traits.before)
+	if (!traits.getCurrent() && !traits.getBefore())
 	{
-		collision_states.erase(obstacle);
+		m_collision_states.erase(obstacle);
 	}
 }
 bool Collidable::collideChunk(size_t start)
@@ -175,24 +169,23 @@ bool Collidable::collideChunk(size_t start)
 	if (start == collidables.size() - 1)
 		return false;
 	for (size_t i = start + 1; i < collidables.size(); i++)
-	{
 		collideObjects(collidables[start], collidables[i]);
-	}
 	return true;
 }
-Collidable *Collidable::getObstacle(size_t index)
+const Collidable::states_map_type & Collidable::getCollisionStates() const
 {
-	auto it = collision_states.begin();
-	std::advance(it, index);
-	return it->first;
+	return m_collision_states;
 }
-const Collidable *Collidable::getObstacle(size_t index) const
-{
-	auto it = collision_states.begin();
-	std::advance(it, index);
-	return it->first;
-}
+
 size_t Collidable::getCollisionCount() const
 {
-	return collision_states.size();
+	return m_collision_states.size();
+}
+
+std::optional<Collidable::CollisionTraits> Collidable::getCollisionTraits(const Collidable *obstacle) const
+{
+	auto it = m_collision_states.find(obstacle);
+	if (it != m_collision_states.end())
+		return it->second;
+	return std::nullopt;
 }

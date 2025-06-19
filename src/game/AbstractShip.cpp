@@ -79,12 +79,14 @@ const Collider *AbstractShip::getCollider() const
 }
 void AbstractShip::updateCollider()
 {
-	rn::Circle circle{ getSize().x / 2.f };
-	circle.setPosition(getPosition());
-	circle.setOrigin(getOrigin());
-	circle.setRotation(getRotation());
-	circle.setScale(getScale());
-	collider.transform(rn::math::ellipse(circle));
+	m_collider_widget.setRadius(getSize().x / 2.f);
+	m_collider_widget.setFillColor({ 0, 210, 160, 64 });
+	m_collider_widget.setPosition(getPosition());
+	m_collider_widget.setOrigin(getOrigin());
+	m_collider_widget.setRotation(getRotation());
+	m_collider_widget.setScale(getScale());
+	
+	collider.transform(rn::math::ellipse(m_collider_widget));
 }
 size_t AbstractShip::generateTeamHash(const sf::String &name)
 {
@@ -96,9 +98,9 @@ bool AbstractShip::resolve(const Collidable *collidable) const
 	bool state	= bullet && (bullet->author_ptr.expired() || bullet->author_ptr.lock() != gun);
 	return state;
 }
-void AbstractShip::onCollisionEnter(Collidable *collidable)
+void AbstractShip::onCollisionEnter(const Collidable* collidable)
 {
-	if (auto dd = dynamic_cast<DamageDealer *>(collidable); GameManager::exist() && existOnField() && dd->existOnField())
+	if (auto dd = dynamic_cast<const DamageDealer *>(collidable); GameManager::exist() && existOnField() && dd->existOnField())
 		GameManager::session()->action_manager.emplaceToTop<TakeDamageAction>(TransferableActionProps{ self(),
 																									   dd->self() });
 }
@@ -178,5 +180,9 @@ void AbstractShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	states.transform *= getTransform();
 	target.draw(m_engine_effect);
 	target.draw(sprite, states);
+	if (static_cast<int>(*collider_visible) == 1)
+	{
+		target.draw(m_collider_widget, st);
+	}
 	target.draw(health_bar, st);
 }

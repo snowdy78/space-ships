@@ -61,9 +61,9 @@ const sf::Sprite &AbstractBullet::getSprite() const
 {
 	return sprite;
 }
-void AbstractBullet::onCollisionEnter(Collidable *obstacle)
+void AbstractBullet::onCollisionEnter(const Collidable* obstacle)
 {
-	if (auto hittable = dynamic_cast<Hittable *>(obstacle);
+	if (auto hittable = dynamic_cast<const Hittable *>(obstacle);
 		GameManager::exist() && existOnField() && hittable->existOnField())
 	{
 		GameManager::session()->action_manager.emplaceToTop<DestroySpaceFieldObjectAction>(TransferableActionProps{

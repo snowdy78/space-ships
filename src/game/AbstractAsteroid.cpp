@@ -101,7 +101,7 @@ const Collider *AbstractAsteroid::getCollider() const
 	return &collider;
 }
 
-void AbstractAsteroid::onCollisionEnter(Collidable *obstacle)
+void AbstractAsteroid::onCollisionEnter(const Collidable* obstacle)
 {
 	if (GameManager::exist() && existOnField())
 	{

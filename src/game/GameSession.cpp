@@ -6,6 +6,13 @@
 #include "game/asteroids/SimpleAsteroid.hpp"
 #include "game/actions/AbstractSummonAction.hpp"
 #include "game/levels/Level1.hpp"
+#include "game/levels/EmptyLevel.hpp"
+#ifndef REMOVE_TESTING_SESSION
+	#define REMOVE_TESTING_SESSION
+#endif
+#ifndef REMOVE_TESTING_SESSION
+	#define TESTING_SESSION
+#endif
 
 struct SummonShipAction;
 
@@ -31,15 +38,17 @@ void GameSession::start()
 	m_background.start();
 	action_manager.start();
 	field.start();
-	if (m_level)
-		m_level->start();
 	createPlayer();
 	if (player.expired())
 		return;
 	auto player_val = player.lock();
 	rn::Vec2f res{ rn::VideoSettings::getResolution() };
 	player_val->setPosition(res / 2.f);
+#ifdef TESTING_SESSION
+	up_level<EmptyLevel>();
+#else
 	up_level<Level1>();
+#endif
 	m_gameinfo.setVisible(static_cast<bool>(m_mode));
 }
 

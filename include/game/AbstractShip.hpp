@@ -56,7 +56,7 @@ public:
 	void onRotation() override;
 	void onMove() override;
 	void onHit() override;
-	void onCollisionEnter(Collidable *collidable) override;
+	void onCollisionEnter(const Collidable* collidable) override;
 	bool resolve(const Collidable *collidable) const override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
@@ -77,10 +77,12 @@ private:
 	G_CONFIG_PROP_DEFINE(self_config, clear_destroy_sound_distance);
 	G_CONFIG_PROP_DEFINE(self_config, hit_sound_disperse_radius);
 	G_CONFIG_PROP_DEFINE(self_config, destroy_sound_disperse_radius);
+	G_CONFIG_PROP_DEFINE(self_config, collider_visible);
 
 	SpaceField::State<AbstractWeapon> gun{ nullptr };
 	ShipEngineFlame m_engine_effect;
 	EllipseCollider collider;
+	sf::CircleShape m_collider_widget;
 	SoundDisperseTraits hit_sound_traits{ *clear_hit_sound_distance, *hit_sound_disperse_radius };
 	SoundDisperseTraits destroy_sound_traits{ *clear_destroy_sound_distance, *destroy_sound_disperse_radius };
 

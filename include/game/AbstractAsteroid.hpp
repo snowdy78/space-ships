@@ -29,10 +29,10 @@ public:
 	void update() override;
 	virtual void updateCollider() = 0;
 	const Collider *getCollider() const override;
-	void onCollisionEnter(Collidable *obstacle) override;
+	void onCollisionEnter(const Collidable *obstacle) override;
 	bool resolve(const Collidable *obstacle) const override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
-	
+
 protected:
 	PolygonCollider collider;
 	float m_density = 1.0f;
