@@ -187,6 +187,7 @@ GameSession::Mode GameSession::mode() const
 void GameSession::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
 	target.draw(m_background, states);
+	target.draw(GameManager::instance().effect_manager, states);
 	target.draw(field, states);
 	auto relative_camera = states;
 	relative_camera.transform		*= camera.getTransform();

@@ -6,9 +6,8 @@
 #include "coop/TcpRouter.hpp"
 #include "coop/UdpRouter.hpp"
 #include "GameSession.hpp"
-#include "components/Background.hpp"
 
-class GameManager 
+class GameManager
 {
 public:
     struct OnlineTraits

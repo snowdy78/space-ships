@@ -38,7 +38,6 @@ void Gameplay::update()
 		return;
 	updateObjectsState();
 	window.clear();
-	window.draw(GameManager::instance().effect_manager);
 	window.draw(*space);
 	window.display();
 }
