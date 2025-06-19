@@ -44,7 +44,11 @@ void Background::start()
 	m_velocity_layer2 = { *props::velocity_layer2_t::x, *props::velocity_layer2_t::y };
 	setPosition(0, 0);
 	layer1.setTexture(*background_image1);
-	shader.setUniform("iResolution", rn::Vec2f(res));
+	layer1.setScale(3, 3);
+	auto resf = rn::Vec2f(res);
+
+	layer1.setOrigin(resf / 2.f);
+	shader.setUniform("iResolution", resf);
 }
 
 void Background::update()
