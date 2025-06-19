@@ -68,6 +68,7 @@ public:
 	const ItemContainerType &items() const;
 	template<class T, class ...Args>
 	StatePtr<SpaceItem> emplaceItem(Args &&...args);
+	StatePtr<SpaceItem> pushItem(SpaceItem *item);
 	State<SpaceItem> take(const ItemConstIterator &iterator);
 	ItemConstIterator find(const StatePtr<SpaceItem> &ptr) const;
 	template<class T, class... Args>

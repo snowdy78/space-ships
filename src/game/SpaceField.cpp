@@ -77,6 +77,14 @@ const SpaceField::ItemContainerType & SpaceField::items() const
 	return m_items;
 }
 
+SpaceField::StatePtr<SpaceItem> SpaceField::pushItem(SpaceItem *item)
+{
+	std::shared_ptr<SpaceItem> shared_ptr{ item };
+	m_items.push_back(shared_ptr);
+	item->m_self = shared_ptr;
+	return shared_ptr;
+}
+
 SpaceField::State<SpaceItem> SpaceField::take(const ItemConstIterator &iterator)
 {
 	ItemContainerType::value_type ptr = *iterator;
