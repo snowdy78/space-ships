@@ -1,4 +1,6 @@
 #include "components/Background.hpp"
+
+#include "Helpers.hpp"
 #include "components/FileLoader.hpp"
 
 loading<sf::Texture> Background::background_image1 = TextureLoader::instance().addToUpload("img/background1.png").get();
@@ -38,9 +40,9 @@ void Background::move(float offset_x, float offset_y)
 
 void Background::start()
 {
+	m_velocity_layer1 = { *props::velocity_layer1_t::x, *props::velocity_layer1_t::y };
+	m_velocity_layer2 = { *props::velocity_layer2_t::x, *props::velocity_layer2_t::y };
 	setPosition(0, 0);
-	std::cout << *props::velocity_layer1 << "\n";
-	std::cout << *props::velocity_layer2 << "\n";
 	layer1.setTexture(*background_image1);
 	shader.setUniform("iResolution", rn::Vec2f(res));
 }
@@ -57,16 +59,21 @@ void Background::onEvent(sf::Event &event)
 
 void Background::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
+	states.transform *= getTransform();
 	target.draw(shader, states);
 	target.draw(layer1, states);
 }
 
 void Background::onMove(const rn::Vec2f &pos_before)
 {
-	float v1 = *props::velocity_layer1, v2 = *props::velocity_layer2;
-	m_shader_position -= notZeroPosition(getPosition(), rn::math::norm(getPosition() - pos_before) * v1);
+	rn::Vec2f p = rn::math::norm(getPosition() - pos_before);
+	p.x *= m_velocity_layer1.x;
+	p.y *= m_velocity_layer1.y;
+	m_shader_position -= notZeroPosition(getPosition(), p);
 	shader.setUniform<rn::Vec2f>("iPosition", m_shader_position);
-	shader.setPosition(getPosition());
-	m_layer1_position -= notZeroPosition(getPosition(), rn::math::norm(getPosition() - pos_before) * v2);
+	p = rn::math::norm(getPosition() - pos_before);
+	p.x *= m_velocity_layer2.x;
+	p.y *= m_velocity_layer2.y;
+	m_layer1_position -= notZeroPosition(getPosition(), p);
 	layer1.setPosition(m_layer1_position);
 }

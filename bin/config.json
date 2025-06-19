@@ -1,7 +1,13 @@
 {
   "Background": {
-    "velocity_layer1": 0.1,
-    "velocity_layer2": 0.2
+    "velocity_layer1": {
+      "x": 1,
+      "y": 0.5
+    },
+    "velocity_layer2": {
+      "x": 2,
+      "y": 1
+    }
   },
   "AbstractBullet": {
     "destroy_after": 1500

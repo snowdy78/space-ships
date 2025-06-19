@@ -10,12 +10,22 @@ class Background : public rn::MonoBehaviour
 	{
 		inline static auto &self_config = config::instance().get("Background");
 		G_CONFIG_PROP_DEFINE(self_config, velocity_layer1);
+		struct velocity_layer1_t
+		{
+			G_CONFIG_PROP_DEFINE(velocity_layer1, x);
+			G_CONFIG_PROP_DEFINE(velocity_layer1, y);
+		};
 		G_CONFIG_PROP_DEFINE(self_config, velocity_layer2);
+		struct velocity_layer2_t
+		{
+			G_CONFIG_PROP_DEFINE(velocity_layer2, x);
+			G_CONFIG_PROP_DEFINE(velocity_layer2, y);
+		};
 	};
 	rn::Vec2u res = rn::VideoSettings::getResolution();
 	rn::ShaderTexture shader{ res, "space.frag", sf::Shader::Fragment };
-	rn::Vec2f m_shader_position;
-	rn::Vec2f m_layer1_position;
+	rn::Vec2f m_shader_position, m_layer1_position;
+	rn::Vec2f m_velocity_layer1, m_velocity_layer2;
 	sf::Sprite layer1;
 	sf::Clock clock;
 
