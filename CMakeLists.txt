@@ -40,5 +40,5 @@ target_link_libraries(${PROJECT_NAME} PUBLIC RuneEngine)
 target_link_sfml(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PRIVATE ${MY_PROJECT_SOURCE_DIR}/include)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
-
+set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
 add_subdirectory(test)
