@@ -47,8 +47,14 @@ bool AbstractWeapon::hasRollback() const
 	return has_rollback;
 }
 
+bool AbstractWeapon::isAutomatic() const
+{
+	return false;
+}
+
 void AbstractWeapon::update()
 {
+	SpaceItem::update();
 	if (has_rollback && everyTime(clock, getRollback()))
 	{
 		clock.stop();

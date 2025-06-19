@@ -180,9 +180,16 @@ void AbstractShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	states.transform *= getTransform();
 	target.draw(m_engine_effect);
 	target.draw(sprite, states);
-	if (static_cast<int>(*collider_visible) == 1)
+	try
 	{
-		target.draw(m_collider_widget, st);
+		if (static_cast<bool>(*collider_visible))
+		{
+			target.draw(m_collider_widget, st);
+		}
+	} catch (std::exception &err)
+	{
+		std::cerr << err.what() << ": AbstractShip collider_visible is not boolean ";
+		throw;
 	}
 	target.draw(health_bar, st);
 }

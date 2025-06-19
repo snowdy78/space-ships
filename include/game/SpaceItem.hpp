@@ -2,9 +2,20 @@
 
 #include "SpaceFieldObject.hpp"
 #include "SpaceFieldStatement.hpp"
+#include "components/FileLoader.hpp"
 
-class SpaceItem : virtual GameObject, public SpaceFieldStatement
+class SpaceItem : virtual GameObject,
+				  public SpaceFieldStatement,
+				  public sf::Drawable,
+				  public sf::Transformable,
+				  public rn::LogicalObject
 {
+
+	inline static loading<AnimatedSprite> item_cell_top_layer
+		= AnimationLoader::instance().addToUpload("img/animation/itemcell/top layer/.png").get();
+	inline static loading<AnimatedSprite> item_cell_bottom_layer
+		= AnimationLoader::instance().addToUpload("img/animation/itemcell/bottom layer/.png").get();
+
 public:
 	using OwnerPtrType = std::weak_ptr<SpaceFieldStatement>;
 	void assignOwner(OwnerPtrType owner)
@@ -27,7 +38,15 @@ public:
 	{
 		return !owner_ptr.expired();
 	}
+	virtual const sf::Drawable &getItemSprite() const = 0;
+	void draw(sf::RenderTarget &target, sf::RenderStates states) const override
+	{
+		states.transform *= getTransform();
+		target.draw(*item_cell_bottom_layer, states);
+		target.draw(getItemSprite(), states);
+		target.draw(*item_cell_top_layer, states);
+	}
+
 private:
 	OwnerPtrType owner_ptr;
 };
-

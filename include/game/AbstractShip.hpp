@@ -56,7 +56,7 @@ public:
 	void onRotation() override;
 	void onMove() override;
 	void onHit() override;
-	void onCollisionEnter(const Collidable* collidable) override;
+	void onCollisionEnter(const Collidable *collidable) override;
 	bool resolve(const Collidable *collidable) const override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
@@ -72,14 +72,17 @@ protected:
 	sf::Sprite sprite;
 
 private:
-	inline static auto &self_config				 = config::instance().get("AbstractShip");
+	inline static auto &self_config = config::instance().get("AbstractShip");
 	G_CONFIG_PROP_DEFINE(self_config, clear_hit_sound_distance);
 	G_CONFIG_PROP_DEFINE(self_config, clear_destroy_sound_distance);
 	G_CONFIG_PROP_DEFINE(self_config, hit_sound_disperse_radius);
 	G_CONFIG_PROP_DEFINE(self_config, destroy_sound_disperse_radius);
 	G_CONFIG_PROP_DEFINE(self_config, collider_visible);
 
+protected:
 	SpaceField::State<AbstractWeapon> gun{ nullptr };
+
+private:
 	ShipEngineFlame m_engine_effect;
 	EllipseCollider collider;
 	sf::CircleShape m_collider_widget;
@@ -88,7 +91,8 @@ private:
 
 	size_t m_team_hash = 0;
 	rn::Vec2f m_move_dir{};
-};
+}
+;
 
 template<WeaponConcept T, class... Args>
 void assignGameWeaponToPlayer(AbstractShip &ship, Args &&...args)

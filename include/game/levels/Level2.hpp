@@ -15,7 +15,8 @@ class Level2 final : public LevelDestroyEnemies
 
 public:
 	Level2(SpaceField &field);
-	
+
+	void start() override;
 	void afterHeaderShow() override;
 	size_t factoryId() const override;
 	std::unique_ptr<AbstractLevelFactory> next() const override;

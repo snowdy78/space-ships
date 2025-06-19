@@ -15,6 +15,7 @@ public:
 	void update() override;
 	void onSummon() override;
 	bool nextLevelCondition() const override;
+	std::string getHeader() const override;
 	std::string getDescription() const override;
 
 private:

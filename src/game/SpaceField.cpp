@@ -121,6 +121,8 @@ void SpaceField::onObjectDestroy(const StatePtrType &state_ptr) const
 
 void SpaceField::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
+	for (auto &item: m_items)
+		target.draw(*item, states);
 	for (auto &iterator: m_objects)
 		target.draw(*iterator, states);
 }

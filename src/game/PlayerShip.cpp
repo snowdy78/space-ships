@@ -77,8 +77,12 @@ void PlayerShip::onEvent(sf::Event &event)
 	using Key	  = sf::Keyboard::Key;
 	AbstractShip::onEvent(event);
 	auto classification = basic_controls.find(PlayerControlsTypeSep::WindowEvent);
-	if (classification.oneOf<ShootProps, MButton>(rn::isKeydown))
+	if (gun
+		&& (!gun->isAutomatic() && classification.oneOf<ShootProps, MButton>(rn::isKeydown)
+			|| gun->isAutomatic() && classification.oneOf<ShootProps, MButton>(rn::isKeyhold)))
+	{
 		shoot();
+	}
 	classification.pushActionIfOneOf<AccelerationProps, Key>(
 		rn::isKeydown, { self(), std::nullopt, rn::Json{ { AccelerateShipAction::acceleration, *shift_acceleration } } }
 	);

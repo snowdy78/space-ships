@@ -3,7 +3,7 @@
 #include "decl.hpp"
 #include "game/SpaceItem.hpp"
 
-class AbstractWeapon : public SpaceItem, public rn::LogicalObject, public sf::Transformable
+class AbstractWeapon : public SpaceItem
 {
 	rn::Stopwatch clock;
 	bool has_rollback = false;
@@ -20,6 +20,7 @@ public:
 	virtual AbstractWeapon *copy() const	= 0;
 	virtual rn::Vec2f getTrajectory() const = 0;
 	bool hasRollback() const;
+	virtual bool isAutomatic() const;
 	void update() override;
 	virtual std::chrono::milliseconds getRollback() const;
 

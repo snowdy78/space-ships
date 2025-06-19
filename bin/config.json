@@ -12,28 +12,52 @@
   "AbstractBullet": {
     "destroy_after": 1500
   },
-  "AbstractAsteroid": {
-    "destroy_after": 1500
-  },
   "BaseBullet": {
     "damage": 25,
     "velocity": 28,
     "fly_clear_sound_distance": 0.3,
     "fly_disperse_radius": 50
   },
+  "LaserBullet": {
+    "damage": 100,
+    "velocity": 38,
+    "fly_clear_sound_distance": 0.3,
+    "fly_disperse_radius": 50
+  },
+  "LittleBullet": {
+    "damage": 15,
+    "velocity": 23,
+    "fly_clear_sound_distance": 0.3,
+    "fly_disperse_radius": 50
+  },
+  "Pistol": {
+    "automatic": false,
+    "shoot_clear_sound_distance": 0.3,
+    "shoot_disperse_radius": 1000,
+    "bullet_random_spray_angle": 5,
+    "rollback": 250
+  },
+  "LaserRifle": {
+    "automatic": false,
+    "shoot_clear_sound_distance": 0.3,
+    "shoot_disperse_radius": 1000,
+    "bullet_random_spray_angle": 1,
+    "rollback": 1000
+  },
+  "MiniGun": {
+    "automatic": true,
+    "shoot_clear_sound_distance": 0.3,
+    "shoot_disperse_radius": 1000,
+    "bullet_random_spray_angle": 9,
+    "rollback": 90
+  },
   "AbstractShip": {
-    "collider_visible": 0,
+    "collider_visible": false,
     "velocity": 20,
     "clear_hit_sound_distance": 0.3,
     "hit_sound_disperse_radius": 1000,
     "clear_destroy_sound_distance": 0.3,
     "destroy_sound_disperse_radius": 1000
-  },
-  "Pistol": {
-    "shoot_clear_sound_distance": 0.3,
-    "shoot_disperse_radius": 1000,
-    "bullet_random_spray_angle": 5,
-    "rollback": 500
   },
   "PlayerShip": {
     "shift_acceleration": 1.5
@@ -44,6 +68,9 @@
     "time_vertical_movement": 660,
     "time_horizontal_movement": 1600,
     "shoot_time": 2000
+  },
+  "AbstractAsteroid": {
+    "destroy_after": 1500
   },
   "SimpleAsteroid": {
     "velocity": 20
