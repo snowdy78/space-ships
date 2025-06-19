@@ -73,16 +73,16 @@ protected:
 
 private:
 	inline static auto &self_config				 = config::instance().get("AbstractShip");
-	inline static auto &clear_hit_sound_distance = self_config.get("clear_hit_sound_distance");
-	inline static auto &clear_destroy_sound_distance = self_config.get("clear_destroy_sound_distance");
-	inline static auto &hit_sound_disperse_force = self_config.get("hit_sound_disperse_force");
-	inline static auto &destroy_sound_disperse_force = self_config.get("destroy_sound_disperse_force");
+	G_CONFIG_PROP_DEFINE(self_config, clear_hit_sound_distance);
+	G_CONFIG_PROP_DEFINE(self_config, clear_destroy_sound_distance);
+	G_CONFIG_PROP_DEFINE(self_config, hit_sound_disperse_radius);
+	G_CONFIG_PROP_DEFINE(self_config, destroy_sound_disperse_radius);
 
 	SpaceField::State<AbstractWeapon> gun{ nullptr };
 	ShipEngineFlame m_engine_effect;
 	EllipseCollider collider;
-	SoundDisperseTraits hit_sound_traits{ *clear_hit_sound_distance, *hit_sound_disperse_force };
-	SoundDisperseTraits destroy_sound_traits{ *clear_destroy_sound_distance, *destroy_sound_disperse_force };
+	SoundDisperseTraits hit_sound_traits{ *clear_hit_sound_distance, *hit_sound_disperse_radius };
+	SoundDisperseTraits destroy_sound_traits{ *clear_destroy_sound_distance, *destroy_sound_disperse_radius };
 
 	size_t m_team_hash = 0;
 	rn::Vec2f m_move_dir{};

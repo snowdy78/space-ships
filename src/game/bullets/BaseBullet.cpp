@@ -7,7 +7,7 @@ const sf::Texture &BaseBullet::initTexture() const
 }
 void BaseBullet::start()
 {
-	setDamage(*initial_damage);
+	setDamage(*props::damage);
 
 	float mass		   = 0.100f;
 	float velocity	   = 15.f;

@@ -13,14 +13,14 @@ class Pistol final : public AbstractWeapon, public GameObjectBase<Pistol>
 	struct props
 	{
 		inline static auto &self_config = config::instance().get("Pistol");
-		G_CONFIG_PROP_DEFINE(self_config, disperse_angle);
-		G_CONFIG_PROP_DEFINE(self_config, clear_shoot_sound_distance);
-		G_CONFIG_PROP_DEFINE(self_config, shoot_disperse_force);
+		G_CONFIG_PROP_DEFINE(self_config, bullet_random_spray_angle);
+		G_CONFIG_PROP_DEFINE(self_config, shoot_clear_sound_distance);
+		G_CONFIG_PROP_DEFINE(self_config, shoot_disperse_radius);
 		G_CONFIG_PROP_DEFINE(self_config, rollback);
 	};
 
-	float disperse_angle = *props::disperse_angle;
-	SoundDisperseTraits shoot_sound_traits{ *props::clear_shoot_sound_distance, *props::shoot_disperse_force };
+	float disperse_angle = *props::bullet_random_spray_angle;
+	SoundDisperseTraits shoot_sound_traits{ *props::shoot_clear_sound_distance, *props::shoot_disperse_radius };
 
 public:
 	using AbstractWeapon::AbstractWeapon;

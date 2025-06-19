@@ -66,14 +66,14 @@ void Background::draw(sf::RenderTarget &target, sf::RenderStates states) const
 
 void Background::onMove(const rn::Vec2f &pos_before)
 {
-	rn::Vec2f p = rn::math::norm(getPosition() - pos_before);
+	rn::Vec2f delta = getPosition() - pos_before;
+	rn::Vec2f p		= rn::math::norm(delta);
 	p.x *= m_velocity_layer1.x;
 	p.y *= m_velocity_layer1.y;
-	m_shader_position -= notZeroPosition(getPosition(), p);
+	m_shader_position -= notZeroPosition(delta, p);
 	shader.setUniform<rn::Vec2f>("iPosition", m_shader_position);
-	p = rn::math::norm(getPosition() - pos_before);
 	p.x *= m_velocity_layer2.x;
 	p.y *= m_velocity_layer2.y;
-	m_layer1_position -= notZeroPosition(getPosition(), p);
+	m_layer1_position -= notZeroPosition(delta, p);
 	layer1.setPosition(m_layer1_position);
 }

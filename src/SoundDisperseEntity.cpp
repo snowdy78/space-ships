@@ -2,39 +2,59 @@
 #include "game/settings/AudioSettings.hpp"
 
 SoundDisperseEntity::SoundDisperseEntity(
-	float clear_sound_distance, float disperse_force, const sf::SoundBuffer *buffer
+	float lerped_pure_sound_radius, float disperse_radius, const sf::SoundBuffer *buffer
 )
-	: clear_dist(clear_sound_distance),
-	  disperse_radius(disperse_force)
+	: m_lerped_pure_sound_value(std::clamp(disperse_radius * lerped_pure_sound_radius, 0.f, disperse_radius)),
+	  m_disperse_radius(disperse_radius)
 {
 	setRelativeToListener(true);
 	if (buffer)
 		setBuffer(*buffer);
 }
 SoundDisperseEntity::SoundDisperseEntity(SoundDisperseTraits traits, const sf::SoundBuffer *buffer)
-	: clear_dist(traits.clear_sound_distance),
-	  disperse_radius(traits.disperse_force)
+	: m_lerped_pure_sound_value(traits.clear_sound_distance),
+	  m_disperse_radius(traits.disperse_radius)
 {
 	if (buffer)
 		setBuffer(*buffer);
 }
-void SoundDisperseEntity::setClearSoundDistance(float distance)
+void SoundDisperseEntity::setPureSoundLerpedValue(float lerped_value)
 {
-	clear_dist = distance;
+	m_lerped_pure_sound_value = std::clamp(lerped_value, 0.f, m_disperse_radius);
 }
-void SoundDisperseEntity::setDisperseRadius(float force)
+void SoundDisperseEntity::setDisperseRadius(float radius)
 {
-	disperse_radius = force;
+	m_disperse_radius = radius;
+	m_lerped_pure_sound_value = std::clamp(m_lerped_pure_sound_value, 0.f, m_disperse_radius);
 }
 
-float SoundDisperseEntity::getClearSoundDistance() const
+float SoundDisperseEntity::getPureSoundLerpedValue() const
 {
-	return clear_dist;
+	return m_lerped_pure_sound_value;
+}
+
+float SoundDisperseEntity::getVolumeInPoint(const rn::Vec3f &point) const
+{
+	using rn::math::length;
+	auto dist = point - getPosition();
+	float l	  = length(dist);
+	if (m_disperse_radius == 0.f || l > m_disperse_radius)
+	{
+		return 0.f;
+	}
+	float pure_sound_radius = m_lerped_pure_sound_value * m_disperse_radius;
+	if (l <= pure_sound_radius)
+	{
+		return sfx_volume_percentage();
+	}
+	float r = m_disperse_radius - pure_sound_radius;
+	float rl = l - pure_sound_radius;
+	return (1.0f - rl / r) * sfx_volume_percentage();
 }
 
 float SoundDisperseEntity::getDisperseRadius() const
 {
-	return disperse_radius;
+	return m_disperse_radius;
 }
 
 void SoundDisperseEntity::play()
@@ -54,15 +74,7 @@ void SoundDisperseEntity::pause()
 }
 void SoundDisperseEntity::update()
 {
-	if (disperse_radius == 0.f)
-	{
-		setVolume(0);
-		return;
-	}
-	rn::Vec3f pdist = sf::Listener::getPosition() - getPosition();
-	float dist		= rn::math::length(pdist);
-	float volume	= 1.0f - std::clamp((clear_dist + dist) / disperse_radius, 0.f, 1.f);
-	setVolume(volume * sfx_volume_percentage());
+	setVolume(getVolumeInPoint(sf::Listener::getPosition()));
 }
 const rn::Vec3f &SoundDisperseEntity::getPosition() const
 {

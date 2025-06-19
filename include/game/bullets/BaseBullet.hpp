@@ -15,15 +15,18 @@ struct bullet_sound : SoundDisperseEntity
 
 class BaseBullet final : public AbstractBullet, public GameObjectBase<BaseBullet>
 {
-	inline static auto &self_init			 = config::instance().get("BaseBullet");
-	inline static auto &initial_damage		 = self_init.get("damage");
-	inline static auto &clear_sound_distance = self_init.get("clear_sound_distance");
-	inline static auto &disperse_force		 = self_init.get("disperse_force");
+	struct props
+	{
+		inline static auto &self_config			 = config::instance().get("BaseBullet");
+		G_CONFIG_PROP_DEFINE(self_config, damage);
+		G_CONFIG_PROP_DEFINE(self_config, fly_clear_sound_distance);
+		G_CONFIG_PROP_DEFINE(self_config, fly_disperse_radius);
+	};
 	inline static loading<sf::Texture> texture
 		= TextureLoader::instance().addToUpload("img/bullet_shoot.png").get();
 	inline static loading<sf::SoundBuffer> fly_buf
 		= SoundLoader::instance().addToUpload("./assets/bullet_fly.wav").get();
-	bullet_sound fly_sound{ *clear_sound_distance, *disperse_force, fly_buf };
+	bullet_sound fly_sound{ *props::fly_clear_sound_distance, *props::fly_disperse_radius, fly_buf };
 
 public:
 	using AbstractBullet::AbstractBullet;

@@ -4,22 +4,22 @@
 
 struct SoundDisperseTraits
 {
-	float clear_sound_distance = 0.f, disperse_force = 1000.f;
-	SoundDisperseTraits(float clear_distance, float disperse_force)
+	float clear_sound_distance = 0.f, disperse_radius = 1000.f;
+	SoundDisperseTraits(float clear_distance, float disperse_radius)
 		: clear_sound_distance(clear_distance),
-		  disperse_force(disperse_force)
+		  disperse_radius(disperse_radius)
 	{}
 };
 
 class SoundDisperseEntity : public sf::Sound, public rn::LogicalObject
 {
-	float clear_dist, disperse_radius = 50.f;
+	float m_lerped_pure_sound_value, m_disperse_radius = 50.f;
 	using Sound::setVolume;
 	rn::Vec3f position{};
 
 public:
 	explicit SoundDisperseEntity(
-		float clear_sound_distance = 0.f, float disperse_force = 1000.f, const sf::SoundBuffer *buffer = nullptr
+		float lerped_pure_sound_value = 0.f, float disperse_radius = 1000.f, const sf::SoundBuffer *buffer = nullptr
 	);
 	explicit SoundDisperseEntity(
 		SoundDisperseTraits traits, const sf::SoundBuffer *buffer = nullptr
@@ -27,10 +27,11 @@ public:
 
 	const rn::Vec3f &getPosition() const;
 	void setPosition(const rn::Vec3f &position);
-	void setClearSoundDistance(float distance);
-	void setDisperseRadius(float force);
+	void setPureSoundLerpedValue(float lerped_value);
+	void setDisperseRadius(float radius);
 	float getDisperseRadius() const;
-	float getClearSoundDistance() const;
+	float getPureSoundLerpedValue() const;
+	float getVolumeInPoint(const rn::Vec3f &point) const;
 
 	virtual void onPlay() {}
 	virtual void onStop() {}
