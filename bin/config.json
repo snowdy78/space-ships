@@ -38,7 +38,7 @@
     "shift_acceleration": 1.5
   },
   "EnemyShip": {
-    "velocity": 5,
+    "velocity": 2.5,
     "min_target_distance": 100,
     "time_vertical_movement": 660,
     "time_horizontal_movement": 1600,
