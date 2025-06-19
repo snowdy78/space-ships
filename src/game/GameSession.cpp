@@ -176,6 +176,7 @@ void GameSession::up_level()
 {
 	auto factory = m_level->next();
 	m_level		 = factory->create(field);
+	m_level->start();
 }
 
 GameSession::Mode GameSession::mode() const
