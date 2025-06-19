@@ -6,6 +6,7 @@
 #include "coop/TcpRouter.hpp"
 #include "coop/UdpRouter.hpp"
 #include "GameSession.hpp"
+#include "components/Background.hpp"
 
 class GameManager 
 {
@@ -22,19 +23,19 @@ public:
     };
 private:
     using func_update_on_move = const std::function<void()> &;
-    
-    GameManager(sf::RenderTarget &target, func_update_on_move update_on_move);
+    GameManager(sf::RenderTarget &target);
 	void createHost(OnlineTraits &&traits);
 	void createClient(OnlineTraits &&traits);
 
 public:
-    static void create(sf::RenderTarget &target, func_update_on_move update_on_move);
+
+    static void create(sf::RenderTarget &target);
 	static GameSession *session();
-	static void host(sf::RenderTarget &target, func_update_on_move update_on_move, OnlineTraits &&traits);
-	static void client(sf::RenderTarget &target, func_update_on_move update_on_move, OnlineTraits &&traits);
+	static void host(sf::RenderTarget &target, OnlineTraits &&traits);
+	static void client(sf::RenderTarget &target, OnlineTraits &&traits);
     static GameManager &instance();
     static bool exist();
-    static void reset(sf::RenderTarget &new_target, func_update_on_move new_update_on_move);
+    static void reset(sf::RenderTarget &new_target);
     static void clear();
 	void createOnline(OnlineTraits &&traits);
 	bool existOnline() const;

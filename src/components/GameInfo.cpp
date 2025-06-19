@@ -61,14 +61,16 @@ void GameInfo::updateData(const sf::String &name)
         return data.getName() == name;
     });
     if (it == data.end())
-        throw std::out_of_range("index out of range");
+        throw std::out_of_range("game info index out of range");
     it->updateData();
 }
 
 void GameInfo::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
     if (!visible)
-        return;
+    {
+	    return;
+    }
 	states.transform *= getTransform();
 	for (auto &value : data)
 	{

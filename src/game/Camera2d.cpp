@@ -16,27 +16,31 @@ Camera2d::Camera2d()
 
 void Camera2d::setPosition(const rn::Vec2f &v)
 {
+	rn::Vec2f p = getPosition();
 	sf::Transformable::setPosition(v);
-	onCameraMove();
+	onCameraMove(p);
 }
 
 
 void Camera2d::setPosition(float x, float y)
 {
+	rn::Vec2f p = getPosition();
 	sf::Transformable::setPosition(x, y);
-	onCameraMove();
+	onCameraMove(p);
 }
 
 void Camera2d::move(const rn::Vec2f &v)
 {
+	auto p = getPosition();
 	sf::Transformable::move(v);
-	onCameraMove();
+	onCameraMove(p);
 }
 
 void Camera2d::move(float x, float y)
 {
+	auto p = getPosition();
 	sf::Transformable::move(x, y);
-	onCameraMove();
+	onCameraMove(p);
 }
 
 rn::Vec2f Camera2d::getViewSize() const

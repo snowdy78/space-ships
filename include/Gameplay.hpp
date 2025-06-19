@@ -9,12 +9,7 @@
 
 class Gameplay : public rn::MenuBranch
 {
-	Background background{};
-	GameInfo info;
-	std::unique_ptr<sf::Thread> th;
 	GameSession *space = nullptr;
-	rn::Stopwatch fps_clock;
-	bool dev_mode = true;
 
 public:
 	explicit Gameplay(sf::RenderWindow &window);

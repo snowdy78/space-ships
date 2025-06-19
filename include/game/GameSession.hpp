@@ -2,6 +2,7 @@
 
 #include "SpaceField.hpp"
 #include "actions/ActionManager.hpp"
+#include "components/Background.hpp"
 #include "components/LocalDriveSession.hpp"
 #include "components/TargetCamera.hpp"
 #include "game/levels/AbstractLevel.hpp"
@@ -14,15 +15,21 @@ class GameSession : protected LocalDriveSession, public rn::LogicalObject, publi
 	constexpr static const char *s_file_path = "src/game_session_data.enc";
 
 	void createPlayer();
+	void initVisibleInfo();
 
 public:
-	GameSession(TargetCamera &&camera);
+	enum class Mode
+	{
+		User = 0, Developer = 1
+	};
+	GameSession(sf::RenderTarget &target);
 	void start() override;
 	void update() override;
 	void onEvent(sf::Event &event) override;
 	template<LevelConcept T>
 	void up_level();
 	void up_level();
+	Mode mode() const;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 protected:
@@ -47,6 +54,9 @@ public:
 private:
 	friend struct GameSessionSpaceField;
 
+	GameInfo m_gameinfo;
+	Mode m_mode = Mode::Developer;
+	Background m_background;
 	std::unique_ptr<AbstractLevel> m_level;
 	rn::Json m_game_objects = rn::Json::array();
 	std::hash<GameObject *> m_hash;

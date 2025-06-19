@@ -8,8 +8,8 @@ GameManager::OnlineTraits::OnlineTraits(sf::IpAddress host_ip, uint16_t host_por
 	udp->bind(host_port, host_ip);
 }
 
-GameManager::GameManager(sf::RenderTarget &target, func_update_on_move update_on_move)
-	: m_session(TargetCamera(target, update_on_move))
+GameManager::GameManager(sf::RenderTarget &target)
+	: m_session(target)
 {
 }
 
@@ -25,9 +25,9 @@ void GameManager::createClient(OnlineTraits &&traits)
 	createOnline(std::move(traits));
 }
 
-void GameManager::create(sf::RenderTarget &target, func_update_on_move update_on_move)
+void GameManager::create(sf::RenderTarget &target)
 {
-	instance_ptr.reset(new GameManager(target, update_on_move));
+	instance_ptr.reset(new GameManager(target));
 }
 
 GameSession *GameManager::session()
@@ -38,15 +38,15 @@ GameSession *GameManager::session()
 	return nullptr;
 }
 
-void GameManager::host(sf::RenderTarget &target, func_update_on_move update_on_move, OnlineTraits &&traits)
+void GameManager::host(sf::RenderTarget &target, OnlineTraits &&traits)
 {
-	instance_ptr.reset(new GameManager(target, update_on_move));
+	instance_ptr.reset(new GameManager(target));
 	instance_ptr->createHost(std::move(traits));
 }
 
-void GameManager::client(sf::RenderTarget &target, func_update_on_move update_on_move, OnlineTraits &&traits)
+void GameManager::client(sf::RenderTarget &target, OnlineTraits &&traits)
 {
-	instance_ptr.reset(new GameManager(target, update_on_move));
+	instance_ptr.reset(new GameManager(target));
 	instance_ptr->createClient(std::move(traits));
 }
 
@@ -60,11 +60,11 @@ bool GameManager::exist()
 	return instance_ptr.get();
 }
 
-void GameManager::reset(sf::RenderTarget &new_target, func_update_on_move new_update_on_move)
+void GameManager::reset(sf::RenderTarget &new_target)
 {
 	if (!instance_ptr)
 		return;
-	instance_ptr.reset(new GameManager(new_target, new_update_on_move));
+	instance_ptr.reset(new GameManager(new_target));
 }
 
 void GameManager::clear()

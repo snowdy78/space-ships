@@ -1,9 +1,13 @@
 {
+  "Background": {
+    "velocity_layer1": 0.1,
+    "velocity_layer2": 0.2
+  },
   "AbstractBullet": {
     "destroy_after": 1500
   },
   "AbstractAsteroid": {
-    "destroy_after":  1500
+    "destroy_after": 1500
   },
   "BaseBullet": {
     "damage": 25,

@@ -6,14 +6,16 @@
 class TargetCamera : public Camera2d
 {
 	sf::RenderTarget *target = nullptr;
-	std::function<void()> update_on_move;
+	std::function<void(const rn::Vec2f &)> update_on_move;
 
 public:
-	TargetCamera(sf::RenderTarget &target, std::function<void()> update_on_move)
+	TargetCamera(sf::RenderTarget &target, std::function<void(const rn::Vec2f &)> update_on_move)
 		: target(&target),
 		  update_on_move(std::move(update_on_move))
 	{
 	}
+	TargetCamera(const TargetCamera &) = delete;
+	TargetCamera &operator=(const TargetCamera &) = delete;
 	TargetCamera(TargetCamera &&camera) noexcept
 		: update_on_move(std::move(camera.update_on_move))
 	{
@@ -32,9 +34,9 @@ public:
 	}
 
 protected:
-	void onCameraMove() override
+	void onCameraMove(const rn::Vec2f &before_pos) override
 	{
 		target->setView(getView());
-		update_on_move();
+		update_on_move(before_pos);
 	}
 };

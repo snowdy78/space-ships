@@ -14,7 +14,7 @@ public:
     void move(const rn::Vec2f &v);
     void move(float x, float y);
 
-    virtual void onCameraMove() {}
+    virtual void onCameraMove(const rn::Vec2f &before_pos) {}
 
     rn::Vec2f getViewSize() const;    
 	sf::View getView() const;

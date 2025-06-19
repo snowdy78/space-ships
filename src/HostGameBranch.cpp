@@ -17,9 +17,7 @@ HostGameBranch::~HostGameBranch()
 void HostGameBranch::start()
 {
 	auto res = rn::Vec2f(rn::VideoSettings::getResolution());
-	GameManager::client(window, [this] {
-		background.setPosition(session->camera.getPosition());
-		},
+	GameManager::client(window,
 		{ ip_address, port }
 	);
 	rn::Table table{

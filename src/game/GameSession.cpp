@@ -2,9 +2,17 @@
 #include "game/PlayerShip.hpp"
 #include "game/levels/Level1.hpp"
 
-GameSession::GameSession(TargetCamera &&camera)
+GameSession::GameSession(sf::RenderTarget &target)
 	: LocalDriveSession(s_file_path),
-	  camera(std::move(camera)),
+	  camera(
+		  target,
+		  [this](const rn::Vec2f &before_pos) {
+			  m_background.setPosition(camera.getPosition());
+			  m_gameinfo.updateData("camera_pos");
+			  m_gameinfo.updateData("view_area");
+			  m_gameinfo.updateData("fps");
+		  }
+	  ),
 	  field(this, &this->camera),
 	  m_level(nullptr)
 {
@@ -12,7 +20,8 @@ GameSession::GameSession(TargetCamera &&camera)
 
 void GameSession::start()
 {
-	rn::Vec2f res{ rn::VideoSettings::getResolution() };
+	initVisibleInfo(); // init before camera move
+	m_background.start();
 	action_manager.start();
 	field.start();
 	if (m_level)
@@ -21,12 +30,15 @@ void GameSession::start()
 	if (player.expired())
 		return;
 	auto player_val = player.lock();
+	rn::Vec2f res{ rn::VideoSettings::getResolution() };
 	player_val->setPosition(res / 2.f);
 	up_level<Level1>();
+	m_gameinfo.setVisible(static_cast<bool>(m_mode));
 }
 
 void GameSession::update()
 {
+	m_background.update();
 	if (!player.expired())
 		const auto p = player.lock();
 	action_manager.update();
@@ -39,14 +51,38 @@ void GameSession::update()
 
 void GameSession::onEvent(sf::Event &event)
 {
+	m_background.onEvent(event);
+	action_manager.onEvent(event);
 	field.onEvent(event);
 	if (m_level)
 		m_level->onEvent(event);
+	
+	if (rn::isKeydown(sf::Keyboard::F3))
+	{
+		m_mode = m_mode == Mode::Developer ? Mode::User : Mode::Developer;
+		m_gameinfo.setVisible(static_cast<bool>(m_mode));
+	}
 }
 
 void GameSession::createPlayer()
 {
 	player = field.summonShip<PlayerShip>();
+}
+
+void GameSession::initVisibleInfo()
+{
+	m_gameinfo.addData("camera_pos", [this]() -> sf::String {
+		const auto p{ camera.getPosition() };
+		return "{ " + std::to_string(p.x) + ", " + std::to_string(p.y) + " }";
+	});
+	m_gameinfo.addData("view_area", [this]() -> sf::String {
+		const auto view = camera.getView();
+		return "{ " + std::to_string(view.getCenter().x) + ", " + std::to_string(view.getCenter().y) + ", "
+			   + std::to_string(view.getSize().x) + ", " + std::to_string(view.getSize().y) + " }";
+	});
+	m_gameinfo.addData("fps", [this]() -> sf::String {
+		return std::to_string(rn::FPS);
+	});
 }
 
 void GameSession::afterLoad()
@@ -93,16 +129,23 @@ void GameSession::GameSessionSpaceField::onObjectDestroy(const StatePtrType &sta
 void GameSession::up_level()
 {
 	auto factory = m_level->next();
-	m_level      = std::move(factory->create(field));
+	m_level		 = factory->create(field);
+}
+
+GameSession::Mode GameSession::mode() const
+{
+	return m_mode;
 }
 
 void GameSession::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
+	target.draw(m_background, states);
 	target.draw(field, states);
+	auto relative_camera = states;
+	relative_camera.transform		*= camera.getTransform();
 	if (m_level)
 	{
-		auto rs = states;
-		rs		= states.transform * camera.getTransform();
-		target.draw(*m_level, rs);
+		target.draw(*m_level, relative_camera);
+		target.draw(m_gameinfo, relative_camera);
 	}
 }

@@ -18,9 +18,6 @@ void ConnectToGameBranch::start()
 	auto res = rn::Vec2f(rn::VideoSettings::getResolution());
 	GameManager::host(
 		window,
-		[this] {
-			background.setPosition(session->camera.getPosition());
-		},
 		{ host_ip, host_port }
 	);
 	if (GameManager::exist())
