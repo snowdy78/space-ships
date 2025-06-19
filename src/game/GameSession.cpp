@@ -1,6 +1,13 @@
 #include "game/GameSession.hpp"
+
+#include "Helpers.hpp"
+#include "game/EnemyShip.hpp"
 #include "game/PlayerShip.hpp"
+#include "game/asteroids/SimpleAsteroid.hpp"
+#include "game/actions/AbstractSummonAction.hpp"
 #include "game/levels/Level1.hpp"
+
+struct SummonShipAction;
 
 GameSession::GameSession(sf::RenderTarget &target)
 	: LocalDriveSession(s_file_path),
@@ -61,6 +68,45 @@ void GameSession::onEvent(sf::Event &event)
 	{
 		m_mode = m_mode == Mode::Developer ? Mode::User : Mode::Developer;
 		m_gameinfo.setVisible(static_cast<bool>(m_mode));
+	}
+	if (mode() == Mode::Developer)
+	{
+		if (rn::isKeydown(sf::Keyboard::P))
+		{
+			action_manager.emplaceToTop<SummonShipAction>(EnemyShip::identifier, [this](AbstractShip &ship) {
+				if (auto enemy = dynamic_cast<EnemyShip *>(&ship))
+				{
+#ifdef SPACE_SHIP_DEBUG
+					if (player.expired())
+						std::cerr << "cannot set nullptr as ship target\n";
+#endif
+					else
+						enemy->setTarget(player);
+					rn::Vec2f randomPosition{ rn::random::real(0.f, 1.f) * camera.getViewSize().x,
+											  rn::random::real(0.f, 1.f) * camera.getViewSize().y };
+					enemy->setPosition(camera.getPosition() + randomPosition);
+				}
+			});
+		}
+		if (rn::isKeydown(sf::Keyboard::O))
+		{
+			randomlySummonAsteroidOutsideArea<SimpleAsteroid>(
+				camera.getTransform().transformRect({ {}, camera.getViewSize() }), 10.f
+			);
+		}
+		if (rn::isKeydown(sf::Keyboard::I))
+		{
+			if (!player.expired())
+			{
+				player.lock()->setInvincible(true);
+			}
+#ifdef SPACE_SHIP_DEBUG
+			else
+			{
+				std::cerr << "unable to do player invincible\n";
+			}
+#endif
+		}
 	}
 }
 

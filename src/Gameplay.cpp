@@ -58,17 +58,7 @@ void Gameplay::onEvent(sf::Event &event)
 		if (window.hasFocus())
 		{
 			space->onEvent(event);
-			if (space->mode() == GameSession::Mode::Developer)
-			{
-				if (rn::isKeydown(sf::Keyboard::P))
-					summonShip();
-				if (rn::isKeydown(sf::Keyboard::O))
-				{
-					randomlySummonAsteroidOutsideArea<SimpleAsteroid>(
-						space->camera.getTransform().transformRect({ {}, space->camera.getViewSize() }), 10.f
-					);
-				}
-			}
+			
 		}
 	}
 }
@@ -80,26 +70,4 @@ void Gameplay::updateObjectsState()
 	GameManager::instance().effect_manager.update();
 	Collidable::updateCollisionState();
 	space->update();
-}
-
-void Gameplay::summonShip()
-{
-	if (!space || !GameManager::exist())
-		return;
-	GameManager::session()->action_manager.emplaceToTop<SummonShipAction>(
-		EnemyShip::identifier, [this](AbstractShip &ship) {
-			if (auto enemy = dynamic_cast<EnemyShip *>(&ship))
-			{
-#ifdef SPACE_SHIP_DEBUG
-				if (space->player.expired())
-					std::cerr << "cannot set nullptr as ship target\n";
-#endif
-				else enemy->setTarget(space->player);
-				rn::Vec2f randomPosition{ rn::random::real(0.f, 1.f) * space->camera.getViewSize().x,
-										  rn::random::real(0.f, 1.f) * space->camera.getViewSize().y };
-				enemy->setPosition(space->camera.getPosition() + randomPosition);
-			}
-			
-		}
-	);
 }

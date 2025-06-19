@@ -16,7 +16,6 @@ public:
 	~Gameplay() override;
 	void start() override;
 	void updateObjectsState();
-	void summonShip();
 	void update() override;
 	void onEvent(sf::Event &event) override;
 };
