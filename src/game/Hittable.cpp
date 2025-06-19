@@ -25,9 +25,7 @@ void Hittable::HealthBar::updateHealthBar()
 	back_bar.setPosition(fill_bar.getPosition().x + fill_bar.getSize().x, 1);
 }
 
-Hittable::~Hittable()
-{
-}
+Hittable::~Hittable() = default
 
 float Hittable::getMaxHealth() const
 {
@@ -35,8 +33,11 @@ float Hittable::getMaxHealth() const
 }
 void Hittable::takeDamage(float damage)
 {
-	health = std::clamp(health - damage, 0.f, max_health);
-	onHit();
+	if (!m_invincible)
+	{
+		health = std::clamp(health - damage, 0.f, max_health);
+		onHit();
+	}
 }
 float Hittable::getHealth() const
 {
@@ -46,6 +47,16 @@ float Hittable::getHealth() const
 bool Hittable::isDead() const
 {
 	return getHealth() <= 0;
+}
+
+void Hittable::setInvincible(bool invincible)
+{
+	m_invincible = invincible;
+}
+
+bool Hittable::getInvincible() const
+{
+	return m_invincible;
 }
 
 void Hittable::onHit()

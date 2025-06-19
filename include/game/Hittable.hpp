@@ -27,6 +27,7 @@ protected:
 		void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 	};
 	HealthBar health_bar{ *this };
+	bool m_invincible = false;
 
 public:
 	~Hittable() override;
@@ -34,6 +35,9 @@ public:
 	void takeDamage(float damage);
 	float getHealth() const;
 	bool isDead() const;
+	void setInvincible(bool invincible);
+	bool getInvincible() const;
+
 protected:
 	virtual void onHit();
 };
