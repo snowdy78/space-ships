@@ -1,5 +1,5 @@
 #include "components/effects/ShipEngineFlame.hpp"
-#include "game/AbstractShip.hpp"
+#include "game/ships/AbstractShip.hpp"
 
 ShipEngineFlame::ShipEngineFlame(): m_effect(*static_effect)
 {

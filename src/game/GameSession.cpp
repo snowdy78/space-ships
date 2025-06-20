@@ -1,8 +1,8 @@
 #include "game/GameSession.hpp"
 
 #include "Helpers.hpp"
-#include "game/EnemyShip.hpp"
-#include "game/PlayerShip.hpp"
+#include "game/ships/EnemyShip.hpp"
+#include "game/ships/PlayerShip.hpp"
 #include "game/asteroids/SimpleAsteroid.hpp"
 #include "game/actions/AbstractSummonAction.hpp"
 #include "game/levels/Level1.hpp"
@@ -40,7 +40,7 @@ void GameSession::start()
 	field.start();
 	createPlayer();
 	if (player.expired())
-		return;
+		throw std::runtime_error("player was not created 'void GameSession::start()'");
 	auto player_val = player.lock();
 	rn::Vec2f res{ rn::VideoSettings::getResolution() };
 	player_val->setPosition(res / 2.f);
@@ -55,8 +55,6 @@ void GameSession::start()
 void GameSession::update()
 {
 	m_background.update();
-	if (!player.expired())
-		const auto p = player.lock();
 	action_manager.update();
 	field.update();
 	if (m_level->complete())

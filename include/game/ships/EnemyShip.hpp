@@ -1,8 +1,8 @@
 #pragma once
 
 #include "AbstractShip.hpp"
-#include "GameObjectBase.hpp"
-#include "SpaceField.hpp"
+#include "game/GameObjectBase.hpp"
+#include "game/SpaceField.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
 

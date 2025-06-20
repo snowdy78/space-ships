@@ -1,4 +1,4 @@
-#include "game/PlayerShip.hpp"
+#include "game/ships/PlayerShip.hpp"
 
 #include "Helpers.hpp"
 #include "game/SpaceField.hpp"

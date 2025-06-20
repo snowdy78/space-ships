@@ -1,14 +1,12 @@
 #pragma once
 
-#include "Collidable.hpp"
-#include "GameManager.hpp"
-#include "Hittable.hpp"
-#include "RigitBody2d.hpp"
+#include "game/Collidable.hpp"
+#include "game/Hittable.hpp"
+#include "game/RigitBody2d.hpp"
 #include "SoundDisperseEntity.hpp"
-#include "SpaceField.hpp"
+#include "game/SpaceField.hpp"
 #include "components/AnimatedSprite.hpp"
 #include "components/FileLoader.hpp"
-#include "decl.hpp"
 #include "components/GameConfiguration.hpp"
 #include "game/AbstractWeapon.hpp"
 #include "game/colliders/EllipseCollider.hpp"
@@ -62,7 +60,8 @@ public:
 
 protected:
 	template<WeaponConcept T, class... Args>
-	friend void assignGameWeaponToPlayer(AbstractShip &ship, Args &&...);
+	friend void makeWeaponForShip(AbstractShip &ship, Args &&...);
+	friend void shipTakeWeapon(AbstractShip &ship, const SpaceField::StatePtr<SpaceItem> &ptr);
 	inline static loading<AnimatedSprite> destroy_animation
 		= AnimationLoader::instance().addToUpload("./img/animation/Explosion4/.png").get();
 	inline static loading<sf::SoundBuffer> hit_buffer = SoundLoader::instance().addToUpload("hit.ogg").get();
@@ -91,29 +90,4 @@ private:
 
 	size_t m_team_hash = 0;
 	rn::Vec2f m_move_dir{};
-}
-;
-
-template<WeaponConcept T, class... Args>
-void assignGameWeaponToPlayer(AbstractShip &ship, Args &&...args)
-{
-	if (GameManager::exist())
-	{
-		auto &field = GameManager::session()->field;
-		auto ptr	= field.emplaceItem<T>(std::forward<Args>(args)...);
-		auto it		= field.find(ptr);
-		if (it != field.items().end())
-		{
-			ship.gun = std::dynamic_pointer_cast<AbstractWeapon>(field.take(it));
-			if (!ship.existOnField())
-				std::cerr << "ship not exist on field yet\n";
-			ship.gun->assignOwner(ship.self());
-		}
-		else
-			std::cerr << "cannot assign gun to ship. Item not found.\n";
-	}
-	else
-	{
-		std::cerr << "cannot assign gun to ship. Game session does not exist!\n";
-	}
-}
+};

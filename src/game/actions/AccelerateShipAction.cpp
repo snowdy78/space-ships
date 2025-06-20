@@ -1,5 +1,5 @@
 #include "game/actions/AccelerateShipAction.hpp"
-#include "game/AbstractShip.hpp"
+#include "game/ships/AbstractShip.hpp"
 
 AccelerateShipAction::AccelerateShipAction(const TransferableActionProps &props)
 	: TransferActionBase(props)

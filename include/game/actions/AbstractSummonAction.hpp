@@ -3,7 +3,7 @@
 #include "Helpers.hpp"
 #include "coop/TransferableAction.hpp"
 #include "game/GameManager.hpp"
-#include "game/AbstractShip.hpp"
+#include "game/ships/AbstractShip.hpp"
 #include "game/AbstractAsteroid.hpp"
 #include "game/AbstractBullet.hpp"
 // FIX THIS REALIZATION !!!!!

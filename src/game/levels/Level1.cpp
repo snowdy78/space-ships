@@ -1,7 +1,7 @@
 #include "game/levels/Level1.hpp"
 
 #include "Helpers.hpp"
-#include "game/EnemyShip.hpp"
+#include "game/ships/EnemyShip.hpp"
 #include "game/GameManager.hpp"
 #include "game/asteroids/SimpleAsteroid.hpp"
 #include "game/levels/Level2.hpp"

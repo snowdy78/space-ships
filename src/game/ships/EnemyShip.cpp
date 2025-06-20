@@ -1,11 +1,11 @@
-#include "game/EnemyShip.hpp"
+#include "game/ships/EnemyShip.hpp"
 
 #include "Helpers.hpp"
-#include "game/AbstractShip.hpp"
 #include "game/GameManager.hpp"
 #include "game/SpaceField.hpp"
 #include "game/actions/MoveShipAction.hpp"
-#include <list>
+#include "game/ships/tools/AssignWeapon.hpp"
+#include "game/guns/Pistol.hpp"
 
 EnemyShip::EnemyShip()
 	: AbstractShip(*texture)
@@ -27,6 +27,7 @@ void EnemyShip::start()
 	setVelocity(*velocity);
 	movement_clock.start();
 	shoot_clock.start();
+	makeWeaponForShip<Pistol>(*this);
 	AbstractShip::start();
 }
 

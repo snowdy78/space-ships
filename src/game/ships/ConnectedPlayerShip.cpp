@@ -1,4 +1,4 @@
-#include "game/ConnectedPlayerShip.hpp"
+#include "game/ships/ConnectedPlayerShip.hpp"
 
 #include "game/SpaceField.hpp"
 
@@ -23,7 +23,7 @@ void ConnectedPlayerShip::receiveJson(const rn::Json &json)
 }
 void ConnectedPlayerShip::onEvent(sf::Event &event)
 {
-    AbstractShip::onEvent(event);
+	AbstractShip::onEvent(event);
 }
 
 rn::Vec2f ConnectedPlayerShip::countMove() const
@@ -31,7 +31,7 @@ rn::Vec2f ConnectedPlayerShip::countMove() const
 	return getAcceleration() * getVelocity() * getMoveDirection();
 }
 
-void ConnectedPlayerShip::summonCopy(SpaceField& field) const
+void ConnectedPlayerShip::summonCopy(SpaceField &field) const
 {
 	field.summonShip<ConnectedPlayerShip>();
 }

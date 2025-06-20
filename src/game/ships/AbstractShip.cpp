@@ -1,4 +1,4 @@
-#include "game/AbstractShip.hpp"
+#include "game/ships/AbstractShip.hpp"
 #include "SoundDisperseEntity.hpp"
 #include "components/AnimatedSprite.hpp"
 #include "components/EffectManager.hpp"
@@ -6,7 +6,6 @@
 #include "game/AbstractWeapon.hpp"
 #include "game/RigitBody2d.hpp"
 #include "game/actions/TakeDamageAction.hpp"
-#include "game/guns/Pistol.hpp"
 #include "game/DamageDealer.hpp"
 #include "game/AbstractBullet.hpp"
 
@@ -80,13 +79,13 @@ const Collider *AbstractShip::getCollider() const
 void AbstractShip::updateCollider()
 {
 	m_collider_widget.setRadius(getSize().x / 2.f);
-	m_collider_widget.setFillColor({ 0, 210, 160, 64 });
+	m_collider_widget.setFillColor(default_collider_color);
 	m_collider_widget.setPosition(getPosition());
 	m_collider_widget.setOrigin(getOrigin());
 	m_collider_widget.setRotation(getRotation());
 	m_collider_widget.setScale(getScale());
 	
-	collider.transform(rn::math::ellipse(m_collider_widget));
+	collider.transform(m_collider_widget);
 }
 size_t AbstractShip::generateTeamHash(const sf::String &name)
 {
@@ -151,7 +150,6 @@ const rn::Vec2f &AbstractShip::getMoveDirection() const
 void AbstractShip::start()
 {
 	RigitBody2d::start();
-	assignGameWeaponToPlayer<Pistol>(*this);
 	setOrigin(getSize() / 2.f);
 	m_engine_effect.setOrigin(m_engine_effect.getSize().x / 2.f, -getSize().y / 8.f);
 	onMove();

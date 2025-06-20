@@ -1,7 +1,7 @@
 #include "game/AbstractBullet.hpp"
 
 #include "Helpers.hpp"
-#include "game/AbstractShip.hpp"
+#include "game/ships/AbstractShip.hpp"
 #include "game/AbstractWeapon.hpp"
 #include "game/GameManager.hpp"
 #include "game/actions/DealDamageAction.hpp"

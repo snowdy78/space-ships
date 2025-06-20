@@ -1,5 +1,5 @@
 #include "game/GameManager.hpp"
-#include "game/PlayerShip.hpp"
+#include "game/ships/PlayerShip.hpp"
 
 GameManager::OnlineTraits::OnlineTraits(sf::IpAddress host_ip, uint16_t host_port)
 	: tcp(std::make_shared<TcpRouter>(host_ip, host_port)),

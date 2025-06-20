@@ -2,6 +2,11 @@
 #include "game/EnemyShip.hpp"
 #include "game/asteroids/SimpleAsteroid.hpp"
 #include "Helpers.hpp"
+#include "game/ships/EnemyShip.hpp"
+#include "game/actions/SummonItemAction.hpp"
+#include "game/asteroids/SimpleAsteroid.hpp"
+#include "game/guns/Pistol.hpp"
+#include "game/guns/LaserRifle.hpp"
 
 Level2::Level2(SpaceField &field)
 	: LevelDestroyEnemies(field, Difficulty::Star2, *props::enemy_count)
