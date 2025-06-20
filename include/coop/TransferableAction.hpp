@@ -100,6 +100,9 @@ private:
 template<class T>
 size_t TransferableActionFabric::push()
 {
+#ifdef SPACE_SHIP_DEBUG
+	T::name = typeid(T).name();
+#endif
 	transfer_actions.emplace(
 		id_encounter, [](const TransferableActionProps &props) -> std::unique_ptr<TransferableAction> {
 			return std::unique_ptr<TransferableAction>{ new T(props) };

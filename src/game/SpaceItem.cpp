@@ -98,7 +98,10 @@ void SpaceItem::draw(sf::RenderTarget &target, sf::RenderStates states) const
 		target.draw(bottom_layer_anim, states);
 		target.draw(getItemSprite(), states);
 		target.draw(top_layer_anim, states);
-		target.draw(m_collider_widget);
+		if (*props::collider_visible)
+		{
+			target.draw(m_collider_widget);
+		}
 	}
 }
 

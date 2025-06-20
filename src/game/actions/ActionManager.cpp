@@ -16,7 +16,7 @@ void ActionManager::realizeActions()
 				(*iaction)->play();
 #ifdef SPACE_SHIP_DEBUG
 			else
-				std::cerr << "skipping... (action not played)\n";
+				std::cerr << "skipping... ('" << (*iaction)->getName() << "' not played)\n";
 #endif
 		}
 		m_start_loop = false;

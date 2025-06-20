@@ -18,6 +18,7 @@ public:
 	struct CollisionTraits
 	{
 		CollisionTraits(bool is_collide);
+		~CollisionTraits();
 		void reset();
 		void set(bool is_collide);
 		bool getCurrent() const;
@@ -30,16 +31,16 @@ public:
 	};
 
 private:
-	using thread_array = std::array<std::shared_ptr<sf::Thread>, 6>;
-	using states_map_type = std::map<const Collidable *, CollisionTraits>;
-	inline static std::vector<Collidable *> collidables{};
+	constexpr static size_t parralel_count = 6;
+	using states_map_type = std::unordered_map<const Collidable *, CollisionTraits>;
+	using CollidablesContainer = std::vector<Collidable *>;
+	inline static CollidablesContainer collidables{};
 	static constexpr float min_collision_distance = 25.f;
-	static thread_array threads;
 
 	states_map_type m_collision_states{};
 	void setCollisionState(const Collidable *obstacle, bool value);
-	static bool collideChunk(size_t start);
-	static void collideObjects(Collidable *collidable, Collidable *obstacle);
+	void removeCollisionState(const Collidable *obstacle);
+	void collideWith(const Collidable *obstacle);
 	void updateState(const Collidable *obstacle);
 
 public:
@@ -52,7 +53,7 @@ public:
 	virtual void onCollisionEnd(const Collidable* collidable) {}
 	const states_map_type &getCollisionStates() const;
 	size_t getCollisionCount() const;
-	std::optional<CollisionTraits> getCollisionTraits(const Collidable *obstacle) const;
+	states_map_type::const_iterator getCollisionTraits(const Collidable *obstacle) const;
 	CollisionState getCollisionState(const Collidable *obstacle) const;
 	/**
 	 * \brief Resolves a collision between this Bullet and the given Collidable.

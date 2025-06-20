@@ -16,12 +16,14 @@ class AbstractBullet : public RigitBody2d, public Collidable, public DamageDeale
 	{
 		inline static auto &self_config = config::instance().get("AbstractBullet");
 		G_CONFIG_PROP_DEFINE(self_config, destroy_after);
+		G_CONFIG_PROP_DEFINE(self_config, collider_visible);
 	};
 	sf::Sprite sprite;
 
 	ObjectWatcher watcher;
 	rn::Stopwatch m_out_of_view_clock;
 	EllipseCollider collider;
+	rn::Circle m_collider_widget;
 	std::optional<rn::Vec2f> size; // defined when texture is set
 
 	void setTexture(const sf::Texture &texture);

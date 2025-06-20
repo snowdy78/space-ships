@@ -9,6 +9,7 @@ class EmptyLevel final : public AbstractLevel
 public:
 	EmptyLevel(SpaceField &field);
 	size_t factoryId() const override;
+	void start() override;
 	void onEvent(sf::Event &event) override;
 	bool summonCondition() const override;
 	bool nextLevelCondition() const override;

@@ -3,6 +3,8 @@
 #include "decl.hpp"
 #include "game/GameManager.hpp"
 #include "game/AbstractAsteroid.hpp"
+#include <thread>
+#include <list>
 
 template<class T>
 rn::Json to_json(const rn::Vec2<T> &vec)
@@ -54,6 +56,41 @@ bool timeStep(
 std::ostream &operator<<(std::ostream &os, const sf::Vector2f &v);
 std::ostream &operator<<(std::ostream &os, const sf::FloatRect &v);
 std::ostream &operator<<(std::ostream &os, const sf::View &v);
+
+template<const size_t ThreadCount, class Iter, class Func>
+void multithread_for_each(Iter start, const Iter &stop, Func body)
+{
+	size_t distance		  = std::distance(start, stop);
+	size_t size_on_thread = distance / ThreadCount;
+	std::list<std::thread> threads;
+	size_t remainder_iterations = distance - size_on_thread * ThreadCount;
+	std::list<std::pair<Iter, Iter>> array_thread_limits;
+	auto thread_start = start;
+	for (size_t i = 0; i < ThreadCount; ++i)
+	{
+		auto thread_end	  = thread_start;
+		size_t additional = 0;
+		if (remainder_iterations > 0)
+		{
+			--remainder_iterations;
+			additional = 1;
+		}
+		std::advance(thread_end, size_on_thread + additional);
+		array_thread_limits.emplace_back(thread_start, thread_end);
+		thread_start = thread_end;
+	}
+	for (auto &thread_limit: array_thread_limits)
+	{
+		threads.emplace_back(
+			[&body](const Iter &start, const Iter &stop) {
+				std::for_each(start, stop, body);
+			},
+			thread_limit.first, thread_limit.second
+		);
+	}
+	for (auto &thread: threads)
+		thread.join();
+}
 
 /**
  * @brief dynamic_unique_cast From stackoverflow

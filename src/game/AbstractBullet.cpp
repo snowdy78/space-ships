@@ -39,12 +39,13 @@ void AbstractBullet::updateCollider()
 {
 	if (size)
 	{
-		rn::Circle circle(size->x / 2.f);
-		circle.setScale(getScale());
-		circle.setOrigin(getOrigin());
-		circle.setPosition(getPosition());
-		circle.setRotation(getRotation());
-		collider.transform(circle);
+		m_collider_widget.setRadius(size->x / 2.f);
+		m_collider_widget.setScale(getScale());
+		m_collider_widget.setOrigin(getOrigin());
+		m_collider_widget.setFillColor(default_collider_color);
+		m_collider_widget.setPosition(getPosition());
+		m_collider_widget.setRotation(getRotation());
+		collider.transform(m_collider_widget);
 	}
 }
 const Collider *AbstractBullet::getCollider() const
@@ -64,7 +65,7 @@ const sf::Sprite &AbstractBullet::getSprite() const
 void AbstractBullet::onCollisionEnter(const Collidable* obstacle)
 {
 	if (auto hittable = dynamic_cast<const Hittable *>(obstacle);
-		GameManager::exist() && existOnField() && hittable->existOnField())
+		GameManager::exist())
 	{
 		GameManager::session()->action_manager.emplaceToTop<DestroySpaceFieldObjectAction>(TransferableActionProps{
 			self() });
@@ -95,6 +96,10 @@ void AbstractBullet::draw(sf::RenderTarget &target, sf::RenderStates states) con
 {
 	states.transform = getTransform();
 	target.draw(sprite, states);
+	if (*props::collider_visible)
+	{
+		target.draw(m_collider_widget);
+	}
 }
 void AbstractBullet::onMove()
 {

@@ -1,11 +1,13 @@
 #pragma once
 
 #include "AbstractShip.hpp"
-#include "game/GameObjectBase.hpp"
-#include "game/SpaceField.hpp"
 #include "components/FileLoader.hpp"
 #include "decl.hpp"
-
+#include "game/GameObjectBase.hpp"
+#include "game/SpaceField.hpp"
+#ifndef ENEMY_TEST_COLLISION
+//#define ENEMY_TEST_COLLISION
+#endif
 class EnemyShip final : public AbstractShip, public GameObjectBase<EnemyShip>
 {
 	using time_digit_type					   = std::chrono::milliseconds;
@@ -58,4 +60,30 @@ public:
 	void rotation() override;
 	void summonCopy(SpaceField &field) const override;
 	rn::Vec2f countMove() const override;
+#ifdef ENEMY_TEST_COLLISION
+	void onCollisionEnter(const Collidable *collidable) override
+	{
+		AbstractShip::onCollisionEnter(collidable);
+		update_counter = 0;
+		end_counter	   = 0;
+		std::cout << this << "collision enter" << ++enter_counter << "\n";
+	}
+	void onCollisionUpdate(const Collidable *collidable) override
+	{
+		AbstractShip::onCollisionUpdate(collidable);
+		enter_counter = 0;
+		end_counter	  = 0;
+		std::cout << this << "collision update" << ++update_counter << "\n";
+	}
+	void onCollisionEnd(const Collidable *collidable) override
+	{
+		AbstractShip::onCollisionEnd(collidable);
+		update_counter = 0;
+		enter_counter  = 0;
+		std::cout << this << "collision end" << ++end_counter << "\n";
+	}
+
+private:
+	int enter_counter = 0, update_counter = 0, end_counter = 0;
+#endif
 };

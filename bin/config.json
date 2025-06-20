@@ -15,6 +15,7 @@
     "collider_visible": false
   },
   "AbstractBullet": {
+    "collider_visible": false,
     "destroy_after": 1500
   },
   "BaseBullet": {
