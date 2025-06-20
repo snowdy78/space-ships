@@ -49,11 +49,15 @@ void SpaceField::start()
 {
 	for (auto &object: m_objects)
 		object->start();
+	for (auto &item: m_items)
+		item->start();
 }
 void SpaceField::update()
 {
 	for (auto &object: m_objects)
 		object->update();
+	for (auto &item: m_items)
+		item->update();
 	// clear garbage after update state
 	clearGarbage();
 }
@@ -61,6 +65,8 @@ void SpaceField::onEvent(sf::Event &event)
 {
 	for (auto &object: m_objects)
 		object->onEvent(event);
+	for (auto &item: m_items)
+		item->onEvent(event);
 }
 size_t SpaceField::size() const
 {
@@ -80,9 +86,7 @@ const SpaceField::ItemContainerType & SpaceField::items() const
 SpaceField::StatePtr<SpaceItem> SpaceField::pushItem(SpaceItem *item)
 {
 	std::shared_ptr<SpaceItem> shared_ptr{ item };
-	m_items.push_back(shared_ptr);
-	item->m_self = shared_ptr;
-	return shared_ptr;
+	return itemPush<SpaceItem>(shared_ptr);
 }
 
 SpaceField::State<SpaceItem> SpaceField::take(const ItemConstIterator &iterator)

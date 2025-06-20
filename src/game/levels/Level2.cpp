@@ -1,6 +1,4 @@
 #include "game/levels/Level2.hpp"
-#include "game/EnemyShip.hpp"
-#include "game/asteroids/SimpleAsteroid.hpp"
 #include "Helpers.hpp"
 #include "game/ships/EnemyShip.hpp"
 #include "game/actions/SummonItemAction.hpp"
@@ -33,6 +31,24 @@ Level2::Level2(SpaceField &field)
 			}
 		}
 	);
+}
+
+void Level2::start()
+{
+	LevelDestroyEnemies::start();
+	if (GameManager::exist())
+	{
+		GameManager::session()->action_manager.emplaceToTop<SummonItemAction<SpaceItem>>(
+			Pistol::identifier, [](SpaceItem &item) {
+				if (!GameManager::exist())
+					return;
+				auto &camera = GameManager::session()->camera;
+				item.setPosition(randomAreaPoint(
+					{ camera.getPosition(), camera.getViewSize() }
+				));
+			}
+		);
+	}
 }
 
 void Level2::afterHeaderShow()

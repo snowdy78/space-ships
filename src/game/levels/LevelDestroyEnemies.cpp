@@ -35,6 +35,11 @@ bool LevelDestroyEnemies::nextLevelCondition() const
 	return m_enemy_remaining == 0;
 }
 
+std::string LevelDestroyEnemies::getHeader() const
+{
+	return "Level";
+}
+
 std::string LevelDestroyEnemies::getDescription() const
 {
 	return std::string("Destroy ") + std::to_string(remaining()) + "enemies";

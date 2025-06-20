@@ -1,11 +1,7 @@
 #include "Gameplay.hpp"
-
-#include "Helpers.hpp"
 #include "MainMenu.hpp"
-#include "game/actions/AbstractSummonAction.hpp"
+#include "game/Collidable.hpp"
 #include "decl.hpp"
-#include "game/EnemyShip.hpp"
-#include "game/asteroids/SimpleAsteroid.hpp"
 
 Gameplay::Gameplay(sf::RenderWindow &window)
 	: MenuBranch(window)

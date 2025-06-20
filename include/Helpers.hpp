@@ -93,5 +93,3 @@ void randomlySummonAsteroidOutsideArea(const sf::FloatRect &view_area, float vel
 	randomBodyDirectionalOnAreaOutsideArea(view_area, *asteroid, velocity, asize);
 
 }
-
-

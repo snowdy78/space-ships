@@ -66,7 +66,7 @@ public:
 	size_t size() const;
 	void clear();
 	const ItemContainerType &items() const;
-	template<class T, class ...Args>
+	template<SpaceItemConcept T, class ...Args>
 	StatePtr<SpaceItem> emplaceItem(Args &&...args);
 	StatePtr<SpaceItem> pushItem(SpaceItem *item);
 	State<SpaceItem> take(const ItemConstIterator &iterator);
@@ -90,6 +90,8 @@ public:
 
 private:
 	void clearGarbage();
+	template<class T>
+	StatePtr<T> itemPush(const SmartPtrType<T> &ptr);
 	template<SpaceFieldObjectConcept T>
 	StatePtr<T> casted_push(T *ptr) noexcept;
 	const Camera2d *m_camera{ nullptr };
@@ -97,13 +99,10 @@ private:
 	ItemContainerType m_items;
 };
 
-template<class T, class ... Args>
+template<SpaceItemConcept T, class... Args>
 SpaceField::StatePtr<SpaceItem> SpaceField::emplaceItem(Args &&...args)
 {
-	auto ptr = std::make_shared<T>(std::forward<Args>(args)...);
-	m_items.push_back(ptr);
-	ptr->m_self = ptr;
-	return ptr;
+	return this->itemPush<T>(std::make_shared<T>(std::forward<Args>(args)...));
 }
 
 template<class T, class... Args>
@@ -137,6 +136,16 @@ SpaceField::ConstIterator SpaceField::find(const T *object) const
 	return std::find_if(begin(), end(), [object](const ValueType &state) {
 		return dynamic_cast<const T *>(state.get()) == object;
 	});
+}
+
+template<class T>
+SpaceField::StatePtr<T> SpaceField::itemPush(const SmartPtrType<T> &ptr)
+{
+	m_items.push_back(ptr);
+	ptr->m_self = ptr;
+	ptr->start();
+	ptr->onSummon();
+	return ptr;
 }
 
 template<SpaceFieldObjectConcept T>

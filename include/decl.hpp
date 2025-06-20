@@ -13,6 +13,8 @@
 	#define SPACE_SHIP_DEBUG
 #endif
 
+inline static sf::Color default_collider_color{ 0, 210, 160, 64 };
+
 inline sf::Mutex mutex;
 struct ChatSocket;
 struct Client;

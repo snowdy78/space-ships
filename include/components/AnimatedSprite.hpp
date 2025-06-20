@@ -85,9 +85,10 @@ public:
 	size_t getKeyframeCount() const;
 	const time_digit_t &getDuration() const;
 	bool getRepeating() const;
-
+	template<class Iter>
+	void assignKeyframesDuration(const Iter &first, const Iter &last, const time_digit_t &duration);
 	void setCurrentKeyframe(size_t index);
-	void setKeyframeTexture(size_t index, sf::Texture *);
+	void setKeyframeTexture(size_t index, sf::Texture *) const;
 	void setKeyframeDuration(size_t index, const time_digit_t &new_duration);
 	/**
 	 * @brief removes all keyframes in range `start + 1` before `stop` and increase keyframe duration at `start` index
@@ -108,6 +109,25 @@ private:
 	time_digit_t m_duration{ 0 };
 	iterator m_current_keyframe{ end() };
 };
+
+template<class Iter>
+void AnimatedSprite::assignKeyframesDuration(const Iter &first, const Iter &last, const time_digit_t &duration)
+{
+	time_digit_t dur{0};
+	for (auto i = first; i < first; ++i)
+	{
+		dur += (*i)->getDuration();
+	}
+	size_t dist = std::distance(first, last);
+	m_duration -= dur;
+	m_duration += duration * dist;
+	auto _begin = begin();
+	std::advance(_begin, getKeyframeCount() - dist);
+	for (; _begin < end(); ++_begin)
+	{
+		(*_begin)->setDuration(duration);
+	}
+}
 
 template<class IterT>
 void AnimatedSprite::spanKeyframes(IterT start, const IterT &stop)

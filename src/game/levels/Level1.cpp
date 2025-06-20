@@ -3,7 +3,9 @@
 #include "Helpers.hpp"
 #include "game/ships/EnemyShip.hpp"
 #include "game/GameManager.hpp"
+#include "game/actions/SummonItemAction.hpp"
 #include "game/asteroids/SimpleAsteroid.hpp"
+#include "game/guns/Pistol.hpp"
 #include "game/levels/Level2.hpp"
 
 Level1::Level1(SpaceField &field)
@@ -25,7 +27,8 @@ Level1::Level1(SpaceField &field)
 			{
 				auto &camera = GameManager::session()->camera;
 				randomBodyDirectionalOnAreaOutsideArea(
-					{ camera.getPosition(), camera.getViewSize() }, asteroid, *SimpleAsteroid::velocity, asteroid.getSize()
+					{ camera.getPosition(), camera.getViewSize() }, asteroid, *SimpleAsteroid::velocity,
+					asteroid.getSize()
 				);
 			}
 		}
@@ -36,6 +39,24 @@ void Level1::afterHeaderShow()
 {
 	summon(std::min(remaining(), static_cast<size_t>(5)));
 	m_summon_clock.start();
+}
+
+void Level1::start()
+{
+	LevelDestroyEnemies::start();
+	if (GameManager::exist())
+		GameManager::session()->action_manager.emplaceToTop<SummonItemAction<SpaceItem>>(
+			Pistol::identifier, [](SpaceItem &item) {
+				if (GameManager::exist())
+				{
+					auto view = GameManager::session()->camera.getViewRect();
+					view.height /= 2;
+					item.setPosition(
+						rn::math::centerPadding(view, rn::Vec2f{})
+					);
+				}
+			}
+		);
 }
 
 void Level1::update()

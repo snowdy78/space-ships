@@ -9,6 +9,11 @@
       "y": 1
     }
   },
+  "SpaceItem": {
+    "top_layer_ms_frame_time": 300,
+    "bottom_layer_ms_frame_time": 300,
+    "collider_visible": false
+  },
   "AbstractBullet": {
     "destroy_after": 1500
   },

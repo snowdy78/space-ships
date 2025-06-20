@@ -115,7 +115,7 @@ void AnimatedSprite::start()
 
 void AnimatedSprite::update()
 {
-	if (!m_clock.is_stopped() && m_clock.time<time_digit_t>().count() > (*m_current_keyframe)->getDuration().count())
+	if (m_current_keyframe != end() && !m_clock.is_stopped() && m_clock.time<time_digit_t>().count() > (*m_current_keyframe)->getDuration().count())
 	{
 		++m_current_keyframe;
 		if (m_current_keyframe == end())
@@ -188,7 +188,7 @@ const AnimatedSprite::Keyframe &AnimatedSprite::getKeyframe(size_t index) const
 
 AnimatedSprite::const_iterator AnimatedSprite::find(const Keyframe &keyframe) const
 {
-	auto it = std::find_if(m_keyframes.begin(), m_keyframes.end(), [&keyframe](auto &rightside_operand) {
+	auto it = std::ranges::find_if(m_keyframes, [&keyframe](auto &rightside_operand) {
 		return &keyframe == &*rightside_operand;
 	});
 	if (it != m_keyframes.end())
@@ -196,7 +196,7 @@ AnimatedSprite::const_iterator AnimatedSprite::find(const Keyframe &keyframe) co
 	return end();
 }
 
-void AnimatedSprite::setKeyframeTexture(size_t index, sf::Texture *texture)
+void AnimatedSprite::setKeyframeTexture(size_t index, sf::Texture *texture) const
 {
 	auto &keyframe = m_keyframes.at(index);
 	keyframe->setTexture(texture);

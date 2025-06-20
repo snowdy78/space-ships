@@ -19,6 +19,7 @@ public:
 	Level1(SpaceField &field);
 
 	void afterHeaderShow() override;
+	void start() override;
 	void update() override;
 	std::unique_ptr<AbstractLevelFactory> next() const override;
 	size_t factoryId() const override;
