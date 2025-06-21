@@ -8,6 +8,7 @@ class Hittable : public virtual SpaceFieldObject
 {
 	float health	 = 100.f;
 	float max_health = 100.f;
+	bool m_invincible = false;
 
 protected:
 	friend class HealthBar;
@@ -27,7 +28,6 @@ protected:
 		void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 	};
 	HealthBar health_bar{ *this };
-	bool m_invincible = false;
 
 public:
 	~Hittable() override;
