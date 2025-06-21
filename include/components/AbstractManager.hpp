@@ -9,6 +9,10 @@ class AbstractManager : public rn::LogicalObject
 {
 public:
 	using value_type	   = Ty;
+	using reference		   = Ty &;
+	using const_reference  = const Ty &;
+	using pointer		   = Ty *;
+	using const_pointer	   = const Ty *;
 	using values_container = ContainerT<std::unique_ptr<Ty>>;
 	using const_iterator   = typename values_container::const_iterator;
 	using iterator		   = typename values_container::iterator;
@@ -30,7 +34,7 @@ public:
 	using after_emplace_func = std::function<void(T value)>;
 	template<class T, class... Args>
 	constexpr void emplace_back(const after_emplace_func<T &> &after_emplace, const Args &...args);
-	
+
 	iterator erase(const_iterator index);
 	size_t size() const;
 	void clear();
@@ -65,9 +69,7 @@ private:
 };
 
 template<template<class T> class ContainerT, class Ty>
-AbstractManager<ContainerT, Ty>::~AbstractManager()
-{
-}
+AbstractManager<ContainerT, Ty>::~AbstractManager() = default;
 
 template<template<class T> class ContainerT, class Ty>
 typename AbstractManager<ContainerT, Ty>::const_iterator AbstractManager<ContainerT, Ty>::begin() const
@@ -111,7 +113,7 @@ constexpr void AbstractManager<ContainerT, Ty>::push_back(const value_type &valu
 	if constexpr (!std::is_abstract_v<value_type>)
 	{
 		m_container.push_back(std::move(std::unique_ptr<value_type>{ new value_type(value) }));
-		onPushValue(--m_container.end());
+		this->onPushValue(--m_container.end());
 	}
 }
 
@@ -121,7 +123,7 @@ constexpr void AbstractManager<ContainerT, Ty>::push_back(value_type &&value) no
 	if constexpr (!std::is_abstract_v<value_type>)
 	{
 		m_container.push_back(std::move(std::unique_ptr<value_type>{ new value_type(std::move(value)) }));
-		onPushValue(--m_container.end());
+		this->onPushValue(--m_container.end());
 	}
 }
 
@@ -130,10 +132,10 @@ template<class T, class... Args>
 constexpr void
 AbstractManager<ContainerT, Ty>::emplace_back(const after_emplace_func<T &> &after_emplace, const Args &...args)
 {
-	m_container.emplace_back(new T(args...));
-	if (auto t = dynamic_cast<T *>(m_container.back().get()))
-		after_emplace(*t);
-	onPushValue(--m_container.end());
+	T *a = new T(args...);
+	m_container.emplace_back(a);
+	after_emplace(*a);
+	this->onPushValue(--m_container.end());
 }
 
 template<template<class T> class ContainerT, class Ty>
@@ -161,10 +163,10 @@ void AbstractManager<ContainerT, Ty>::update()
 	{
 		if (*item)
 		{
-			if (need_erase(item))
-				item = --erase(item);
+			if (this->need_erase(item))
+				item = --this->erase(item);
 			else
-				update_item(item);
+				this->update_item(item);
 		}
 	}
 }
