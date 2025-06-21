@@ -162,11 +162,6 @@ void PlayerShip::onRotation()
 	AbstractShip::onRotation();
 	updateCollider();
 }
-void PlayerShip::onHit()
-{
-	AbstractShip::onHit();
-}
-
 bool PlayerShip::resolve(const Collidable *obstacle) const
 {
 	return AbstractShip::resolve(obstacle) && !isDodging();

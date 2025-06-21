@@ -78,7 +78,6 @@ public:
 	void onMove() override;
 	void onEvent(sf::Event &event) override;
 	void onRotation() override;
-	void onHit() override;
 	bool resolve(const Collidable *obstacle) const override;
 	void summonCopy(SpaceField &field) const override;
 	void dodge();
