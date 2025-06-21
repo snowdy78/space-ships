@@ -116,7 +116,7 @@ rn::Vec2f randomAreaPoint(const sf::FloatRect &area);
 rn::Vec2f randomPointOutsideArea(const sf::FloatRect &area, float distance_from_area = 100.f);
 
 void randomBodyDirectionalOnAreaOutsideArea(
-	const sf::FloatRect &view_area, RigitBody2d &body, float velocity, rn::Vec2f body_size = {}
+	const sf::FloatRect &view_area, RigitBody2d &body, rn::Vec2f body_size = {}
 );
 template<class T>
 void randomlySummonAsteroidOutsideArea(const sf::FloatRect &view_area, float velocity)
@@ -127,6 +127,6 @@ void randomlySummonAsteroidOutsideArea(const sf::FloatRect &view_area, float vel
 
 	SpaceField::State<AbstractAsteroid> asteroid = GameManager::session()->field.summonAsteroid<T>().lock();
 	auto asize				   = asteroid->getSize();
-	randomBodyDirectionalOnAreaOutsideArea(view_area, *asteroid, velocity, asize);
+	randomBodyDirectionalOnAreaOutsideArea(view_area, *asteroid, asize);
 
 }

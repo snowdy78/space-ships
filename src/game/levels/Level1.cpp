@@ -1,12 +1,12 @@
 #include "game/levels/Level1.hpp"
 
 #include "Helpers.hpp"
-#include "game/ships/EnemyShip.hpp"
 #include "game/GameManager.hpp"
 #include "game/actions/SummonItemAction.hpp"
 #include "game/asteroids/SimpleAsteroid.hpp"
 #include "game/guns/Pistol.hpp"
 #include "game/levels/Level2.hpp"
+#include "game/ships/EnemyShip.hpp"
 
 Level1::Level1(SpaceField &field)
 	: LevelDestroyEnemies(field, Difficulty::Star1, *props::enemy_count)
@@ -17,19 +17,16 @@ Level1::Level1(SpaceField &field)
 			{
 				enemy.setTarget(GameManager::session()->player);
 				auto &camera = GameManager::session()->camera;
-				enemy.setPosition(randomPointOutsideArea(
-					{ camera.getPosition(), camera.getViewSize() }, std::max(enemy.getSize().x, enemy.getSize().y)
-				));
+				enemy.setPosition(
+					randomPointOutsideArea(camera.getViewRect(), std::max(enemy.getSize().x, enemy.getSize().y))
+				);
 			}
 		},
 		[](SimpleAsteroid &asteroid) {
 			if (GameManager::exist())
 			{
 				auto &camera = GameManager::session()->camera;
-				randomBodyDirectionalOnAreaOutsideArea(
-					{ camera.getPosition(), camera.getViewSize() }, asteroid, *SimpleAsteroid::velocity,
-					asteroid.getSize()
-				);
+				randomBodyDirectionalOnAreaOutsideArea(camera.getViewRect(), asteroid, asteroid.getSize());
 			}
 		}
 	);
@@ -51,9 +48,7 @@ void Level1::start()
 				{
 					auto view = GameManager::session()->camera.getViewRect();
 					view.height /= 2;
-					item.setPosition(
-						rn::math::centerPadding(view, rn::Vec2f{})
-					);
+					item.setPosition(rn::math::centerPadding(view, rn::Vec2f{}));
 				}
 			}
 		);

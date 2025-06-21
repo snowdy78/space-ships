@@ -109,7 +109,7 @@ rn::Vec2f randomPointOutsideArea(const sf::FloatRect &area, const float distance
 	return rect.side(random_side).lerp(k);
 }
 void randomBodyDirectionalOnAreaOutsideArea(
-	const sf::FloatRect &view_area, RigitBody2d &body, const float velocity, rn::Vec2f body_size
+	const sf::FloatRect &view_area, RigitBody2d &body, rn::Vec2f body_size
 )
 {
 	using rn::math::coordinates2d;
@@ -132,7 +132,6 @@ void randomBodyDirectionalOnAreaOutsideArea(
 	rn::Vec2f dir = direction(base_angle);
 
 	body.setDirection(rn::math::norm(dir));
-	body.setVelocity(velocity);
 	body.setPosition(position);
 }
 bool everyTime(const rn::Stopwatch &clock, const std::chrono::milliseconds &t)
