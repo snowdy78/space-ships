@@ -1,21 +1,10 @@
 #pragma once
 
-#include "game/AbstractAsteroid.hpp"
-#include "game/GameObjectBase.hpp"
-#include "components/GameConfiguration.hpp"
-#include "components/FileLoader.hpp"
+#include "AsteroidBase.hpp"
 
-class SimpleAsteroid final : public AbstractAsteroid, public GameObjectBase<SimpleAsteroid>
+constexpr char simple_asteroid_class_name[] = "SimpleAsteroid";
+constexpr char simple_asteroid_tex_path[]	= "img/asteroid.png";
+
+struct SimpleAsteroid final : AsteroidBase<SimpleAsteroid, simple_asteroid_class_name, simple_asteroid_tex_path>
 {
-public:
-	SimpleAsteroid();
-	void start() override;
-	void summonCopy(SpaceField &field) const override;
-	void updateCollider() override;
-
-private:
-	inline static loading<sf::Texture> texture = TextureLoader::instance().addToUpload("img/asteroid.png").get();
-	inline static auto &self_config = config::instance().get("SimpleAsteroid");
-public:
-	G_CONFIG_PROP_DEFINE(self_config, velocity);
 };

@@ -7,6 +7,7 @@
 AbstractAsteroid::AbstractAsteroid(const sf::Texture &texture)
 	: m_sprite(texture)
 {
+	setInvincible(true);
 }
 
 AbstractAsteroid::~AbstractAsteroid() = default;
@@ -53,7 +54,7 @@ void AbstractAsteroid::onMove()
 		m_out_of_view_clock.stop();
 		m_out_of_view_clock.reset();
 	}
-	if (everyTime(m_out_of_view_clock, std::chrono::milliseconds(*props::destroy_after)))
+	if (everyTime(m_out_of_view_clock, std::chrono::milliseconds(*props::destroy_if_outside_after)))
 	{
 		destroy();
 		m_out_of_view_clock.stop();
@@ -99,15 +100,6 @@ void AbstractAsteroid::update()
 const Collider *AbstractAsteroid::getCollider() const
 {
 	return &collider;
-}
-
-void AbstractAsteroid::onCollisionEnter(const Collidable* obstacle)
-{
-	if (GameManager::exist() && existOnField())
-	{
-		GameManager::session()->action_manager.emplaceToTop<DestroySpaceFieldObjectAction>(TransferableActionProps{
-			self() });
-	}
 }
 
 bool AbstractAsteroid::resolve(const Collidable *obstacle) const

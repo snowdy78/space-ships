@@ -6,13 +6,14 @@
 #include "colliders/PolygonCollider.hpp"
 #include "decl.hpp"
 #include "components/GameConfiguration.hpp"
+#include "Hittable.hpp"
 
-class AbstractAsteroid : public RigitBody2d, public Collidable
+class AbstractAsteroid : public RigitBody2d, public Collidable, public Hittable
 {
 	struct props
 	{
 		inline static auto &self_config = config::instance().get("AbstractAsteroid");
-		G_CONFIG_PROP_DEFINE(self_config, destroy_after);
+		G_CONFIG_PROP_DEFINE(self_config, destroy_if_outside_after);
 	};
 public:
 	AbstractAsteroid(const sf::Texture &texture);
@@ -29,7 +30,6 @@ public:
 	void update() override;
 	virtual void updateCollider() = 0;
 	const Collider *getCollider() const override;
-	void onCollisionEnter(const Collidable *obstacle) override;
 	bool resolve(const Collidable *obstacle) const override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 

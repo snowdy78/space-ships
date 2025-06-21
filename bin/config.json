@@ -78,10 +78,22 @@
     "shoot_time": 2000
   },
   "AbstractAsteroid": {
-    "destroy_after": 1500
+    "destroy_if_outside_after": 1500
   },
   "SimpleAsteroid": {
-    "velocity": 20
+    "velocity": 10,
+    "mass": 10,
+    "acceleration": 0
+  },
+  "SmallAsteroid": {
+    "velocity": 17,
+    "mass": 5,
+    "acceleration": 0
+  },
+  "GiantAsteroid": {
+    "velocity": 1.5,
+    "mass": 30,
+    "acceleration": 0
   },
   "Level1": {
     "summon_chance": 0.35,
