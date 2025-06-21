@@ -26,7 +26,8 @@ class EnemyShipBase : public AbstractShip, public GameObjectBase<Derived>
 		G_CONFIG_PROP_DEFINE(self_config, time_horizontal_movement);
 		G_CONFIG_PROP_DEFINE(self_config, shoot_time);
 	};
-	time_digit_type time_vertical_movement, time_horizontal_movement, shoot_time;
+	time_digit_type time_vertical_movement{ *props::time_vertical_movement },
+		time_horizontal_movement{ *props::time_horizontal_movement }, shoot_time{ *props::shoot_time };
 	rn::Stopwatch movement_clock;
 	rn::Stopwatch shoot_clock;
 	SpaceField::StatePtr<AbstractShip> m_target;
@@ -199,7 +200,7 @@ void EnemyShipBase<Derived, Weapon, ClassName, PathSprite>::movement()
 		GameManager::session()->action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ self() });
 }
 
-template<class Derived, class Weapon, char const* ClassName, char const* PathSprite>
+template<class Derived, class Weapon, char const *ClassName, char const *PathSprite>
 void EnemyShipBase<Derived, Weapon, ClassName, PathSprite>::shootBehaviour()
 {
 	if (everyTime(shoot_clock, shoot_time))
