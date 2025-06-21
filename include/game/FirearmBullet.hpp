@@ -6,7 +6,7 @@
 #include "game/AbstractBullet.hpp"
 #include "game/GameObjectBase.hpp"
 
-template<class Derived, char const *SpritePath, char const *ClassName>
+template<class Derived, class HitEffect, char const *SpritePath, char const *ClassName>
 class FirearmBullet : public AbstractBullet, public GameObjectBase<Derived>
 {
 	struct props
@@ -23,17 +23,18 @@ public:
 	using AbstractBullet::AbstractBullet;
 	const sf::Texture &initTexture() const override;
 	void start() override;
+	void onDestroy() override;
 	void summonCopy(SpaceField &field) const override;
 };
 
-template<class T, char const* SpritePath, char const* ClassName>
-const sf::Texture & FirearmBullet<T, SpritePath, ClassName>::initTexture() const
+template<class T, class HitEffect, char const* SpritePath, char const* ClassName>
+const sf::Texture & FirearmBullet<T, HitEffect, SpritePath, ClassName>::initTexture() const
 {
 	return *texture;
 }
 
-template<class T, char const* SpritePath, char const* ClassName>
-void FirearmBullet<T, SpritePath, ClassName>::start()
+template<class T, class HitEffect, char const *SpritePath, char const *ClassName>
+void FirearmBullet<T, HitEffect, SpritePath, ClassName>::start()
 {
 	this->setDamage(*props::damage);
 
@@ -49,8 +50,20 @@ void FirearmBullet<T, SpritePath, ClassName>::start()
 	AbstractBullet::start();
 }
 
-template<class T, char const* SpritePath, char const* ClassName>
-void FirearmBullet<T, SpritePath, ClassName>::summonCopy(SpaceField &field) const
+template<class Derived, class HitEffect, char const* SpritePath, char const* ClassName>
+void FirearmBullet<Derived, HitEffect, SpritePath, ClassName>::onDestroy()
+{
+	AbstractBullet::onDestroy();
+	if (GameManager::exist())
+	{
+		GameManager::instance().effect_manager.emplace_back<HitEffect>([this](HitEffect &effect) {
+			effect.setPosition(getPosition());
+		});
+	}
+}
+
+template<class T, class HitEffect, char const *SpritePath, char const *ClassName>
+void FirearmBullet<T, HitEffect, SpritePath, ClassName>::summonCopy(SpaceField &field) const
 {
 	field.summonBullet<T>([this](T &bullet) {
 		bullet.author_ptr = author_ptr;
