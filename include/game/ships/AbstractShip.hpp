@@ -59,6 +59,7 @@ public:
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 protected:
+	sf::Sprite &getSprite();
 	template<WeaponConcept T, class... Args>
 	friend void makeWeaponForShip(AbstractShip &ship, Args &&...);
 	friend void shipTakeWeapon(AbstractShip &ship, const SpaceField::StatePtr<SpaceItem> &ptr);

@@ -15,6 +15,7 @@ class FirearmBullet : public AbstractBullet, public GameObjectBase<Derived>
 		G_CONFIG_PROP_DEFINE(self_config, damage);
 		G_CONFIG_PROP_DEFINE(self_config, fly_clear_sound_distance);
 		G_CONFIG_PROP_DEFINE(self_config, fly_disperse_radius);
+		G_CONFIG_PROP_DEFINE(self_config, velocity);
 	};
 	inline static loading<sf::Texture> texture = TextureLoader::instance().addToUpload(SpritePath).get();
 
@@ -37,7 +38,7 @@ void FirearmBullet<T, SpritePath, ClassName>::start()
 	this->setDamage(*props::damage);
 
 	float mass		   = 0.100f;
-	float velocity	   = 15.f;
+	float velocity	   = *props::velocity;
 	float acceleration = 1.f / 2500.f;
 
 	setVelocity(velocity);

@@ -181,6 +181,11 @@ const AnimatedSprite::Keyframe &AnimatedSprite::getCurrentKeyframe() const
 	return **m_current_keyframe;
 }
 
+AnimatedSprite::const_iterator AnimatedSprite::current() const
+{
+	return m_current_keyframe;
+}
+
 const AnimatedSprite::Keyframe &AnimatedSprite::getKeyframe(size_t index) const
 {
 	return *m_keyframes.at(index);

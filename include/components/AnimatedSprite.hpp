@@ -80,6 +80,7 @@ private:
 
 public:
 	const Keyframe &getCurrentKeyframe() const;
+	const_iterator current() const;
 	const Keyframe &getKeyframe(size_t index) const;
 	const_iterator find(const Keyframe &keyframe) const;
 	size_t getKeyframeCount() const;

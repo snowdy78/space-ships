@@ -191,3 +191,8 @@ void AbstractShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	}
 	target.draw(health_bar, st);
 }
+
+sf::Sprite & AbstractShip::getSprite()
+{
+	return sprite;
+}

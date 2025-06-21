@@ -20,7 +20,7 @@
   },
   "BaseBullet": {
     "damage": 25,
-    "velocity": 28,
+    "velocity": 10,
     "fly_clear_sound_distance": 0.3,
     "fly_disperse_radius": 50
   },
@@ -59,14 +59,16 @@
   },
   "AbstractShip": {
     "collider_visible": false,
-    "velocity": 20,
+    "velocity": 6,
     "clear_hit_sound_distance": 0.3,
     "hit_sound_disperse_radius": 1000,
     "clear_destroy_sound_distance": 0.3,
     "destroy_sound_disperse_radius": 1000
   },
   "PlayerShip": {
-    "shift_acceleration": 1.5
+    "shift_acceleration": 1.5,
+    "dodge_roll_velocity": 10.0,
+    "dodge_roll_time": 300
   },
   "EnemyShip": {
     "velocity": 2.5,
