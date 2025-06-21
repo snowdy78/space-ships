@@ -19,7 +19,7 @@ public:
 		ratio.x /= texsize.x;
 		ratio.y /= texsize.y;
 		setScale(ratio);
-		setOrigin(texsize);
+		setOrigin(texsize/2.f);
 	}
 };
 
