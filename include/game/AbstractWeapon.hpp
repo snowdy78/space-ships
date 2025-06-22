@@ -23,6 +23,7 @@ public:
 	virtual bool isAutomatic() const;
 	void update() override;
 	virtual std::chrono::milliseconds getRollback() const;
+	void onPlayerTake(const std::shared_ptr<AbstractShip> &) override;
 
 protected:
 	/**

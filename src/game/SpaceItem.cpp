@@ -2,32 +2,6 @@
 #include "coop/TransferableAction.hpp"
 #include "game/GameManager.hpp"
 #include "game/ships/AbstractShip.hpp"
-// DON'T REMOVE
-#include "game/ships/tools/AssignWeapon.hpp" // DO NOT REMOVE THIS !!!!
-// DON'T
-
-class ShipGrabWeaponAction : public TransferActionBase<ShipGrabWeaponAction>
-{
-public:
-	ShipGrabWeaponAction(const ActionProps &props)
-		: TransferActionBase(props)
-	{
-		if (props.authorExist())
-			ship = *props.castAuthor<AbstractShip>();
-		if (props.contributorExist())
-			item = *props.castContributor<SpaceItem>();
-	}
-	void play() override
-	{
-		if (item.expired() || item.lock()->hasOwner() || ship.expired())
-			return;
-		shipTakeWeapon(*ship.lock(), item);
-	}
-
-private:
-	SpaceField::StatePtr<AbstractShip> ship;
-	SpaceField::StatePtr<SpaceItem> item;
-};
 
 void SpaceItem::updateCollider()
 {
@@ -85,7 +59,7 @@ void SpaceItem::update()
 			auto player = player_ptr.lock();
 			
 			if (player->getCollider()->collide(collider))
-				collideWithShip(player);
+				onPlayerTake(player);
 		}
 	}
 }
@@ -109,10 +83,3 @@ void SpaceItem::onOwnerAssign()
 {
 }
 
-void SpaceItem::collideWithShip(const std::shared_ptr<AbstractShip> &player)
-{
-	if (GameManager::exist())
-	{
-		GameManager::session()->action_manager.emplaceToTop<ShipGrabWeaponAction>(ActionProps{player, self()});
-	}
-}

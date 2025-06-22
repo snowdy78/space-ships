@@ -41,7 +41,9 @@ public:
 	void update() override;
 	virtual const sf::Drawable &getItemSprite() const = 0;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
-	void collideWithShip(const std::shared_ptr<AbstractShip> &);
+	virtual void onPlayerTake(const std::shared_ptr<AbstractShip> &)
+	{
+	}
 	virtual void onOwnerAssign();
 
 	virtual void onSummon()
