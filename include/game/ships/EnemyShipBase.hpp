@@ -29,7 +29,7 @@ class EnemyShipBase : public AbstractShip, public GameObjectBase<Derived>
 	time_digit_type time_vertical_movement{ *props::time_vertical_movement },
 		time_horizontal_movement{ *props::time_horizontal_movement }, shoot_time{ *props::shoot_time };
 	rn::Stopwatch movement_clock;
-	rn::Stopwatch shoot_clock{time_digit_type{200} + time_digit_type{rn::random::integer(0, 400)}};
+	rn::Stopwatch shoot_clock{ time_digit_type{ 200 } + time_digit_type{ rn::random::integer(0, 400) } };
 	SpaceField::StatePtr<AbstractShip> m_target;
 	class random_move
 	{
@@ -141,6 +141,8 @@ rn::Vec2f EnemyShipBase<Derived, Weapon, ClassName, PathSprite>::countMove() con
 	float sign = static_cast<float>(rn::math::sgn(
 		rn::math::length(ship->getPosition() - getPosition()) - static_cast<number_t>(*props::min_target_distance)
 	));
+	if (sign < 0)
+		sign = 0;
 	rn::Vec2f dir{ getMoveDirection() * sign };
 
 	return getVelocity() * dir;
@@ -161,10 +163,17 @@ void EnemyShipBase<Derived, Weapon, ClassName, PathSprite>::movement()
 {
 	using namespace std::chrono;
 	using rn::math::rot, rn::math::norm, rn::math::nor;
-
+	constexpr float max_distance_random_move = 500;
 	AbstractShip::movement();
 	if (m_target.expired() || !GameManager::exist())
 		return;
+	auto target = m_target.lock();
+	if (rn::math::length(target->getPosition() - getPosition()) > max_distance_random_move) // set moving to target if target too far from enemy
+	{
+		setMoveDirection(norm(target->getPosition() - getPosition()));
+		GameManager::session()->action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ self() });
+		return;
+	}
 
 	if (timeStep(movement_clock, time_vertical_movement))
 	{
@@ -196,6 +205,7 @@ void EnemyShipBase<Derived, Weapon, ClassName, PathSprite>::movement()
 		setMoveDirection(direction(a2 - a1));
 		horizontal.reset();
 	}
+
 	if (vertical || horizontal && existOnField())
 		GameManager::session()->action_manager.emplaceToTop<MoveShipAction>(TransferableActionProps{ self() });
 }
