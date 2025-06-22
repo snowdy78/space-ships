@@ -65,7 +65,7 @@ protected:
 	friend void shipTakeWeapon(AbstractShip &ship, const SpaceField::StatePtr<SpaceItem> &ptr);
 	inline static loading<AnimatedSprite> destroy_animation
 		= AnimationLoader::instance().addToUpload("./img/animation/Explosion4/.png").get();
-	inline static loading<sf::SoundBuffer> hit_buffer = SoundLoader::instance().addToUpload("hit.ogg").get();
+	inline static loading<sf::SoundBuffer> hit_buffer = SoundLoader::instance().addToUpload("assets/hit.ogg").get();
 	inline static loading<sf::SoundBuffer> destroy_buffer{
 		SoundLoader::instance().addToUpload("./assets/explosion.wav").get()
 	};

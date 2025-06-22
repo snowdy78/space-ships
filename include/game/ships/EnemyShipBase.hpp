@@ -29,7 +29,7 @@ class EnemyShipBase : public AbstractShip, public GameObjectBase<Derived>
 	time_digit_type time_vertical_movement{ *props::time_vertical_movement },
 		time_horizontal_movement{ *props::time_horizontal_movement }, shoot_time{ *props::shoot_time };
 	rn::Stopwatch movement_clock;
-	rn::Stopwatch shoot_clock;
+	rn::Stopwatch shoot_clock{time_digit_type{200} + time_digit_type{rn::random::integer(0, 400)}};
 	SpaceField::StatePtr<AbstractShip> m_target;
 	class random_move
 	{
