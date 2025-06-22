@@ -3,7 +3,7 @@
 #include "game/FirearmWeapon.hpp"
 #include "game/bullets/LaserBullet.hpp"
 
-constexpr char laser_rifle_sound_path[]	= "shoot.ogg";
+constexpr char laser_rifle_sound_path[]	= "assets/laser-rifle-shoot.wav";
 constexpr char laser_rifle_sprite_path[] = "img/rifle.png";
 constexpr char laser_rifle_class_name[]	 = "LaserRifle";
 

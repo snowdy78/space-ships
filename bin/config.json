@@ -78,27 +78,43 @@
     "time_horizontal_movement": 1600,
     "shoot_time": 2000
   },
+  "DemonicEnemyShip": {
+    "velocity": 2.5,
+    "min_target_distance": 100,
+    "time_vertical_movement": 660,
+    "time_horizontal_movement": 1600,
+    "shoot_time": 2000
+  },
   "AbstractAsteroid": {
     "destroy_if_outside_after": 1500
   },
   "SimpleAsteroid": {
     "velocity": 10,
     "mass": 10,
-    "acceleration": 0
+    "acceleration": 0,
+    "damage": 30,
+    "hit_sound_lerped_pure_value": 0.8,
+    "hit_sound_disperse_radius": 1000
   },
   "SmallAsteroid": {
     "velocity": 17,
     "mass": 5,
-    "acceleration": 0
+    "acceleration": 0,
+    "damage": 40,
+    "hit_sound_lerped_pure_value": 0.8,
+    "hit_sound_disperse_radius": 1000
   },
   "GiantAsteroid": {
     "velocity": 1.5,
     "mass": 30,
-    "acceleration": 0
+    "acceleration": 0,
+    "damage": 60,
+    "hit_sound_lerped_pure_value": 0.8,
+    "hit_sound_disperse_radius": 1000
   },
   "Level1": {
     "summon_chance": 0.35,
-    "summon_time": 20000,
+    "summon_time": 5000,
     "enemy_count": 10
   },
   "Level2": {

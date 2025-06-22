@@ -3,9 +3,9 @@
 #include "SoundDisperseEntity.hpp"
 #include "AbstractManager.hpp"
 
-struct SoundManager : public AbstractManager<std::vector, SoundDisperseEntity>
+class SoundManager : public AbstractManager<std::vector, SoundDisperseEntity>
 {
-
+public:
     SoundManager() = default;
 
     bool need_erase(const const_iterator &value) const override;

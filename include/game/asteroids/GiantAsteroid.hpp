@@ -4,7 +4,9 @@
 
 constexpr char giant_asteroid_class_name[] = "GiantAsteroid";
 constexpr char giant_asteroid_tex_path[]	= "img/asteroid3.png";
+constexpr char giant_asteroid_hit_sound_path[] = "assets/asteroid-hit.wav";
 
-struct GiantAsteroid final : AsteroidBase<GiantAsteroid, giant_asteroid_class_name, giant_asteroid_tex_path>
+struct GiantAsteroid final
+	: AsteroidBase<GiantAsteroid, giant_asteroid_class_name, giant_asteroid_tex_path, giant_asteroid_hit_sound_path>
 {
 };

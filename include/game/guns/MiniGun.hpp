@@ -3,7 +3,7 @@
 #include "game/FirearmWeapon.hpp"
 #include "game/bullets/LittleBullet.hpp"
 
-constexpr char minigun_sound_path[] = "shoot.ogg";
+constexpr char minigun_sound_path[] = "assets/minigun-shoot.wav";
 constexpr char minigun_sprite_path[] = "img/minigun.png";
 constexpr char minigun_class_name[]	 = "MiniGun";
 

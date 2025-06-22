@@ -7,8 +7,9 @@
 #include "decl.hpp"
 #include "components/GameConfiguration.hpp"
 #include "Hittable.hpp"
+#include "DamageDealer.hpp"
 
-class AbstractAsteroid : public RigitBody2d, public Collidable, public Hittable
+class AbstractAsteroid : public RigitBody2d, public Collidable, public Hittable, public DamageDealer
 {
 	struct props
 	{
@@ -30,6 +31,7 @@ public:
 	void update() override;
 	virtual void updateCollider() = 0;
 	const Collider *getCollider() const override;
+	void onCollisionEnter(const Collidable *collidable) override;
 	bool resolve(const Collidable *obstacle) const override;
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 

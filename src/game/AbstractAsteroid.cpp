@@ -2,7 +2,10 @@
 
 #include "Helpers.hpp"
 #include "game/GameManager.hpp"
+#include "game/actions/DealDamageAction.hpp"
 #include "game/actions/DestroySpaceFieldObjectAction.hpp"
+#include "game/actions/TakeDamageAction.hpp"
+#include "game/ships/AbstractShip.hpp"
 
 AbstractAsteroid::AbstractAsteroid(const sf::Texture &texture)
 	: m_sprite(texture)
@@ -100,6 +103,16 @@ void AbstractAsteroid::update()
 const Collider *AbstractAsteroid::getCollider() const
 {
 	return &collider;
+}
+
+void AbstractAsteroid::onCollisionEnter(const Collidable *collidable)
+{
+	auto hittable = dynamic_cast<const Hittable *>(collidable);
+	if (hittable && GameManager::exist())
+	{
+		GameManager::session()->action_manager.emplaceToTop<DealDamageAction>(ActionProps{ self(), hittable->self() });
+		GameManager::session()->action_manager.emplaceToTop<TakeDamageAction>(ActionProps{ hittable->self(), self() });
+	}
 }
 
 bool AbstractAsteroid::resolve(const Collidable *obstacle) const
