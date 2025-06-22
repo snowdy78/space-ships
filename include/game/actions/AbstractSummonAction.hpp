@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Helpers.hpp"
 #include "coop/TransferableAction.hpp"
 #include "game/GameManager.hpp"
 #include "game/ships/AbstractShip.hpp"
 #include "game/AbstractAsteroid.hpp"
 #include "game/AbstractBullet.hpp"
+#include "dynamic_unique_cast.hpp"
+
 // FIX THIS REALIZATION !!!!!
 // TODO SUMMONING NOT WORKING CORRECTLY ON MULTIPLAYER GAME
 
@@ -32,7 +33,7 @@ public:
 		if (!object_id.has_value() || !GameManager::exist())
 			return;
 		auto obj = GameObjectFactory::create(*object_id);
-		if (auto summon_object = dynamic_unique_cast<SummonType>(std::move(obj)))
+		if (auto summon_object = std_impl::dynamic_unique_cast<SummonType>(std::move(obj)))
 		{
 			auto raw_object_ptr = summon_object.release();
 			this->handleCreate(raw_object_ptr);

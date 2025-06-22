@@ -120,7 +120,7 @@ std::unique_ptr<TransferableObject> BasicRouterResponse::object() const
 	try
 	{
 		auto object = GameObjectFactory::create(*id());
-		auto transferable = dynamic_unique_cast<TransferableObject>(std::move(object));
+		auto transferable = std_impl::dynamic_unique_cast<TransferableObject>(std::move(object));
 		if (!transferable)
 			throw std::bad_cast();
 

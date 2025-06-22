@@ -30,7 +30,7 @@ public:
 		if (!object_id.has_value() || !GameManager::exist())
 			return;
 		auto obj = GameObjectFactory::create(*object_id);
-		if (auto summon_object = dynamic_unique_cast<SummonType>(std::move(obj)))
+		if (auto summon_object = std_impl::dynamic_unique_cast<SummonType>(std::move(obj)))
 		{
 			this->handleCreate(summon_object.get());
 			auto raw_object_ptr = summon_object.release();
