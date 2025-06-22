@@ -12,8 +12,15 @@
 #ifndef ENEMY_TEST_COLLISION
 // #define ENEMY_TEST_COLLISION
 #endif
+
+class AbstractEnemyShip : public AbstractShip
+{
+public:
+	using AbstractShip::AbstractShip;
+};
+
 template<class Derived, class Weapon, char const *ClassName, char const *PathSprite>
-class EnemyShipBase : public AbstractShip, public GameObjectBase<Derived>
+class EnemyShipBase : public AbstractEnemyShip, public GameObjectBase<Derived>
 {
 	using time_digit_type					   = std::chrono::milliseconds;
 	inline static loading<sf::Texture> texture = TextureLoader::instance().addToUpload(PathSprite).get();
@@ -100,7 +107,7 @@ private:
 };
 template<class Derived, class Weapon, char const *ClassName, char const *PathSprite>
 EnemyShipBase<Derived, Weapon, ClassName, PathSprite>::EnemyShipBase()
-	: AbstractShip(*texture)
+	: AbstractEnemyShip(*texture)
 {
 }
 template<class Derived, class Weapon, char const *ClassName, char const *PathSprite>
