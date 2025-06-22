@@ -5,7 +5,7 @@
 #include "game/AbstractAsteroid.hpp"
 #include <thread>
 #include <list>
-
+#include "game/actions/AbstractSummonAction.hpp"
 template<class T>
 rn::Json to_json(const rn::Vec2<T> &vec)
 {
@@ -99,15 +99,19 @@ rn::Vec2f randomPointOutsideArea(const sf::FloatRect &area, float distance_from_
 void randomBodyDirectionalOnAreaOutsideArea(
 	const sf::FloatRect &view_area, RigitBody2d &body, rn::Vec2f body_size = {}
 );
-template<class T>
-void randomlySummonAsteroidOutsideArea(const sf::FloatRect &view_area, float velocity)
+template<AsteroidConcept ...Args>
+void randomlySummonAsteroidOutsideArea(const sf::FloatRect &view_area)
 {
-	using rn::math::coordinates2d;
-	using rn::math::degrees, rn::math::radians;
-	using rn::math::sgn;
-
-	SpaceField::State<AbstractAsteroid> asteroid = GameManager::session()->field.summonAsteroid<T>().lock();
-	auto asize				   = asteroid->getSize();
-	randomBodyDirectionalOnAreaOutsideArea(view_area, *asteroid, asize);
+	if (!GameManager::exist())
+	{
+		throw std::runtime_error("game session does not exist! (randomlySummonAsteroidOutsideArea)\n");
+	}
+	std::vector<size_t> asteroid_ids			 = { Args::identifier... };
+	GameManager::session()->action_manager.emplaceToTop<SummonAsteroidAction>(
+		*rn::random::item(asteroid_ids.begin(), asteroid_ids.end()), [view_area](AbstractAsteroid &asteroid) {
+			auto asize				   = asteroid.getSize();
+			randomBodyDirectionalOnAreaOutsideArea(view_area, asteroid, asize);
+		}
+	);
 
 }

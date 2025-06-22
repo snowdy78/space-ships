@@ -103,7 +103,6 @@ rn::Vec2f randomPointOutsideArea(const sf::FloatRect &area, const float distance
 	auto asize		= rn::Vec2f(distance_from_area, distance_from_area);
 	int random_side = rn::random::integer(0, 3);
 	float k			= rn::random::real<float>(0, 1);
-	rn::math::rectangle view_rect(area);
 	rn::math::rectangle rect(area.getPosition() - asize, area.getSize() + asize * 2.f);
 	// random position by random point on random side
 	return rect.side(random_side).lerp(k);

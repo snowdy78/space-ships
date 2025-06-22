@@ -98,7 +98,7 @@ void GameSession::onEvent(sf::Event &event)
 		if (rn::isKeydown(sf::Keyboard::O))
 		{
 			randomlySummonAsteroidOutsideArea<SimpleAsteroid>(
-				camera.getTransform().transformRect({ {}, camera.getViewSize() }), 10.f
+				camera.getViewRect()
 			);
 		}
 		if (rn::isKeydown(sf::Keyboard::I))
