@@ -64,8 +64,9 @@ void AbstractLevel::setSummonPackSize(size_t pack_size)
 	m_pack_size = pack_size;
 }
 
-void AbstractLevel::onSummon()
+void AbstractLevel::onSummon(const SpaceField::StatePtrType &ptr)
 {
+	
 }
 
 std::string AbstractLevel::getDescription() const
@@ -131,17 +132,6 @@ void AbstractLevel::updateDescription()
 	if (m_description)
 	{
 		m_description->setString(getDescription());
-		if (GameManager::exist())
-		{
-			constexpr float indent_right = 5;
-			constexpr float indent_top	 = 5;
-			auto rect					 = GameManager::session()->camera.getViewRect();
-			auto bounds					 = m_description->getGlobalBounds();
-			m_description->setPosition(rect.width - bounds.width - indent_right, bounds.height + indent_top);
-#ifdef SPACE_SHIP_DEBUG
-			std::cout << "description shown\n";
-#endif
-		}
 	}
 }
 
@@ -158,9 +148,6 @@ void AbstractLevel::showDescription()
 		m_description->setPosition(
 			rect.width - bounds.width - indent_right, bounds.height + indent_top
 		);
-#ifdef SPACE_SHIP_DEBUG
-		std::cout << "description shown\n";
-#endif
 	}
 }
 
@@ -172,7 +159,7 @@ void AbstractLevel::showHeader()
 		m_header->setString(getHeader());
 		m_header->start();
 		if (auto camera = m_field.getCamera())
-			m_header->setPosition(rn::math::centerPadding(camera->getViewRect(), m_header->getSize()));
+			m_header->setPosition(rn::math::centerPadding(sf::FloatRect{{0.f, 0.f}, camera->getViewSize()}, m_header->getSize()));
 	}
 	else
 		m_header->reset();
@@ -207,8 +194,7 @@ void AbstractLevel::summon(size_t count)
 {
 	while (count-- != 0)
 	{
-		m_entities.summon(nextSummon());
-		onSummon();
+		onSummon(m_entities.summon(nextSummon()));
 	}
 }
 
@@ -235,7 +221,7 @@ AbstractLevel::PoolEntities::ObjectPtr AbstractLevel::PoolEntities::create(const
 	if (iterator == end())
 		throw std::out_of_range("(std::out_of_range): object not found in entities pool\n");
 	std::unique_ptr<GameObject> object = GameObjectFactory::create(iterator->entity_id());
-	if (auto t_ptr = dynamic_unique_cast<SpaceFieldObject>(std::move(object)))
+	if (auto t_ptr = std_impl::dynamic_unique_cast<SpaceFieldObject>(std::move(object)))
 	{
 		iterator->assign(t_ptr.get());
 		if (!iterator->init_possible())
@@ -311,13 +297,15 @@ AbstractLevel::Entities::Iterator AbstractLevel::Entities::begin()
 	return m_entities.begin();
 }
 
-void AbstractLevel::Entities::summon(PoolEntities::ConstIterator it)
+SpaceField::StatePtrType AbstractLevel::Entities::summon(PoolEntities::ConstIterator it)
 {
 	auto object = m_pool.create(it);
 	auto raw	= object.release();
 	try
 	{
-		m_entities.push_back(m_field.push_back(raw));
+		auto ptr = m_field.push_back(raw);
+		m_entities.push_back(ptr);
+		return ptr;
 	}
 	catch (std::exception &err)
 	{

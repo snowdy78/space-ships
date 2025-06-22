@@ -139,7 +139,7 @@ public:
 		ConstIterator cend() const;
 
 		Iterator destroy(ConstIterator it);
-		void summon(PoolEntities::ConstIterator it);
+		SpaceField::StatePtrType summon(PoolEntities::ConstIterator it);
 		void clear();
 
 	private:
@@ -188,7 +188,7 @@ public:
 	size_t getSummonPackSize() const;
 
 	void setSummonPackSize(size_t pack_size);
-	virtual void onSummon();
+	virtual void onSummon(const SpaceField::StatePtrType &ptr);
 	virtual std::string getDescription() const;
 	virtual std::string getHeader() const;
 	virtual size_t factoryId() const						   = 0;

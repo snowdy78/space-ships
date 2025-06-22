@@ -16,7 +16,7 @@ public:
 	size_t getRemainingToSummon() const;
 	void start() override;
 	void decrease_remaining();
-	void onSummon() override;
+	void onSummon(const SpaceField::StatePtrType &ptr) override;
 	bool summonCondition() const override;
 	bool nextLevelCondition() const override;
 	std::string getHeader() const override;

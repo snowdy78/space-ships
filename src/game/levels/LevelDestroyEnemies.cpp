@@ -1,6 +1,7 @@
 #include "game/levels/LevelDestroyEnemies.hpp"
 #include "Helpers.hpp"
 #include "game/actions/DestroySpaceFieldObjectAction.hpp"
+#include "game/ships/EnemyShipBase.hpp"
 
 LevelDestroyEnemies::LevelDestroyEnemies(SpaceField &field, const Difficulty &difficulty, size_t enemy_remaining)
 	: AbstractLevel(field, difficulty),
@@ -36,20 +37,20 @@ void LevelDestroyEnemies::start()
 {
 	AbstractLevel::start();
 	if (GameManager::exist())
+	{
 		GameManager::session()->field.appendDestroyHandler([this](const SpaceField::StatePtrType &value) {
-			if (value.expired())
-				return;
-			auto i = std::any_of(begin(), end(), [&value](const Entities::ValueType &ptr) {
-				return !ptr.expired() && ptr.lock() == value.lock();
-			});
-			if (i)
-			{
-				std::cout << "destroy\n";
-				m_need_to_destroy--;
-				updateDescription();
-			}
-
-		});
+		   if (value.expired())
+		   	return;
+		   auto i = std::any_of(begin(), end(), [&value](const Entities::ValueType &ptr) {
+			   return !ptr.expired() && ptr.lock() == value.lock();
+		   });
+		   if (i)
+		   {
+			   m_need_to_destroy--;
+			   updateDescription();
+		   }
+	   });
+	}
 }
 
 void LevelDestroyEnemies::decrease_remaining()
@@ -62,9 +63,13 @@ void LevelDestroyEnemies::decrease_remaining()
 	}
 }
 
-void LevelDestroyEnemies::onSummon()
+void LevelDestroyEnemies::onSummon(const SpaceField::StatePtrType &ptr)
 {
-	decrease_remaining();
+	auto state = dynamic_state_ptr_cast<AbstractEnemyShip>(ptr);
+	if (!state.expired())
+	{
+		decrease_remaining();
+	}
 }
 
 bool LevelDestroyEnemies::summonCondition() const
