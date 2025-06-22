@@ -54,7 +54,7 @@ void Hittable::setInvincible(bool invincible)
 	m_invincible = invincible;
 }
 
-bool Hittable::getInvincible() const
+bool Hittable::isInvincible() const
 {
 	return m_invincible;
 }

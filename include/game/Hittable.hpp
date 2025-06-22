@@ -36,7 +36,7 @@ public:
 	float getHealth() const;
 	bool isDead() const;
 	void setInvincible(bool invincible);
-	bool getInvincible() const;
+	bool isInvincible() const;
 
 protected:
 	virtual void onHit();
