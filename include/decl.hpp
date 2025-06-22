@@ -138,9 +138,27 @@ class PolygonCollider;
 class EllipseCollider;
 class AbstractShip;
 class SpaceField;
+class SpaceFieldObject;
+class SpaceItem;
 class DamageDealer;
 class Hittable;
-
 class AbstractAction;
 
 class ShootAction;
+
+
+template<class T>
+concept SpaceFieldObjectConcept = std::is_base_of_v<SpaceFieldObject, T>;
+template<class T, class... Args>
+concept ShipConcept = std::is_base_of_v<AbstractShip, T> && SpaceFieldObjectConcept<T> && !std::is_abstract_v<T>
+					  && requires(Args const &...args) { T(args...); };
+template<class T>
+concept BulletConcept = std::is_base_of_v<AbstractBullet, T> && SpaceFieldObjectConcept<T> && !std::is_abstract_v<T>;
+template<class T>
+concept AsteroidConcept
+	= std::is_base_of_v<AbstractAsteroid, T> && SpaceFieldObjectConcept<T> && !std::is_abstract_v<T>;
+
+template<class T>
+concept SpaceItemConcept = std::is_base_of_v<SpaceItem, T>;
+template<class W>
+concept WeaponConcept = std::is_base_of_v<AbstractWeapon, W> && std::is_final_v<W> && SpaceItemConcept<W>;
