@@ -20,7 +20,6 @@ public:
 
 	void afterHeaderShow() override;
 	void start() override;
-	void update() override;
 	std::unique_ptr<AbstractLevelFactory> next() const override;
 	size_t factoryId() const override;
 	void onSummon() override;
@@ -30,7 +29,6 @@ public:
 	 * @return 
 	 */
 	PoolEntities::ConstIterator nextSummon() const override;
-	std::string getHeader() const override;
 };
 
 struct Level1Factory : BasicLevelFactory<Level1Factory, Level1>

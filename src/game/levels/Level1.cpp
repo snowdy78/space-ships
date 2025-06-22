@@ -8,6 +8,7 @@
 #include "game/levels/Level2.hpp"
 #include "game/ships/EnemyShip.hpp"
 
+
 Level1::Level1(SpaceField &field)
 	: LevelDestroyEnemies(field, Difficulty::Star1, *props::enemy_count)
 {
@@ -34,7 +35,7 @@ Level1::Level1(SpaceField &field)
 
 void Level1::afterHeaderShow()
 {
-	summon(std::min(remaining(), static_cast<size_t>(5)));
+	summon(std::min(getRemainingToSummon(), static_cast<size_t>(5)));
 	m_summon_clock.start();
 }
 
@@ -52,11 +53,6 @@ void Level1::start()
 				}
 			}
 		);
-}
-
-void Level1::update()
-{
-	LevelDestroyEnemies::update();
 }
 
 std::unique_ptr<AbstractLevelFactory> Level1::next() const
@@ -77,7 +73,8 @@ void Level1::onSummon()
 
 bool Level1::summonCondition() const
 {
-	return !nextLevelCondition() && everyTime(m_summon_clock, std::chrono::milliseconds(*props::summon_time));
+	return LevelDestroyEnemies::summonCondition()
+		   && everyTime(m_summon_clock, std::chrono::milliseconds(*props::summon_time));
 }
 
 AbstractLevel::PoolEntities::ConstIterator Level1::nextSummon() const
@@ -85,9 +82,4 @@ AbstractLevel::PoolEntities::ConstIterator Level1::nextSummon() const
 	if (rn::random::chance(*props::summon_chance))
 		return poolFind<SimpleAsteroid>();
 	return poolFind<EnemyShip>();
-}
-
-std::string Level1::getHeader() const
-{
-	return "Level ";
 }

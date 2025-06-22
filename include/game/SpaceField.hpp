@@ -45,6 +45,8 @@ public:
 	using CallbackType		  = std::function<void(SpaceFieldObject *)>;
 	using ItemIterator		  = ItemContainerType::iterator;
 	using ItemConstIterator = ItemContainerType::const_iterator;
+	using HandlerFunctionType = std::function<void(const StatePtrType &)>;
+	using DestroyHandlerContainer = std::vector<SmartPtrType<HandlerFunctionType>>;
 	SpaceField(const Camera2d *camera = nullptr);
 	SpaceField(const SpaceField &field) = delete;
 	~SpaceField() override				= default;
@@ -79,7 +81,8 @@ public:
 	template<AsteroidConcept AsteroidT>
 	StatePtr<AbstractAsteroid> summonAsteroid(const InitializerFunc<AsteroidT> & = [](AsteroidT &) {}) noexcept;
 	StatePtrType push_back(SpaceFieldObject *raw_object);
-	void destroy(const SpaceFieldObject *object);
+	StatePtr<HandlerFunctionType> appendDestroyHandler(HandlerFunctionType &&handler);
+	void removeDestroyHandler(const StatePtr<HandlerFunctionType> &handler_ptr);
 	virtual void onObjectSummon(const StatePtrType &state_ptr) const;
 	virtual void onObjectDestroy(const StatePtrType &state_ptr) const;
 	template<class T>
@@ -97,6 +100,7 @@ private:
 	const Camera2d *m_camera{ nullptr };
 	ObjectContainerType m_objects{};
 	ItemContainerType m_items;
+	DestroyHandlerContainer m_destroy_handlers;
 };
 
 template<SpaceItemConcept T, class... Args>

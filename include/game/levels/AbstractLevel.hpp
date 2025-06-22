@@ -168,8 +168,9 @@ public:
 	Entities::Iterator begin();
 	Entities::ConstIterator end() const;
 	Entities::Iterator end();
-	bool isDescriptionShown() const;
-
+	bool isHeaderShown() const;
+	void updateDescription();
+	void showDescription();
 	/**
 	 * @brief calls once after description show
 	 */
@@ -209,6 +210,7 @@ private:
 	const float m_difficulty_factor = 1.f;
 	const float m_difficulty		= m_difficulty_factor * static_cast<float>(m_difficulty_type);
 	size_t m_pack_size				= 1;
+	std::unique_ptr<sf::Text> m_description;
 	std::unique_ptr<Header> m_header;
 	/**
 	 * @brief field reference

@@ -19,13 +19,14 @@ void AbstractLevel::StarsSprite::setSize(int size)
 	setTextureRect(
 		{
 			{ 0, 0 },
-			rn::Vec2i(star_texture->getSize().x*static_cast<int>(m_difficulty), star_texture->getSize().y)
-	   }
+			rn::Vec2i(star_texture->getSize().x * static_cast<int>(m_difficulty), star_texture->getSize().y)
+	 }
 	);
 }
 
 AbstractLevel::AbstractLevel(SpaceField &field, const Difficulty &difficulty)
 	: m_difficulty_type(difficulty),
+	m_description(nullptr),
 	  m_header(nullptr),
 	  m_field(field)
 {
@@ -120,14 +121,52 @@ AbstractLevel::Entities::Iterator AbstractLevel::end()
 	return m_entities.end();
 }
 
-bool AbstractLevel::isDescriptionShown() const
+bool AbstractLevel::isHeaderShown() const
 {
 	return !m_header;
 }
 
+void AbstractLevel::updateDescription()
+{
+	if (m_description)
+	{
+		m_description->setString(getDescription());
+		if (GameManager::exist())
+		{
+			constexpr float indent_right = 5;
+			constexpr float indent_top	 = 5;
+			auto rect					 = GameManager::session()->camera.getViewRect();
+			auto bounds					 = m_description->getGlobalBounds();
+			m_description->setPosition(rect.width - bounds.width - indent_right, bounds.height + indent_top);
+#ifdef SPACE_SHIP_DEBUG
+			std::cout << "description shown\n";
+#endif
+		}
+	}
+}
+
+void AbstractLevel::showDescription()
+{
+	rn::Vec2u res = rn::VideoSettings::getResolution();
+	m_description.reset(new sf::Text(getDescription(), *Font::Default, res.y / 33u));
+	if (GameManager::exist())
+	{
+		constexpr float indent_right = 5;
+		constexpr float indent_top	 = 5;
+		auto rect					 = GameManager::session()->camera.getViewRect();
+		auto bounds					 = m_description->getGlobalBounds();
+		m_description->setPosition(
+			rect.width - bounds.width - indent_right, bounds.height + indent_top
+		);
+#ifdef SPACE_SHIP_DEBUG
+		std::cout << "description shown\n";
+#endif
+	}
+}
+
 void AbstractLevel::showHeader()
 {
-	if (isDescriptionShown())
+	if (isHeaderShown())
 	{
 		m_header.reset(new Header(m_difficulty_type));
 		m_header->setString(getHeader());
@@ -152,6 +191,7 @@ void AbstractLevel::update()
 		if (m_header->shown())
 		{
 			afterHeaderShow();
+			showDescription();
 			m_header = nullptr;
 		}
 		else
@@ -184,8 +224,10 @@ void AbstractLevel::clear()
 
 void AbstractLevel::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-	if (!isDescriptionShown())
+	if (!isHeaderShown())
 		target.draw(*m_header, states);
+	if (m_description)
+		target.draw(*m_description, states);
 }
 
 AbstractLevel::PoolEntities::ObjectPtr AbstractLevel::PoolEntities::create(const ConstIterator iterator) const

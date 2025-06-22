@@ -3,8 +3,9 @@
 #include "game/actions/SummonItemAction.hpp"
 #include "game/asteroids/SimpleAsteroid.hpp"
 #include "game/guns/LaserRifle.hpp"
-#include "game/guns/Pistol.hpp"
 #include "game/ships/EnemyShip.hpp"
+#include "game/asteroids/SmallAsteroid.hpp"
+
 
 Level2::Level2(SpaceField &field)
 	: LevelDestroyEnemies(field, Difficulty::Star2, *props::enemy_count)
@@ -33,10 +34,11 @@ Level2::Level2(SpaceField &field)
 void Level2::start()
 {
 	LevelDestroyEnemies::start();
+	setSummonPackSize(*props::summon_count);
 	if (GameManager::exist())
 	{
 		GameManager::session()->action_manager.emplaceToTop<SummonItemAction<SpaceItem>>(
-			Pistol::identifier, [](SpaceItem &item) {
+			LaserRifle::identifier, [](SpaceItem &item) {
 				if (!GameManager::exist())
 					return;
 				auto &camera = GameManager::session()->camera;
@@ -49,13 +51,12 @@ void Level2::start()
 void Level2::afterHeaderShow()
 {
 	LevelDestroyEnemies::afterHeaderShow();
-	setSummonPackSize(*props::summon_count);
-	summon(std::min(remaining(), static_cast<size_t>(*props::summon_count)));
+	summon(std::min(getRemainingToSummon(), static_cast<size_t>(*props::summon_count)));
 }
 
 bool Level2::summonCondition() const
 {
-	return std::all_of(begin(), end(), [](const Entities::ValueType &value) {
+	return LevelDestroyEnemies::summonCondition() && std::all_of(begin(), end(), [](const Entities::ValueType &value) {
 		return value.expired();
 	});
 }

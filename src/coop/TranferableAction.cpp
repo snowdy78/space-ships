@@ -1,7 +1,7 @@
 #include "coop/TransferableAction.hpp"
 #include "game/GameObject.hpp"
 
-TransferableActionProps::TransferableActionProps(OptionalObjectPtr author, OptionalObjectPtr contributor, JsonType props)
+TransferableActionProps::TransferableActionProps(AuthorType author, ContributorType contributor, JsonType props)
 	: author(std::move(author)),
 	  contributor(std::move(contributor)),
 	  props(std::move(props))
@@ -26,12 +26,12 @@ TransferableAction::TransferableAction(const TransferableActionProps &props)
 	
 }
 
-TransferableAction::OptionalObjectPtr TransferableAction::getAuthor() const
+TransferableActionProps::AuthorType TransferableAction::getAuthor() const
 {
 	return m_author_ptr;
 }
 
-TransferableAction::OptionalObjectPtr TransferableAction::getContributor() const
+TransferableActionProps::ContributorType TransferableAction::getContributor() const
 {
 	return m_contributor_ptr;
 }

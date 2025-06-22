@@ -158,6 +158,7 @@ GameSession::GameSessionSpaceField::GameSessionSpaceField(GameSession *session, 
 
 void GameSession::GameSessionSpaceField::onObjectSummon(const StatePtrType &state_ptr) const
 {
+	SpaceField::onObjectSummon(state_ptr);
 	if (!m_session || state_ptr.expired())
 		return;
 	auto state	  = state_ptr.lock();
@@ -169,6 +170,7 @@ void GameSession::GameSessionSpaceField::onObjectSummon(const StatePtrType &stat
 
 void GameSession::GameSessionSpaceField::onObjectDestroy(const StatePtrType &state_ptr) const
 {
+	SpaceField::onObjectDestroy(state_ptr);
 	if (!m_session || !m_session->m_level)
 		return;
 	auto &level	   = m_session->m_level;

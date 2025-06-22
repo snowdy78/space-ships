@@ -8,22 +8,27 @@ class TransferableActionProps
 {
 public:
 	template<class T>
-	using SmartPtr	 = std::weak_ptr<T>;
+	using SmartPtr = std::weak_ptr<T>;
 	template<class T>
 	using Optional = std::optional<T>;
 	template<class T>
-	using OptionalPtr = Optional<SmartPtr<T>>;
-	using ObjectPtr	 = SmartPtr<GameObject>;
+	using OptionalPtr		= Optional<SmartPtr<T>>;
+	using ObjectPtr			= SmartPtr<GameObject>;
 	using OptionalObjectPtr = Optional<ObjectPtr>;
-	using OptionalId = Optional<size_t>;
-	using JsonType	 = rn::Json;
-	OptionalObjectPtr author;
-	OptionalObjectPtr contributor;
+	using AuthorType		= OptionalObjectPtr;
+	using ContributorType	= OptionalObjectPtr;
+	using OptionalId		= Optional<size_t>;
+	using JsonType			= rn::Json;
+	AuthorType author;
+	ContributorType contributor;
 	JsonType props;
-	TransferableActionProps(OptionalObjectPtr author = std::nullopt, OptionalObjectPtr contributor = std::nullopt, JsonType props = {});
+
+	TransferableActionProps(
+		AuthorType author = std::nullopt, ContributorType contributor = std::nullopt, JsonType props = {}
+	);
 	/**
 	 * return true if author has value and author not expired
-	 * @return 
+	 * @return
 	 */
 	bool authorExist() const;
 	/**
@@ -45,14 +50,14 @@ protected:
 
 public:
 	template<class T>
-	using SmartPtr	 = std::weak_ptr<T>;
+	using SmartPtr = std::weak_ptr<T>;
 	template<class T>
 	using Optional = std::optional<T>;
 	template<class T>
-	using OptionalPtr = Optional<SmartPtr<T>>;
-	using ObjectPtr	 = SmartPtr<GameObject>;
+	using OptionalPtr		= Optional<SmartPtr<T>>;
+	using ObjectPtr			= SmartPtr<GameObject>;
 	using OptionalObjectPtr = Optional<ObjectPtr>;
-	using OptionalId = Optional<size_t>;
+	using OptionalId		= Optional<size_t>;
 	TransferableAction(const TransferableActionProps &props = {});
 	OptionalObjectPtr getAuthor() const;
 	OptionalObjectPtr getContributor() const;
@@ -74,6 +79,7 @@ struct TransferActionBase : TransferableAction
 	rn::Json toJson() const override;
 	TransferJson requestData() const override;
 	AbstractAction *copy() const override;
+	size_t static_id() const override;
 
 private:
 	using TransferableAction::identify;
@@ -82,6 +88,7 @@ private:
 class TransferableActionFabric
 {
 	TransferableActionFabric() = default;
+
 public:
 	using create_action_func = std::function<std::unique_ptr<TransferableAction>(const TransferableActionProps &)>;
 
@@ -92,9 +99,10 @@ public:
 	size_t push();
 	void erase(size_t id);
 	void clear();
+
 private:
 	std::unordered_map<size_t, create_action_func> transfer_actions{};
-	size_t id_encounter		   = 0;
+	size_t id_encounter = 0;
 };
 
 template<class T>
@@ -158,4 +166,10 @@ template<class T>
 AbstractAction *TransferActionBase<T>::copy() const
 {
 	return new T({ getAuthor(), getContributor(), toJson() });
+}
+
+template<class T>
+size_t TransferActionBase<T>::static_id() const
+{
+	return identifier;
 }

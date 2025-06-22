@@ -12,8 +12,19 @@ void ActionManager::realizeActions()
 		m_start_loop = true;
 		for (auto iaction = m_actions.begin(); iaction != m_actions.end(); iaction = m_actions.erase(iaction))
 		{
-			if ((*iaction)->playable())
-				(*iaction)->play();
+			auto &action = **iaction;
+			if (action.playable())
+			{
+				action.play();
+				for (auto ihandler = m_handlers.begin(); ihandler != m_handlers.end(); ++ihandler)
+				{
+					if (ihandler->expired())
+						ihandler = m_handlers.erase(ihandler);
+					auto &handler = *ihandler->lock();
+					if (handler.getActionId() == action.static_id())
+						handler();
+				}
+			}
 #ifdef SPACE_SHIP_DEBUG
 			else
 				std::cerr << "skipping... ('" << (*iaction)->getName() << "' not played)\n";
@@ -43,7 +54,6 @@ void ActionManager::transferAction(AbstractAction *action) const
 		}
 	}
 }
-
 void ActionManager::addToTop(std::unique_ptr<AbstractAction> &&action)
 {
 	transferAction(action.get());
@@ -52,7 +62,7 @@ void ActionManager::addToTop(std::unique_ptr<AbstractAction> &&action)
 
 void ActionManager::receiveToTop(std::unique_ptr<TransferableAction> &&action)
 {
-	std::unique_ptr<AbstractAction> a{std::move(action)};
+	std::unique_ptr<AbstractAction> a{ std::move(action) };
 	appendInto(std::move(a));
 }
 
@@ -66,6 +76,10 @@ bool ActionManager::isTransfering() const
 	return m_transfering && m_transfering->swiched_on();
 }
 
+void ActionManager::hook(const std::weak_ptr<ActionHandler> &handler)
+{
+	m_handlers.push_back(handler);
+}
 void ActionManager::clear()
 {
 	m_actions.clear();

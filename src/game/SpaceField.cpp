@@ -111,24 +111,36 @@ SpaceField::StatePtrType SpaceField::push_back(SpaceFieldObject *raw_object)
 		throw std::runtime_error("Error: Cannot summon null on field");
 	return casted_push<SpaceFieldObject>(raw_object);
 }
-void SpaceField::destroy(const SpaceFieldObject *object)
+
+SpaceField::StatePtr<SpaceField::HandlerFunctionType> SpaceField::appendDestroyHandler(
+	HandlerFunctionType &&handler)
 {
-	auto it = std::ranges::find_if(m_objects, [object](const StateType &value) {
-		return object == value.get();
+	m_destroy_handlers.emplace_back(new HandlerFunctionType(std::move(handler)));
+	return m_destroy_handlers.back();
+}
+
+void SpaceField::removeDestroyHandler(const StatePtr<HandlerFunctionType> &handler_ptr)
+{
+	if (handler_ptr.expired())
+		return;
+	auto it = std::ranges::find_if(m_destroy_handlers, [&handler_ptr](const DestroyHandlerContainer::value_type &value) {
+		return handler_ptr.lock() == value;
 	});
-	if (it != end())
-	{
-		it->get()->need_destroy = true;
-		onObjectDestroy(*it);
-	}
+	if (it != m_destroy_handlers.end())
+		m_destroy_handlers.erase(it);
 }
 
 void SpaceField::onObjectSummon(const StatePtrType &state_ptr) const
 {
+
 }
 
 void SpaceField::onObjectDestroy(const StatePtrType &state_ptr) const
 {
+	for (auto &handler : m_destroy_handlers)
+	{
+		(*handler)(state_ptr);
+	}
 }
 
 void SpaceField::draw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -141,7 +153,12 @@ void SpaceField::draw(sf::RenderTarget &target, sf::RenderStates states) const
 
 void SpaceField::clearGarbage()
 {
-	std::erase_if(m_objects, [](const ValueType &value) {
-		return value->need_destroy;
+	std::erase_if(m_objects, [this](const ValueType &value) {
+		if (value->need_destroy)
+		{
+			onObjectDestroy(value);
+			return true;
+		}
+		return false;
 	});
 }

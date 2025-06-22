@@ -44,7 +44,7 @@ public:
 		GameSessionSpaceField(GameSession *session, const Camera2d *camera = nullptr);
 		void onObjectSummon(const StatePtrType &state_ptr) const override;
 		void onObjectDestroy(const StatePtrType &state_ptr) const override;
-
+		 
 	private:
 		GameSession *m_session;
 	} field;
