@@ -48,6 +48,7 @@ using PlayerControls = ControlsScheme<
 
 class PlayerShip final : public AbstractShip, public ConvertedTransfer<PlayerShip, ConnectedPlayerShip>
 {
+	using time_digit_type = std::chrono::milliseconds;
 	inline static loading<sf::Texture> texture = TextureLoader::instance().addToUpload("img/ship.png").get();
 	inline static loading<AnimatedSprite> dodge_animation = AnimationLoader::instance().addToUpload("img/animation/dodge-roll/.png").get();
 	struct props
@@ -56,12 +57,16 @@ class PlayerShip final : public AbstractShip, public ConvertedTransfer<PlayerShi
 		G_CONFIG_PROP_DEFINE(self_config, shift_acceleration);
 		G_CONFIG_PROP_DEFINE(self_config, dodge_roll_time);
 		G_CONFIG_PROP_DEFINE(self_config, dodge_roll_velocity);
+		G_CONFIG_PROP_DEFINE(self_config, hit_rollback_time);
+		constexpr static time_digit_type flicker_period{100};
 	};
 	static const PlayerControls basic_controls;
 	AnimatedSprite dodge_roll_anim{ *dodge_animation };
 	bool is_moving	  = false;
 	bool is_dodging = false;
 	float dodge_speed = *props::dodge_roll_velocity;
+	time_digit_type hit_rollback_time{*props::hit_rollback_time};
+	rn::Stopwatch hit_rollback;
 
 public:
 	/**
@@ -82,5 +87,7 @@ public:
 	void summonCopy(SpaceField &field) const override;
 	void dodge();
 	bool isDodging() const;
+	void onHit() override;
+	void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 	rn::Vec2f countMove() const override;
 };

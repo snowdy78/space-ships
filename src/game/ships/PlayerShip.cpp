@@ -82,6 +82,12 @@ void PlayerShip::update()
 			is_dodging = false;
 		}
 	}
+	if (!hit_rollback.is_stopped() && everyTime(hit_rollback, hit_rollback_time))
+	{
+		setInvincible(false);
+		hit_rollback.stop();
+		hit_rollback.reset();
+	}
 }
 
 void PlayerShip::movement()
@@ -164,7 +170,7 @@ void PlayerShip::onRotation()
 }
 bool PlayerShip::resolve(const Collidable *obstacle) const
 {
-	return AbstractShip::resolve(obstacle) && !isDodging();
+	return AbstractShip::resolve(obstacle) && !isDodging() && !isInvincible();
 }
 
 void PlayerShip::summonCopy(SpaceField &field) const
@@ -182,4 +188,17 @@ void PlayerShip::dodge()
 bool PlayerShip::isDodging() const
 {
 	return is_dodging;
+}
+
+void PlayerShip::onHit()
+{
+	AbstractShip::onHit();
+	setInvincible(true);
+	hit_rollback.start();
+}
+
+void PlayerShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
+{
+	if (hit_rollback.is_stopped() || timeStep(hit_rollback, props::flicker_period))
+		AbstractShip::draw(target, states);
 }

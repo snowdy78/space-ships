@@ -68,7 +68,8 @@
   "PlayerShip": {
     "shift_acceleration": 1.5,
     "dodge_roll_velocity": 10.0,
-    "dodge_roll_time": 300
+    "dodge_roll_time": 300,
+    "hit_rollback_time": 1000
   },
   "EnemyShip": {
     "velocity": 2.5,
