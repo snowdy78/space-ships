@@ -2,7 +2,6 @@
 
 #include "decl.hpp"
 #include "game/GameManager.hpp"
-#include "game/AbstractAsteroid.hpp"
 #include <thread>
 #include <list>
 #include "game/actions/AbstractSummonAction.hpp"

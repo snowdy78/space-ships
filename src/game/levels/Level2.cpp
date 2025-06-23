@@ -10,7 +10,7 @@
 Level2::Level2(SpaceField &field)
 	: LevelDestroyEnemies(field, Difficulty::Star2, *props::enemy_count)
 {
-	pool<EnemyShip, SimpleAsteroid>(
+	pool<EnemyShip>(
 		[](EnemyShip &enemy) {
 			if (GameManager::exist())
 			{
@@ -19,13 +19,6 @@ Level2::Level2(SpaceField &field)
 				enemy.setPosition(
 					randomPointOutsideArea(camera.getViewRect(), std::max(enemy.getSize().x, enemy.getSize().y))
 				);
-			}
-		},
-		[](SimpleAsteroid &asteroid) {
-			if (GameManager::exist())
-			{
-				auto &camera = GameManager::session()->camera;
-				randomBodyDirectionalOnAreaOutsideArea(camera.getViewRect(), asteroid, asteroid.getSize());
 			}
 		}
 	);
@@ -48,15 +41,27 @@ void Level2::start()
 	}
 }
 
+void Level2::update()
+{
+	LevelDestroyEnemies::update();
+	if (GameManager::exist() && everyTime(m_clock, m_asteroid_summon_time))
+	{
+		m_clock.reset();
+		randomlySummonAsteroidOutsideArea<SimpleAsteroid>(GameManager::session()->camera.getViewRect());
+	}
+}
+
 void Level2::afterHeaderShow()
 {
 	LevelDestroyEnemies::afterHeaderShow();
 	summon(std::min(getRemainingToSummon(), static_cast<size_t>(*props::summon_count)));
+	m_clock.start();
 }
 
 bool Level2::summonCondition() const
 {
-	return LevelDestroyEnemies::summonCondition() && std::all_of(begin(), end(), [](const Entities::ValueType &value) {
+	return LevelDestroyEnemies::summonCondition() && !m_clock.is_stopped()
+		   && std::all_of(begin(), end(), [](const Entities::ValueType &value) {
 		return value.expired();
 	});
 }

@@ -2,6 +2,7 @@
 
 #include "Helpers.hpp"
 #include "game/GameManager.hpp"
+#include "game/actions/AbstractSummonAction.hpp"
 #include "game/actions/SummonItemAction.hpp"
 #include "game/asteroids/SimpleAsteroid.hpp"
 #include "game/guns/Pistol.hpp"
@@ -12,7 +13,7 @@
 Level1::Level1(SpaceField &field)
 	: LevelDestroyEnemies(field, Difficulty::Star1, *props::enemy_count)
 {
-	pool<EnemyShip, SimpleAsteroid>(
+	pool<EnemyShip>(
 		[](EnemyShip &enemy) {
 			if (GameManager::exist())
 			{
@@ -22,13 +23,6 @@ Level1::Level1(SpaceField &field)
 					randomPointOutsideArea(camera.getViewRect(), std::max(enemy.getSize().x, enemy.getSize().y))
 				);
 			}
-		},
-		[](SimpleAsteroid &asteroid) {
-			if (GameManager::exist())
-			{
-				auto &camera = GameManager::session()->camera;
-				randomBodyDirectionalOnAreaOutsideArea(camera.getViewRect(), asteroid, asteroid.getSize());
-			}
 		}
 	);
 }
@@ -36,12 +30,13 @@ Level1::Level1(SpaceField &field)
 void Level1::afterHeaderShow()
 {
 	summon(std::min(getRemainingToSummon(), static_cast<size_t>(5)));
-	m_summon_clock.start();
+	m_clock.start();
 }
 
 void Level1::start()
 {
 	LevelDestroyEnemies::start();
+	setSummonPackSize(*props::summon_count);
 	if (GameManager::exist())
 		GameManager::session()->action_manager.emplaceToTop<SummonItemAction<SpaceItem>>(
 			Pistol::identifier, [](SpaceItem &item) {
@@ -55,6 +50,16 @@ void Level1::start()
 		);
 }
 
+void Level1::update()
+{
+	LevelDestroyEnemies::update();
+	if (GameManager::exist() && everyTime(m_clock, m_asteroid_summon_time))
+	{
+		m_clock.reset();
+		randomlySummonAsteroidOutsideArea<SimpleAsteroid>(GameManager::session()->camera.getViewRect());
+	}
+}
+
 std::unique_ptr<AbstractLevelFactory> Level1::next() const
 {
 	return std::make_unique<Level2Factory>();
@@ -65,21 +70,16 @@ size_t Level1::factoryId() const
 	return Level1Factory::identifier;
 }
 
-void Level1::onSummon()
-{
-	LevelDestroyEnemies::onSummon();
-	m_summon_clock.reset();
-}
 
 bool Level1::summonCondition() const
 {
-	return LevelDestroyEnemies::summonCondition()
-		   && everyTime(m_summon_clock, std::chrono::milliseconds(*props::summon_time));
+	return LevelDestroyEnemies::summonCondition() && !m_clock.is_stopped()
+		   && std::all_of(begin(), end(), [](const Entities::ValueType &value) {
+			   return value.expired();
+		   });
 }
 
 AbstractLevel::PoolEntities::ConstIterator Level1::nextSummon() const
 {
-	if (rn::random::chance(*props::summon_chance))
-		return poolFind<SimpleAsteroid>();
-	return poolFind<EnemyShip>();
+	return rn::random::item(poolBegin(), poolEnd());
 }

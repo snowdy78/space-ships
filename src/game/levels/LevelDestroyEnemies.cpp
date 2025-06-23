@@ -12,11 +12,7 @@ LevelDestroyEnemies::LevelDestroyEnemies(SpaceField &field, const Difficulty &di
 }
 
 
-LevelDestroyEnemies::~LevelDestroyEnemies()
-{
-	if (GameManager::exist())
-		GameManager::session()->field.removeDestroyHandler(m_destroy_enemy_handler);
-}
+LevelDestroyEnemies::~LevelDestroyEnemies() = default;
 
 size_t LevelDestroyEnemies::getDestroyEnemyCount() const
 {
@@ -36,20 +32,29 @@ size_t LevelDestroyEnemies::getRemainingToSummon() const
 void LevelDestroyEnemies::start()
 {
 	AbstractLevel::start();
+	m_clock.start();
 	if (GameManager::exist())
 	{
-		GameManager::session()->field.appendDestroyHandler([this](const SpaceField::StatePtrType &value) {
-		   if (value.expired())
-		   	return;
-		   auto i = std::any_of(begin(), end(), [&value](const Entities::ValueType &ptr) {
-			   return !ptr.expired() && ptr.lock() == value.lock();
-		   });
-		   if (i)
-		   {
-			   m_need_to_destroy--;
-			   updateDescription();
-		   }
-	   });
+		m_destroy_enemy_handler.reset(new ActionHandler(DestroySpaceFieldObjectAction::identifier, [this]() {
+			m_need_to_destroy = std::count_if(begin(), end(), [](const Entities::ValueType &value) {
+				return !(value.expired() || value.lock()->willBeDestroyed());
+			});
+			updateDescription();
+		}));
+		GameManager::session()->action_manager.hook(m_destroy_enemy_handler);
+	}
+}
+
+void LevelDestroyEnemies::update()
+{
+	AbstractLevel::update();
+	if (everyTime(m_clock, time_check_dead_objects))
+	{
+		m_clock.reset();
+		m_need_to_destroy = std::count_if(begin(), end(), [](const Entities::ValueType &value) {
+			return !(value.expired() || value.lock()->willBeDestroyed());
+		});
+		updateDescription();
 	}
 }
 
@@ -67,9 +72,7 @@ void LevelDestroyEnemies::onSummon(const SpaceField::StatePtrType &ptr)
 {
 	auto state = dynamic_state_ptr_cast<AbstractEnemyShip>(ptr);
 	if (!state.expired())
-	{
 		decrease_remaining();
-	}
 }
 
 bool LevelDestroyEnemies::summonCondition() const

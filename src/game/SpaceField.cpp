@@ -137,6 +137,8 @@ void SpaceField::onObjectSummon(const StatePtrType &state_ptr) const
 
 void SpaceField::onObjectDestroy(const StatePtrType &state_ptr) const
 {
+	if (state_ptr.expired())
+		return;
 	for (auto &handler : m_destroy_handlers)
 	{
 		(*handler)(state_ptr);
@@ -154,7 +156,7 @@ void SpaceField::draw(sf::RenderTarget &target, sf::RenderStates states) const
 void SpaceField::clearGarbage()
 {
 	std::erase_if(m_objects, [this](const ValueType &value) {
-		if (value->need_destroy)
+		if (value && value->need_destroy)
 		{
 			onObjectDestroy(value);
 			return true;
