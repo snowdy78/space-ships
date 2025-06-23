@@ -1,8 +1,9 @@
 #include "MainMenu.hpp"
 #include "Gameplay.hpp"
+#ifdef SPACE_SHIP_DEBUG
 #include "ConnectToGameBranch.hpp"
 #include "HostGameBranch.hpp"
-
+#endif
 MainMenu::~MainMenu()
 {
 	sound_track.stop();
@@ -18,6 +19,20 @@ void MainMenu::start()
 		button->setPosition(button_table.getCellGlobalPos(1, (3 + i++) % 10));
 	logo_sprite.setPosition(button_table.getCellGlobalPos(2, 1));
 	background.start();
+	play_button.onclick = [this]() {
+		next_branch<Gameplay>(window);
+	};
+#ifdef SPACE_SHIP_DEBUG
+	host_button.onclick = [this]() {
+		next_branch<HostGameBranch>(window);
+	};
+	connect_button.onclick = [this]() {
+		next_branch<ConnectToGameBranch>(window);
+	};
+#endif
+	exit_button.onclick = [this]() {
+		window.close();
+	};
 	for (auto &button: Button::getButtons())
 		button->start();
 }
@@ -41,13 +56,5 @@ void MainMenu::onEvent(sf::Event &event)
 		button->onEvent(event);
 	background.onEvent(event);
 	if (event.type == sf::Event::Closed)
-		window.close();
-	if (play_button.isClicked(sf::Mouse::Left))
-		next_branch<Gameplay>(window);
-	else if (host_button.isClicked(sf::Mouse::Left))
-		next_branch<HostGameBranch>(window);
-	else if (connect_button.isClicked(sf::Mouse::Left))
-		next_branch<ConnectToGameBranch>(window);
-	else if (exit_button.isClicked(sf::Mouse::Left))
 		window.close();
 }

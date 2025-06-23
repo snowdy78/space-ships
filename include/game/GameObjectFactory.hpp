@@ -71,6 +71,8 @@ size_t GameObjectFactory::push() noexcept
 	m_factory.emplace(++unique_object_counter, []() -> GameObject * {
 		return new T;
 	});
+#ifdef SPACE_SHIP_DEBUG
 	std::cout << "object registered [" << typeid(T).name() << "] with identifier: " << unique_object_counter << "\n";
+#endif
 	return unique_object_counter;
 }

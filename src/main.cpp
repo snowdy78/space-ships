@@ -25,6 +25,7 @@ int main()
 	loadGame(window);
 
 	// TODO: ServerTestBranch is temporary
+#ifdef SPACE_SHIP_DEBUG
 	try
 	{
 		rn::MenuBranch::start_branch<MainMenu>(window);
@@ -35,6 +36,9 @@ int main()
 		std::cout << err.what() << "\n";
 		std::cin.get();
 	}
+#else
+	rn::MenuBranch::start_branch<MainMenu>(window);
+#endif
 	return 0;
 }
 void loadGame(sf::RenderWindow &window)

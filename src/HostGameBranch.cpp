@@ -32,8 +32,11 @@ void HostGameBranch::start()
 	GameManager::session()->action_manager.setTransfering(TransferType::Tcp);
 	online	= GameManager::instance().online.get();
 	auto ls = online->tcp->host();
+
+#ifdef SPACE_SHIP_DEBUG
 	if (ls == sf::Socket::Done)
 		std::cout << "listening\n";
+#endif
 	online->tcp->setBlocking(false);
 	if (session)
 	{
@@ -49,7 +52,10 @@ void HostGameBranch::update()
 	auto connection_status = online->tcp->findConnection();
 	if (connection_status == sf::Socket::Disconnected)
 	{
+
+#ifdef SPACE_SHIP_DEBUG
 		std::cout << "disconnection\n";
+#endif
 		next_branch<MainMenu>(window);
 		return;
 	}
@@ -88,19 +94,28 @@ void HostGameBranch::receivePackets() const
 			if (auto request_ptr = dynamic_cast<Request *>(object.get()))
 			{
 				auto &request = *request_ptr;
+
+#ifdef SPACE_SHIP_DEBUG
 				std::cout << "player connected!\n";
+#endif
 				if (request.contains("type") && request["type"] == "connect")
 				{
+
+#ifdef SPACE_SHIP_DEBUG
 					std::cout << "sending game data...\n";
+#endif
 					GameObjectTranslator translator;
 					translator.assignUpdateData(
 						GameObjectFactory::instance().begin(), GameObjectFactory::instance().end()
 					);
 					auto status = online->tcp->send(&translator);
+
+#ifdef SPACE_SHIP_DEBUG
 					if (status != sf::Socket::Done)
 						std::cerr << "Failed to send with code: " << status << "\n";
 					else
 						std::cout << "Successfully sent data: " << translator.requestData().dump(2, ' ', '\n') << "\n";
+#endif
 				}
 			}
 			if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))

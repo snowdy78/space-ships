@@ -42,7 +42,9 @@ sf::Socket::Status TcpRouter::sendJson(const rn::Json &send_data)
 	sf::Packet packet;
 	packet.append(json_string.c_str(), (json_string.size() + 1) * sizeof(char));
 	Status status = sf::TcpSocket::send(packet);
+#ifdef SPACE_SHIP_DEBUG
 	std::cout << "sent packet: " << json_string << "\n";
+#endif
 	return status;
 }
 
@@ -54,6 +56,8 @@ Router::StatusOrJson TcpRouter::receiveJson()
 		return receive_status;
 	std::string str{ static_cast<const char *>(packet.getData()) };
 	rn::Json json = rn::Json::parse(decrypt(str));
+#ifdef SPACE_SHIP_DEBUG
 	std::cout << "received packet: " << str << "\n"; 
+#endif
 	return json;
 }

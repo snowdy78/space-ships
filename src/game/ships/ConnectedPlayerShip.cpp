@@ -19,7 +19,9 @@ void ConnectedPlayerShip::rotation()
 void ConnectedPlayerShip::receiveJson(const rn::Json &json)
 {
 	TransferObjectBase::receiveJson(json);
+#ifdef SPACE_SHIP_DEBUG
 	std::cout << "conversion is success!\n";
+#endif
 }
 void ConnectedPlayerShip::onEvent(sf::Event &event)
 {

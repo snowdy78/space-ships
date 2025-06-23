@@ -116,7 +116,9 @@ void PlayerShip::onMove()
 {
 	if (getPosition().x != getPosition().x || getPosition().y != getPosition().y)
 	{
+#ifdef SPACE_SHIP_DEBUG
 		std::cout << "position is nan '" << to_json(getPosition()).dump() << "'\n";
+#endif
 		return;
 	}
 	if (GameManager::exist())

@@ -34,7 +34,9 @@ GameSession *GameManager::session()
 {
 	if (exist())
 		return &instance().m_session;
+#ifdef SPACE_SHIP_DEBUG
 	std::cout << "session does not exist.\n";
+#endif
 	return nullptr;
 }
 

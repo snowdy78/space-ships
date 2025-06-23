@@ -15,7 +15,9 @@ void GameObjectTranslator::receiveJson(const rn::Json &json)
 		TransferJson transfer_json{ data.at("id"), data.at("data") };
 
 		data_to_update.emplace(obj_id, transfer_json);
+#ifdef SPACE_SHIP_DEBUG
 		std::cout << "data_to_update[\"" << obj_id << "\"] = " << data.dump() << "\n";
+#endif
 	}
 }
 

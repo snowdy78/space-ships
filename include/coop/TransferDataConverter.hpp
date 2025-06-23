@@ -74,8 +74,10 @@ public:
 				value_type{ ToType::identifier, conversion }
 		   }
 		);
+#ifdef SPACE_SHIP_DEBUG
 		std::cout << "created conversion from " << typeid(FromType).name() << " to " << typeid(ToType).name()
 				  << " (id: from " << FromType::identifier << " to " << ToType::identifier << ")\n";
+#endif
 		return m_conversions.at(key_type(FromType::identifier));
 	}
 	template<CanBeConvertedConcept FromType>

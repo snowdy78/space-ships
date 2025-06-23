@@ -55,7 +55,11 @@ private:
 	friend struct GameSessionSpaceField;
 
 	GameInfo m_gameinfo;
+#ifdef SPACE_SHIP_DEBUG
 	Mode m_mode = Mode::Developer;
+#else
+	Mode m_mode = Mode::User;
+#endif
 	Background m_background;
 	std::unique_ptr<AbstractLevel> m_level;
 	rn::Json m_game_objects = rn::Json::array();

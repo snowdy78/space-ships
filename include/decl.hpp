@@ -10,7 +10,7 @@
 #include "components/soft_parameter.hpp"
 
 #ifndef SPACE_SHIP_DEBUG
-	#define SPACE_SHIP_DEBUG
+	//#define SPACE_SHIP_DEBUG
 #endif
 
 inline static sf::Color default_collider_color{ 0, 210, 160, 64 };

@@ -71,6 +71,7 @@ void GameSession::onEvent(sf::Event &event)
 	if (m_level)
 		m_level->onEvent(event);
 	
+#ifdef SPACE_SHIP_DEBUG
 	if (rn::isKeydown(sf::Keyboard::F3))
 	{
 		m_mode = m_mode == Mode::Developer ? Mode::User : Mode::Developer;
@@ -83,10 +84,8 @@ void GameSession::onEvent(sf::Event &event)
 			action_manager.emplaceToTop<SummonShipAction>(EnemyShip::identifier, [this](AbstractShip &ship) {
 				if (auto enemy = dynamic_cast<EnemyShip *>(&ship))
 				{
-#ifdef SPACE_SHIP_DEBUG
 					if (player.expired())
 						std::cerr << "cannot set nullptr as ship target\n";
-#endif
 					else
 						enemy->setTarget(player);
 					rn::Vec2f randomPosition{ rn::random::real(0.f, 1.f) * camera.getViewSize().x,
@@ -107,14 +106,13 @@ void GameSession::onEvent(sf::Event &event)
 			{
 				player.lock()->setInvincible(true);
 			}
-#ifdef SPACE_SHIP_DEBUG
 			else
 			{
 				std::cerr << "unable to do player invincible\n";
 			}
-#endif
 		}
 	}
+#endif
 }
 
 void GameSession::createPlayer()

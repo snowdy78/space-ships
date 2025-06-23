@@ -31,14 +31,18 @@ void ConnectToGameBranch::start()
 	auto cs = online->tcp->connect(host_ip, host_port);
 	if (cs == sf::Socket::Done)
 	{
+#ifdef SPACE_SHIP_DEBUG
 		std::cout << "connected\n";
+#endif
 		Request request;
 		request["type"] = "connect";
 		auto status		= online->tcp->send(&request);
+#ifdef SPACE_SHIP_DEBUG
 		if (status != sf::Socket::Done)
 			std::cerr << "Failed to send with code: " << status << "\n";
 		else
 			std::cout << "Successfully sent data: " << request.requestData().dump(2, ' ', '\n') << "\n";
+#endif
 	}
 	GameManager::session()->action_manager.setTransfering(TransferType::Tcp);
 	send_status.setPosition(table.getCellGlobalPos(1, 2));
@@ -95,12 +99,18 @@ void ConnectToGameBranch::receivePackets() const
 				if (translator->getTranslateType() == GameObjectTranslator::TranslateType::Append)
 				{
 					GameObjectFactory::instance().update(*translator, [this](const std::unique_ptr<GameObject> &object) {
+#ifdef SPACE_SHIP_DEBUG
 						std::cout << "appending a new object on space field...\n";
+#endif
 						if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))
 						{
+#ifdef SPACE_SHIP_DEBUG
 							std::cout << "summoning...\n";
+#endif
 							space_object->summonCopy(session->field);
+#ifdef SPACE_SHIP_DEBUG
 							std::cout << "summoned!\n";
+#endif
 						}
 					});
 				}
@@ -114,9 +124,13 @@ void ConnectToGameBranch::receivePackets() const
 			}
 			if (auto space_object = dynamic_cast<SpaceFieldObject *>(object.get()))
 			{
+#ifdef SPACE_SHIP_DEBUG
 				std::cout << "received space field object\n";
+#endif
 				space_object->summonCopy(session->field);
+#ifdef SPACE_SHIP_DEBUG
 				std::cout << "summoned object\n";
+#endif
 			}
 		}
 		if (response.is_action())
