@@ -15,10 +15,24 @@
 
 class AbstractEnemyShip : public AbstractShip
 {
+protected:
+	SpaceField::StatePtr<AbstractShip> m_target;
+
 public:
 	using AbstractShip::AbstractShip;
-};
 
+	void setTarget(const SpaceField::StatePtr<AbstractShip> &target);
+	SpaceField::StatePtr<AbstractShip> getTarget() const;
+};
+inline void AbstractEnemyShip::setTarget(const SpaceField::StatePtr<AbstractShip> &target)
+{
+	m_target = target;
+}
+
+inline SpaceField::StatePtr<AbstractShip> AbstractEnemyShip::getTarget() const
+{
+	return m_target;
+}
 template<class Derived, class Weapon, char const *ClassName, char const *PathSprite>
 class EnemyShipBase : public AbstractEnemyShip, public GameObjectBase<Derived>
 {
@@ -37,7 +51,6 @@ class EnemyShipBase : public AbstractEnemyShip, public GameObjectBase<Derived>
 		time_horizontal_movement{ *props::time_horizontal_movement }, shoot_time{ *props::shoot_time };
 	rn::Stopwatch movement_clock;
 	rn::Stopwatch shoot_clock{ time_digit_type{ 200 } + time_digit_type{ rn::random::integer(0, 400) } };
-	SpaceField::StatePtr<AbstractShip> m_target;
 	class random_move
 	{
 	public:
@@ -69,8 +82,6 @@ public:
 	using destroy_target_callback_type = std::function<void()>;
 	EnemyShipBase();
 	~EnemyShipBase() override = default;
-	void setTarget(const SpaceField::StatePtr<AbstractShip> &target);
-	SpaceField::StatePtr<AbstractShip> getTarget() const;
 	void start() override;
 	void update() override;
 	void movement() override;
@@ -110,17 +121,7 @@ EnemyShipBase<Derived, Weapon, ClassName, PathSprite>::EnemyShipBase()
 	: AbstractEnemyShip(*texture)
 {
 }
-template<class Derived, class Weapon, char const *ClassName, char const *PathSprite>
-void EnemyShipBase<Derived, Weapon, ClassName, PathSprite>::setTarget(const SpaceField::StatePtr<AbstractShip> &target)
-{
-	m_target = target;
-}
 
-template<class Derived, class Weapon, char const *ClassName, char const *PathSprite>
-SpaceField::StatePtr<AbstractShip> EnemyShipBase<Derived, Weapon, ClassName, PathSprite>::getTarget() const
-{
-	return m_target;
-}
 
 template<class Derived, class Weapon, char const *ClassName, char const *PathSprite>
 void EnemyShipBase<Derived, Weapon, ClassName, PathSprite>::start()

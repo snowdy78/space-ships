@@ -2,7 +2,7 @@
 
 #include "game/actions/SummonItemAction.hpp"
 #include "game/guns/Pistol.hpp"
-#include "game/levels/Level1.hpp"
+#include "game/levels/DestroyEnemiesLevels.hpp"
 
 EmptyLevel::EmptyLevel(SpaceField &field)
 	: AbstractLevel(field, Difficulty::Star5)

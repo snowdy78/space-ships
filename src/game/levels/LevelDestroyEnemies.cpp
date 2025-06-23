@@ -14,6 +14,11 @@ LevelDestroyEnemies::LevelDestroyEnemies(SpaceField &field, const Difficulty &di
 
 LevelDestroyEnemies::~LevelDestroyEnemies() = default;
 
+void LevelDestroyEnemies::setAsteroidSummonTime(const TimeDigitType &time)
+{
+	m_asteroid_summon_time = time;
+}
+
 size_t LevelDestroyEnemies::getDestroyEnemyCount() const
 {
 	return m_need_to_destroy;
@@ -29,10 +34,17 @@ size_t LevelDestroyEnemies::getRemainingToSummon() const
 	return m_enemy_remaining_to_summon;
 }
 
+void LevelDestroyEnemies::afterHeaderShow()
+{
+	AbstractLevel::afterHeaderShow();
+	summon(std::min(getRemainingToSummon(), getSummonPackSize()));
+	m_asteroid_summon_clock.start();
+	m_clock.start();
+}
+
 void LevelDestroyEnemies::start()
 {
 	AbstractLevel::start();
-	m_clock.start();
 	if (GameManager::exist())
 	{
 		m_destroy_enemy_handler.reset(new ActionHandler(DestroySpaceFieldObjectAction::identifier, [this]() {
@@ -56,6 +68,11 @@ void LevelDestroyEnemies::update()
 		});
 		updateDescription();
 	}
+	if (GameManager::exist() && everyTime(m_asteroid_summon_clock, m_asteroid_summon_time))
+	{
+		m_asteroid_summon_clock.reset();
+		onAsteroidSummonTiming();
+	}
 }
 
 void LevelDestroyEnemies::decrease_remaining()
@@ -77,15 +94,14 @@ void LevelDestroyEnemies::onSummon(const SpaceField::StatePtrType &ptr)
 
 bool LevelDestroyEnemies::summonCondition() const
 {
-	return m_enemy_remaining_to_summon != 0;
+	return m_enemy_remaining_to_summon != 0 && !m_clock.is_stopped() && !std::any_of(begin(), end(), [](const Entities::ValueType &value) {
+			   return !value.expired();
+		   });
 }
 
 bool LevelDestroyEnemies::nextLevelCondition() const
 {
-	return getDestroyEnemyCount() == 0 && getRemainingToSummon() == 0
-		   && std::all_of(begin(), end(), [](const Entities::ValueType &value) {
-				  return value.expired();
-			  });
+	return getDestroyEnemyCount() == 0 && getRemainingToSummon() == 0;
 }
 
 std::string LevelDestroyEnemies::getHeader() const
@@ -97,4 +113,9 @@ std::string LevelDestroyEnemies::getDescription() const
 {
 	return std::string("Destroy ") + std::to_string(getDestroyEnemyCount()) + "/"
 		   + std::to_string(getInitialEnemyCount()) + " enemies.";
+}
+
+AbstractLevel::PoolEntities::ConstIterator LevelDestroyEnemies::nextSummon() const
+{
+	return rn::random::item(poolBegin(), poolEnd());
 }

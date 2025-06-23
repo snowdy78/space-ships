@@ -5,7 +5,7 @@
 #include "game/ships/PlayerShip.hpp"
 #include "game/asteroids/SimpleAsteroid.hpp"
 #include "game/actions/AbstractSummonAction.hpp"
-#include "game/levels/Level1.hpp"
+#include "game/levels/DestroyEnemiesLevels.hpp"
 #include "game/levels/EmptyLevel.hpp"
 #ifndef REMOVE_TESTING_SESSION
 	#define REMOVE_TESTING_SESSION

@@ -78,6 +78,13 @@
     "time_horizontal_movement": 1600,
     "shoot_time": 2000
   },
+  "RedEnemyShip": {
+    "velocity": 2.5,
+    "min_target_distance": 100,
+    "time_vertical_movement": 660,
+    "time_horizontal_movement": 1600,
+    "shoot_time": 2000
+  },
   "DemonicEnemyShip": {
     "velocity": 2.5,
     "min_target_distance": 100,
@@ -120,6 +127,21 @@
   "Level2": {
     "enemy_count": 10,
     "summon_count": 5,
+    "asteroid_summon_time": 1000
+  },
+  "Level3": {
+    "enemy_count": 20,
+    "summon_count": 5,
+    "asteroid_summon_time": 1000
+  },
+  "Level4": {
+    "enemy_count": 10,
+    "summon_count": 5,
+    "asteroid_summon_time": 1000
+  },
+  "Level5": {
+    "enemy_count": 10,
+    "summon_count": 7,
     "asteroid_summon_time": 1000
   }
 }
