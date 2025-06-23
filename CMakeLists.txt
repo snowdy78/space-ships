@@ -34,7 +34,7 @@ file(GLOB_RECURSE
     PROJECT_INCLUDE_FILES
     ${MY_PROJECT_SOURCE_DIR}/include/*.hpp
 )
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES} ${PROJECT_INCLUDE_FILES})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES} ${PROJECT_INCLUDE_FILES} ${PROJECT_SOURCE_DIR}/bin/icon.o)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC RuneEngine)
 target_link_sfml(${PROJECT_NAME})

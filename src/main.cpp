@@ -7,7 +7,6 @@
 #include "decl.hpp"
 #include "components/GameConfiguration.hpp"
 
-
 void loadGame(sf::RenderWindow &window);
 
 int main()
@@ -23,7 +22,6 @@ int main()
 	window.setKeyRepeatEnabled(false);
 
 	loadGame(window);
-
 	// TODO: ServerTestBranch is temporary
 #ifdef SPACE_SHIP_DEBUG
 	try
